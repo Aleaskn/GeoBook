@@ -1,0 +1,31 @@
+{
+  "name": "geobook",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev --workspace frontend",
+    "dev:backend": "npm run dev --workspace backend",
+    "build": "npm run build --workspace frontend",
+    "lint": "npm run lint --workspaces",
+    "test": "npm run test --workspaces",
+    "format:check": "prettier . --check"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "eslint": "^9.9.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-jsx-a11y": "^6.9.0",
+    "eslint-plugin-react": "^7.35.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "prettier": "^3.3.3",
+    "vitest": "^3.2.6"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
