@@ -1,0 +1,13 @@
+{
+  "name": "@geobook/backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node src/workspace-ready.js",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
