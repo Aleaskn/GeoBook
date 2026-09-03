@@ -11,14 +11,15 @@
 - Completata in anticipo il 2 settembre 2026 la milestone prevista per il 3 settembre: workspace npm, lockfile, tooling, README iniziale, app React minima e smoke test.
 - Verificati con successo lint, test, build frontend, formattazione e audit delle dipendenze.
 - Verificato PostgreSQL 15.19 in esecuzione su `localhost:5432`; creati ruolo e database locali `geobook`, attivata PostGIS 3.3 e verificata la connessione applicativa.
+- Completata in anticipo il 3 settembre 2026 la milestone prevista per il 4 settembre: schema PostGIS, seed dimostrativo e script riproducibili di reset e verifica.
 
 ### Attivita in corso
 
-- Nessuna. I prerequisiti della milestone database sono disponibili; schema e seed non sono ancora stati implementati.
+- Nessuna. La milestone database e completa e verificata; il backend base resta pianificato per il 5 settembre.
 
 ### Attivita pianificate
 
-- Implementazione incrementale dell'MVP dal 4 al 16 settembre 2026.
+- Implementazione incrementale dell'MVP dal 5 al 16 settembre 2026.
 - Stabilizzazione senza nuove funzionalita dal 17 al 20 settembre 2026, salvo requisiti indispensabili mancanti.
 
 ## Piano Giornaliero
@@ -57,6 +58,11 @@
 6. **Test da eseguire:** reset locale, applicazione schema/seed, query di controllo su vincoli e conteggi.
 7. **Messaggi di commit suggeriti:** `feat(database): add PostGIS schema and demo seed`.
 8. **Rischi o decisioni ancora aperte:** definire fixture geografiche semplici e verificabili.
+
+**Esito anticipato del 3 settembre 2026:** creati schema, seed, reset e verifica SQL. Il database
+contiene 6 utenti fittizi con password bcrypt, 8 categorie, 18 libri, 5 richieste che coprono
+tutti gli stati e 36 visualizzazioni. Sono stati verificati PostGIS, indici, vincoli principali,
+fixture geografiche e due ricostruzioni complete consecutive del database locale.
 
 ### 5 settembre 2026 - Backend base
 

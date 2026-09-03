@@ -4,13 +4,19 @@ GeoBook è un prototipo web per la condivisione geolocalizzata di biblioteche pr
 
 ## Stato del progetto
 
-E' stata prevista una milestone giornaliera per organizzare il lavoro in maniera più efficiente e ordinata basandomi sulla progettazione fatta nell'ultimo mese a partire dal 27 luglio.
+È stata prevista una milestone giornaliera per organizzare il lavoro in maniera più efficiente
+e ordinata, basandomi sulla progettazione fatta nell'ultimo mese a partire dal 27 luglio.
 
 - 2 settembre 2026: repository inizializzato e piano salvato in `docs/IMPLEMENTATION_PLAN.md`.
-                    Completata in anticipo la milestone prevista per il 3 settembre: bootstrap, tooling, struttura iniziale, smoke test React e verifica dei prerequisiti.
-                    Avviato e verificato PostgreSQL locale; creati ruolo e database di sviluppo `geobook` e attivata l'estensione PostGIS.
+- 2 settembre 2026: completata in anticipo la milestone prevista per il 3 settembre: bootstrap
+  dei workspace, tooling, struttura iniziale, smoke test React e verifica dei prerequisiti.
+- 2 settembre 2026: avviato e verificato PostgreSQL locale; creati ruolo e database di sviluppo
+  `geobook` e attivata l'estensione PostGIS.
+- 3 settembre 2026: completata in anticipo la milestone prevista per il 4 settembre: schema
+  PostGIS riproducibile, dati demo e script di reset e verifica.
 
-Non ancora implementati schema dati, seed, API Express, autenticazione, ricerca, mappa o dashboard.
+Non sono ancora implementati API Express, autenticazione, ricerca, mappa o dashboard: queste
+funzionalità sono pianificate nelle milestone successive.
 
 ## Stack previsto
 
@@ -68,8 +74,37 @@ psql postgresql://geobook:geobook@localhost:5432/geobook \
   -c "SELECT current_user, current_database(), PostGIS_Version();"
 ```
 
-Questi comandi preparano soltanto l'ambiente locale. Tabelle e dati demo saranno creati dagli
-script previsti per la parte del database.
+Questi comandi preparano soltanto l'ambiente locale.
+
+### Creazione dello schema e dei dati demo
+
+Dalla radice del repository, con PostgreSQL attivo, applicare gli script nell'ordine seguente:
+
+```bash
+psql postgresql://geobook:geobook@localhost:5432/geobook -f database/schema.sql
+psql postgresql://geobook:geobook@localhost:5432/geobook -f database/seed.sql
+psql postgresql://geobook:geobook@localhost:5432/geobook -f database/verify.sql
+```
+
+Il seed contiene dati dichiaratamente fittizi: 6 utenti, 8 categorie, 18 libri, 5 richieste
+che coprono tutti gli stati e 36 visualizzazioni. Sono disponibili questi profili demo:
+
+- utente: `user1@example.test`;
+- amministratore: `admin@example.test`;
+- password condivisa: `GeoBookDemo2026!`.
+
+Nel database è memorizzato soltanto l'hash bcrypt della password, con costo 12.
+
+Per ricreare completamente i dati applicativi locali, eseguire prima il reset e poi ripetere i
+tre comandi precedenti:
+
+```bash
+psql postgresql://geobook:geobook@localhost:5432/geobook -f database/reset.sql
+```
+
+`reset.sql` elimina tabelle e dati applicativi ed è quindi destinato esclusivamente allo
+sviluppo. Per sicurezza rifiuta di operare su database con nome diverso da `geobook`; mantiene
+l'estensione PostGIS installata.
 
 ## Installazione
 
