@@ -14,9 +14,12 @@ e ordinata, basandomi sulla progettazione fatta nell'ultimo mese a partire dal 2
   `geobook` e attivata l'estensione PostGIS.
 - 3 settembre 2026: completata in anticipo la milestone prevista per il 4 settembre: schema
   PostGIS riproducibile, dati demo e script di reset e verifica.
+- 3 settembre 2026: completata in anticipo la milestone prevista per il 5 settembre: API
+  Express di base, configurazione validata, connessione PostgreSQL, sicurezza HTTP e health
+  check.
 
-Non sono ancora implementati API Express, autenticazione, ricerca, mappa o dashboard: queste
-funzionalità sono pianificate nelle milestone successive.
+Non sono ancora implementati autenticazione, ricerca, mappa o dashboard: queste funzionalità
+sono pianificate nelle milestone successive.
 
 ## Stack previsto
 
@@ -112,6 +115,45 @@ l'estensione PostGIS installata.
 npm ci
 ```
 
+## Avvio del backend
+
+Creare la configurazione locale partendo dall'esempio versionato:
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+Prima dell'avvio, sostituire in `backend/.env` il valore dimostrativo di `JWT_SECRET` con una
+stringa locale lunga almeno 32 caratteri. Il file `.env` è ignorato da Git e non deve essere
+versionato.
+
+Con PostgreSQL attivo e il database preparato, avviare l'API:
+
+```bash
+npm run dev:backend
+```
+
+Il server valida tutte le variabili obbligatorie e verifica la connessione al database prima di
+mettersi in ascolto su `http://localhost:3000`. Se la configurazione o PostgreSQL non sono
+disponibili, l'avvio termina con un messaggio esplicito.
+
+Verifica del servizio:
+
+```bash
+curl http://localhost:3000/api/v1/health
+```
+
+Risposta attesa:
+
+```json
+{
+  "data": {
+    "status": "ok",
+    "database": "reachable"
+  }
+}
+```
+
 ## Script principali
 
 ```bash
@@ -123,7 +165,8 @@ npm run dev:frontend
 npm run dev:backend
 ```
 
-Il backend avrà un server Express; fino ad allora `npm run dev:backend` verifica solo il workspace backend iniziale.
+`npm run dev:backend` avvia Express in modalità watch. In alternativa, il comando
+`npm start --workspace backend` avvia il server senza watch.
 
 ## Struttura
 
@@ -141,4 +184,4 @@ geobook/
 
 ## Privacy
 
-Il progetto non deve versionare file `.env`, upload reali o dipendenze installate. Le coordinate esatte saranno gestite solo lato backend e mai restituite nei DTO pubblici quando la funzionalita geografica verra implementata.
+Il progetto non deve versionare file `.env`, upload reali o dipendenze installate. Le coordinate esatte saranno gestite solo lato backend e mai restituite nei DTO pubblici quando la funzionalità geografica verrà implementata.
