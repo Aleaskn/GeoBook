@@ -1,16 +1,16 @@
 # GeoBook
 
-GeoBook e un prototipo web per la condivisione geolocalizzata di biblioteche private. Il progetto segue la Traccia PW 14 del Tema 4 - Sharing technologies.
+GeoBook è un prototipo web per la condivisione geolocalizzata di biblioteche private. Il progetto segue la Traccia PW 14 del Tema 4 - Sharing technologies.
 
 ## Stato del progetto
 
-- 2 settembre 2026: repository inizializzato e piano salvato in `docs/IMPLEMENTATION_PLAN.md`.
-- 2 settembre 2026: completata in anticipo la milestone prevista per il 3 settembre: bootstrap
-  dei workspace, tooling, struttura iniziale, smoke test React e verifica dei prerequisiti.
-- 2 settembre 2026: avviato e verificato PostgreSQL locale; creati ruolo e database di sviluppo
-  `geobook` e attivata l'estensione PostGIS.
+E' stata prevista una milestone giornaliera per organizzare il lavoro in maniera più efficiente e ordinata basandomi sulla progettazione fatta nell'ultimo mese a partire dal 27 luglio.
 
-Non sono ancora implementati schema dati, seed, API Express, autenticazione, ricerca, mappa o dashboard: queste funzionalita sono pianificate nelle milestone successive.
+- 2 settembre 2026: repository inizializzato e piano salvato in `docs/IMPLEMENTATION_PLAN.md`.
+                    Completata in anticipo la milestone prevista per il 3 settembre: bootstrap, tooling, struttura iniziale, smoke test React e verifica dei prerequisiti.
+                    Avviato e verificato PostgreSQL locale; creati ruolo e database di sviluppo `geobook` e attivata l'estensione PostGIS.
+
+Non ancora implementati schema dati, seed, API Express, autenticazione, ricerca, mappa o dashboard.
 
 ## Stack previsto
 
@@ -18,7 +18,7 @@ Non sono ancora implementati schema dati, seed, API Express, autenticazione, ric
 - Backend: Node.js LTS, Express, JavaScript ES modules.
 - Database: PostgreSQL con PostGIS.
 - Test: Vitest, Supertest, React Testing Library.
-- Qualita: ESLint e Prettier.
+- Qualità codice: ESLint e Prettier.
 
 ## Prerequisiti
 
@@ -42,19 +42,18 @@ SELECT PostGIS_Version();
 
 ### Stato della verifica eseguita il 2 settembre 2026
 
-La milestone prevista per il 3 settembre e stata verificata in anticipo con Node.js 20.9.0,
-npm 10.1.0 e PostgreSQL 15.19 fornito da Postgres.app. Il server risponde su
-`localhost:5432`; il ruolo e il database locale `geobook` sono configurati e PostGIS 3.3 e
+La milestone prevista per il 3 settembre è stata verificata in anticipo. Il server risponde su
+`localhost:5432`; il ruolo e il database locale `geobook` sono configurati e PostGIS 3.3 è
 attivo nel database dedicato. La connessione con la `DATABASE_URL` di esempio e la query
 `SELECT PostGIS_Version();` sono state verificate con successo.
 
-L'installazione da lockfile e gli script di qualita sono stati eseguiti con successo. Al termine
-di `npm install`, `npm audit` non ha rilevato vulnerabilita note.
+L'installazione da lockfile e gli script di qualità sono stati eseguiti con successo. Al termine
+di `npm install`, `npm audit` non ha rilevato vulnerabilità note.
 
 ## Preparazione del database locale
 
 Con il server PostgreSQL attivo, eseguire una sola volta i comandi seguenti se il ruolo e il
-database non esistono ancora. La password e destinata esclusivamente allo sviluppo locale.
+database non esistono ancora. La password è destinata solamente allo sviluppo locale.
 
 ```bash
 psql -d postgres -c "CREATE ROLE geobook WITH LOGIN PASSWORD 'geobook';"
@@ -70,7 +69,7 @@ psql postgresql://geobook:geobook@localhost:5432/geobook \
 ```
 
 Questi comandi preparano soltanto l'ambiente locale. Tabelle e dati demo saranno creati dagli
-script versionati della milestone database.
+script previsti per la parte del database.
 
 ## Installazione
 
@@ -89,7 +88,7 @@ npm run dev:frontend
 npm run dev:backend
 ```
 
-Il backend avra un server Express dalla milestone del 5 settembre 2026; fino ad allora `npm run dev:backend` verifica solo il workspace backend iniziale.
+Il backend avrà un server Express; fino ad allora `npm run dev:backend` verifica solo il workspace backend iniziale.
 
 ## Struttura
 
@@ -100,7 +99,6 @@ geobook/
 |-- database/
 |-- docs/
 |-- prog/
-|-- AGENTS.md
 |-- README.md
 |-- package.json
 `-- .gitignore
@@ -108,4 +106,4 @@ geobook/
 
 ## Privacy
 
-Il progetto non deve versionare segreti, file `.env`, upload reali o dipendenze installate. Le coordinate esatte saranno gestite solo lato backend e mai restituite nei DTO pubblici quando la funzionalita geografica verra implementata.
+Il progetto non deve versionare file `.env`, upload reali o dipendenze installate. Le coordinate esatte saranno gestite solo lato backend e mai restituite nei DTO pubblici quando la funzionalita geografica verra implementata.
