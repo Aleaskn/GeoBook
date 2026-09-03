@@ -12,14 +12,15 @@
 - Verificati con successo lint, test, build frontend, formattazione e audit delle dipendenze.
 - Verificato PostgreSQL 15.19 in esecuzione su `localhost:5432`; creati ruolo e database locali `geobook`, attivata PostGIS 3.3 e verificata la connessione applicativa.
 - Completata in anticipo il 3 settembre 2026 la milestone prevista per il 4 settembre: schema PostGIS, seed dimostrativo e script riproducibili di reset e verifica.
+- Completata in anticipo il 3 settembre 2026 la milestone prevista per il 5 settembre: fondazione Express, configurazione validata, pool PostgreSQL, middleware di sicurezza e health check.
 
 ### Attivita in corso
 
-- Nessuna. La milestone database e completa e verificata; il backend base resta pianificato per il 5 settembre.
+- Nessuna. Il backend base e completo e verificato; autenticazione e profilo restano pianificati per il 6 settembre.
 
 ### Attivita pianificate
 
-- Implementazione incrementale dell'MVP dal 5 al 16 settembre 2026.
+- Implementazione incrementale dell'MVP dal 6 al 16 settembre 2026.
 - Stabilizzazione senza nuove funzionalita dal 17 al 20 settembre 2026, salvo requisiti indispensabili mancanti.
 
 ## Piano Giornaliero
@@ -74,6 +75,12 @@ fixture geografiche e due ricostruzioni complete consecutive del database locale
 6. **Test da eseguire:** Vitest/Supertest su health, env validation, formato errori.
 7. **Messaggi di commit suggeriti:** `feat(backend): add Express API foundation`.
 8. **Rischi o decisioni ancora aperte:** configurare test DB senza introdurre tooling fuori stack.
+
+**Esito anticipato del 3 settembre 2026:** implementati configurazione ambiente Zod, pool `pg`,
+avvio e arresto del server, request ID, Helmet, CORS esplicito, rate limit, parsing JSON, 404 ed
+error handler uniforme. `GET /api/v1/health` verifica realmente PostgreSQL attraverso i livelli
+route, controller, service e repository. Supertest copre health, sicurezza, CORS, errori e rate
+limit; l'avvio reale e il fallimento su configurazione mancante sono stati verificati.
 
 ### 6 settembre 2026 - Autenticazione e profilo API
 
@@ -236,8 +243,6 @@ fixture geografiche e due ricostruzioni complete consecutive del database locale
 
 ## Assunzioni e Default
 
-- `AGENTS.md` e fonte di verita e deve stare nella radice del repository.
-- Lo stato di avanzamento sara tracciato tramite `docs/IMPLEMENTATION_PLAN.md`, cronologia Git e riepiloghi di milestone; non verra creato `docs/PROGRESS.md`.
+- Lo stato di avanzamento sara tracciato tramite `docs/IMPLEMENTATION_PLAN.md`, cronologia Git e riepiloghi di milestone;
 - Ogni workspace deve avere test reali coerenti con cio che esiste in quella milestone; niente test segnaposto.
-- Non si pianificano nuove funzionalita dal 17 al 20 settembre, salvo requisiti MVP indispensabili mancanti.
-- Nessun commit viene creato senza autorizzazione esplicita.
+- Non si pianificano nuove funzionalità dal 17 al 20 settembre, salvo requisiti MVP indispensabili mancanti.
