@@ -20,9 +20,11 @@ e ordinata, basandomi sulla progettazione fatta nell'ultimo mese a partire dal 2
 - 4 settembre 2026: completata in anticipo la milestone prevista per il 6 settembre:
   autenticazione con cookie HttpOnly e API protette per profilo, consenso e revoca della
   posizione.
+- 4 settembre 2026: completata in anticipo la milestone prevista per il 7 settembre: frontend
+  React con layout accessibile, autenticazione via cookie, rotte protette e gestione del profilo.
 
-Non sono ancora implementati frontend di autenticazione, ricerca, mappa o dashboard: queste
-funzionalità sono pianificate nelle milestone successive.
+Non sono ancora implementati catalogo, ricerca, mappa o dashboard: queste funzionalità sono
+pianificate nelle milestone successive.
 
 ## Stack previsto
 
@@ -156,6 +158,24 @@ Risposta attesa:
   }
 }
 ```
+
+## Avvio del frontend
+
+Con il backend attivo, creare la configurazione locale del frontend e avviare Vite:
+
+```bash
+cp frontend/.env.example frontend/.env
+npm run dev:frontend
+```
+
+Aprire `http://localhost:5173`. Sono disponibili la homepage e le pagine `/register`, `/login`
+e `/profile`; quest'ultima richiede una sessione valida. Tutte le chiamate usano il client API
+centralizzato con credenziali abilitate, perciò il cookie HttpOnly viene gestito dal browser e
+non deve essere copiato nel codice o salvato in `localStorage`.
+
+Per una prova rapida è possibile accedere dal browser con uno dei profili demo indicati nella
+sezione database, modificare nome, città, zona pubblica e raggio di condivisione, quindi usare
+il comando **Esci** nella navigazione.
 
 ## API di autenticazione e profilo
 

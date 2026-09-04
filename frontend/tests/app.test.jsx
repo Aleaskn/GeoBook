@@ -1,17 +1,37 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../src/App.jsx';
+import { apiResponse } from './test-utils.js';
 
 describe('App', () => {
-  it('renders the initial accessible GeoBook page', () => {
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        apiResponse(401, {
+          error: { code: 'AUTHENTICATION_REQUIRED', message: 'Autenticazione richiesta.' },
+        }),
+      ),
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('renders the initial accessible GeoBook page', async () => {
     render(<App />);
 
-    expect(screen.getByRole('heading', { level: 1, name: 'GeoBook' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Condividi storie con la tua comunità' }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Navigazione principale' })).toBeInTheDocument();
-    expect(screen.getByText(/privacy e accessibilità/i)).toBeInTheDocument();
+    expect(screen.getByText(/rispetto della tua privacy/i)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Salta al contenuto principale' })).toHaveAttribute(
       'href',
       '#main-content',
     );
+    expect(await screen.findByRole('link', { name: 'Accedi' })).toBeInTheDocument();
   });
 });
