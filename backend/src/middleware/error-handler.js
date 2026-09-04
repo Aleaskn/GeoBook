@@ -9,7 +9,7 @@ function normalizeError(error) {
     return new AppError({
       statusCode: 400,
       code: 'INVALID_JSON',
-      message: 'Il corpo JSON non e valido.',
+      message: 'Il corpo JSON non è valido.',
     });
   }
 
@@ -17,14 +17,14 @@ function normalizeError(error) {
     return new AppError({
       statusCode: 413,
       code: 'PAYLOAD_TOO_LARGE',
-      message: 'Il corpo della richiesta e troppo grande.',
+      message: 'Il corpo della richiesta è troppo grande.',
     });
   }
 
   return new AppError({
     statusCode: 500,
     code: 'INTERNAL_ERROR',
-    message: 'Si e verificato un errore inatteso.',
+    message: 'Si è verificato un errore inatteso.',
     cause: error,
   });
 }

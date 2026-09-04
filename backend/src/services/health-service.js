@@ -10,7 +10,7 @@ export function createHealthService(healthRepository) {
         throw new AppError({
           statusCode: 500,
           code: 'DATABASE_UNAVAILABLE',
-          message: 'Il servizio non e temporaneamente disponibile.',
+          message: 'Il servizio non è temporaneamente disponibile.',
           cause: error,
         });
       }

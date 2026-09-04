@@ -5,7 +5,7 @@
 DO $$
 BEGIN
   IF CURRENT_DATABASE() <> 'geobook' THEN
-    RAISE EXCEPTION 'Reset rifiutato: il database corrente e %, non geobook.', CURRENT_DATABASE();
+    RAISE EXCEPTION 'Reset rifiutato: il database corrente è %, non geobook.', CURRENT_DATABASE();
   END IF;
 END;
 $$;
@@ -27,4 +27,4 @@ DROP TYPE IF EXISTS user_role;
 
 COMMIT;
 
-\echo 'Reset completato. L estensione PostGIS e stata mantenuta.'
+\echo "Reset completato. L'estensione PostGIS è stata mantenuta."

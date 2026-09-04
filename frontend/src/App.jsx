@@ -17,7 +17,7 @@ export default function App() {
           <h1 id="home-title">GeoBook</h1>
           <p>
             Pubblica, cerca e richiedi libri disponibili nella tua area con attenzione a privacy e
-            accessibilita.
+            accessibilità.
           </p>
         </section>
       </main>

@@ -12,8 +12,8 @@ TRUNCATE TABLE
   users
 RESTART IDENTITY;
 
--- Tutte le identita, le aree e le coordinate seguenti sono dati dimostrativi fittizi.
--- La password condivisa dai profili demo e GeoBookDemo2026!; nel database e presente solo
+-- Tutte le identità, le aree e le coordinate seguenti sono dati dimostrativi fittizi.
+-- La password condivisa dai profili demo è GeoBookDemo2026!; nel database è presente solo
 -- il relativo hash bcrypt con costo 12.
 INSERT INTO users (
   name,
@@ -143,8 +143,8 @@ VALUES
   (4, 'Viaggio lungo la costa', 'Autrice Demo I', 2015, 'Taccuino di viaggio fittizio lungo il mare Adriatico.', '9780000000010', TRUE, '2026-08-25 16:00:00+02', '2026-08-30 18:00:00+02'),
   (4, 'Colori mediterranei', 'Autore Demo L', 2013, 'Saggio illustrato fittizio sui linguaggi del colore.', '9780000000011', TRUE, '2026-08-26 16:30:00+02', '2026-08-26 16:30:00+02'),
   (4, 'Racconti piccoli per grandi idee', 'Autrice Demo M', 2024, 'Storie brevi fittizie dedicate alle nuove generazioni.', '9780000000012', TRUE, '2026-08-27 17:00:00+02', '2026-08-27 17:00:00+02'),
-  (5, 'Archivi di comunit�', 'Autore Demo N', 2012, 'Riflessione fittizia sulla memoria condivisa.', '9780000000013', TRUE, '2026-08-27 09:00:00+02', '2026-08-27 09:00:00+02'),
-  (5, 'La citt� che legge', 'Autrice Demo O', 2025, 'Romanzo fittizio sulla nascita di una biblioteca diffusa.', '9780000000014', TRUE, '2026-08-28 09:30:00+02', '2026-08-28 09:30:00+02'),
+  (5, 'Archivi di comunità', 'Autore Demo N', 2012, 'Riflessione fittizia sulla memoria condivisa.', '9780000000013', TRUE, '2026-08-27 09:00:00+02', '2026-08-27 09:00:00+02'),
+  (5, 'La città che legge', 'Autrice Demo O', 2025, 'Romanzo fittizio sulla nascita di una biblioteca diffusa.', '9780000000014', TRUE, '2026-08-28 09:30:00+02', '2026-08-28 09:30:00+02'),
   (5, 'Introduzione alle reti locali', 'Autore Demo P', 2020, 'Manuale dimostrativo sui fondamenti delle reti.', '9780000000015', TRUE, '2026-08-29 10:00:00+02', '2026-08-29 10:00:00+02'),
   (6, 'Amministrare una biblioteca diffusa', 'Autrice Demo Q', 2022, 'Guida fittizia alla gestione di un catalogo condiviso.', '9780000000016', TRUE, '2026-08-29 11:00:00+02', '2026-08-29 11:00:00+02'),
   (6, 'Atlante delle piazze immaginarie', 'Autore Demo R', 2018, 'Raccolta illustrata di luoghi interamente inventati.', '9780000000017', TRUE, '2026-08-30 11:30:00+02', '2026-08-30 11:30:00+02'),

@@ -4,7 +4,7 @@ import { createApp } from './app.js';
 import { createDatabasePool } from './config/database.js';
 import { ConfigurationError, loadConfig } from './config/env.js';
 
-// Il percorso è relativo al modulo, quindi non cambia avviando npm dalla radice o dal backend.
+// Il percorso Ã¨ relativo al modulo, quindi non cambia avviando npm dalla radice o dal backend.
 const envPath = fileURLToPath(new URL('../.env', import.meta.url));
 
 dotenv.config({ path: envPath, quiet: true });

@@ -3,7 +3,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/app.js';
 
 const baseConfig = {
+  nodeEnv: 'test',
   frontendOrigin: 'http://localhost:5173',
+  jwtSecret: 'test-secret-with-at-least-32-characters',
+  jwtExpiresIn: '2h',
+  bcryptRounds: 10,
   rateLimitWindowMs: 60_000,
   rateLimitMax: 100,
 };
@@ -62,7 +66,7 @@ describe('GeoBook API foundation', () => {
     expect(response.body).toEqual({
       error: {
         code: 'DATABASE_UNAVAILABLE',
-        message: 'Il servizio non e temporaneamente disponibile.',
+        message: 'Il servizio non è temporaneamente disponibile.',
         details: [],
         requestId: response.headers['x-request-id'],
       },
@@ -95,7 +99,7 @@ describe('GeoBook API foundation', () => {
 
     expect(response.body.error).toMatchObject({
       code: 'INVALID_JSON',
-      message: 'Il corpo JSON non e valido.',
+      message: 'Il corpo JSON non è valido.',
       requestId: response.headers['x-request-id'],
     });
   });

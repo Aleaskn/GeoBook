@@ -46,6 +46,8 @@ describe('environment configuration', () => {
     ['PORT', '70000'],
     ['DATABASE_URL', 'https://example.test/database'],
     ['FRONTEND_ORIGIN', 'ftp://localhost'],
+    ['JWT_EXPIRES_IN', '0h'],
+    ['BCRYPT_ROUNDS', '9'],
   ])('rejects an invalid %s value', (field, value) => {
     expect(() => loadConfig({ ...validEnvironment, [field]: value })).toThrow(ConfigurationError);
   });
