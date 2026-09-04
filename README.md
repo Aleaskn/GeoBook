@@ -11,15 +11,18 @@ e ordinata, basandomi sulla progettazione fatta nell'ultimo mese a partire dal 2
 - 2 settembre 2026: completata in anticipo la milestone prevista per il 3 settembre: bootstrap
   dei workspace, tooling, struttura iniziale, smoke test React e verifica dei prerequisiti.
 - 2 settembre 2026: avviato e verificato PostgreSQL locale; creati ruolo e database di sviluppo
-  `geobook` e attivata l'estensione PostGIS.
+  `geobook` ed è stata attivata l'estensione PostGIS.
 - 3 settembre 2026: completata in anticipo la milestone prevista per il 4 settembre: schema
   PostGIS riproducibile, dati demo e script di reset e verifica.
 - 3 settembre 2026: completata in anticipo la milestone prevista per il 5 settembre: API
   Express di base, configurazione validata, connessione PostgreSQL, sicurezza HTTP e health
   check.
+- 4 settembre 2026: completata in anticipo la milestone prevista per il 6 settembre:
+  autenticazione con cookie HttpOnly e API protette per profilo, consenso e revoca della
+  posizione.
 
-Non sono ancora implementati autenticazione, ricerca, mappa o dashboard: queste funzionalità
-sono pianificate nelle milestone successive.
+Non sono ancora implementati frontend di autenticazione, ricerca, mappa o dashboard: queste
+funzionalità sono pianificate nelle milestone successive.
 
 ## Stack previsto
 
@@ -153,6 +156,36 @@ Risposta attesa:
   }
 }
 ```
+
+## API di autenticazione e profilo
+
+Gli endpoint disponibili sotto `/api/v1` sono:
+
+- `POST /auth/register`, `POST /auth/login`, `POST /auth/logout` e `GET /auth/me`;
+- `GET /profile` e `PATCH /profile`;
+- `PATCH /profile/location` e `DELETE /profile/location`.
+
+Login con l'utente demo e salvataggio del cookie di sessione:
+
+```bash
+curl -c /tmp/geobook.cookies \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user1@example.test","password":"GeoBookDemo2026!"}' \
+  http://localhost:3000/api/v1/auth/login
+```
+
+Richiesta autenticata e logout:
+
+```bash
+curl -b /tmp/geobook.cookies http://localhost:3000/api/v1/auth/me
+curl -b /tmp/geobook.cookies -X POST http://localhost:3000/api/v1/auth/logout
+```
+
+Il token JWT viene inviato esclusivamente in un cookie `HttpOnly`, `SameSite=Lax` e `Secure`
+in produzione. Per salvare la posizione, `PATCH /profile/location` richiede `lat`, `lon` e
+`consent: true`. Le risposte restituiscono solo la data del consenso: coordinate
+e hash password non fanno parte del DTO utente. La revoca elimina sia la posizione sia la data
+del consenso.
 
 ## Script principali
 

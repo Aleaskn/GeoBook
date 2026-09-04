@@ -10,7 +10,7 @@ const environmentSchema = z.object({
       message: 'deve usare il protocollo postgres o postgresql',
     }),
   JWT_SECRET: z.string().min(32),
-  JWT_EXPIRES_IN: z.string().regex(/^\d+[smhd]$/),
+  JWT_EXPIRES_IN: z.string().regex(/^[1-9]\d*[smhd]$/),
   FRONTEND_ORIGIN: z
     .string()
     .url()

@@ -5,7 +5,7 @@ DECLARE
   missing_index TEXT;
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'postgis') THEN
-    RAISE EXCEPTION 'PostGIS non e attiva.';
+    RAISE EXCEPTION 'PostGIS non è attiva.';
   END IF;
 
   IF (SELECT COUNT(*) FROM users) <> 6 THEN
@@ -118,7 +118,7 @@ BEGIN
       'Area test',
       10
     );
-    RAISE EXCEPTION 'Il vincolo email case-insensitive non e attivo.';
+    RAISE EXCEPTION 'Il vincolo email case-insensitive non è attivo.';
   EXCEPTION
     WHEN unique_violation THEN NULL;
   END;
@@ -142,7 +142,7 @@ BEGIN
       'Area test',
       3
     );
-    RAISE EXCEPTION 'Il vincolo sul raggio non e attivo.';
+    RAISE EXCEPTION 'Il vincolo sul raggio non è attivo.';
   EXCEPTION
     WHEN check_violation THEN NULL;
   END;
@@ -157,7 +157,7 @@ BEGIN
       created_at
     )
     VALUES (9003, 3, 2, 1, 'PENDING', '2026-09-03 20:00:00+02');
-    RAISE EXCEPTION 'Il vincolo sulle richieste pending duplicate non e attivo.';
+    RAISE EXCEPTION 'Il vincolo sulle richieste pending duplicate non è attivo.';
   EXCEPTION
     WHEN unique_violation THEN NULL;
   END;
@@ -172,7 +172,7 @@ BEGIN
       created_at
     )
     VALUES (9004, 3, 1, 1, 'PENDING', '2026-09-03 20:00:00+02');
-    RAISE EXCEPTION 'Il vincolo contro le richieste al proprio libro non e attivo.';
+    RAISE EXCEPTION 'Il vincolo contro le richieste al proprio libro non è attivo.';
   EXCEPTION
     WHEN check_violation THEN NULL;
   END;
@@ -187,7 +187,7 @@ BEGIN
       created_at
     )
     VALUES (9005, 3, 3, 2, 'PENDING', '2026-09-03 20:00:00+02');
-    RAISE EXCEPTION 'Il proprietario della richiesta puo divergere da quello del libro.';
+    RAISE EXCEPTION 'Il proprietario della richiesta può divergere da quello del libro.';
   EXCEPTION
     WHEN foreign_key_violation THEN NULL;
   END;

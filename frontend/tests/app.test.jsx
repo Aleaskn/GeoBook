@@ -8,7 +8,7 @@ describe('App', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: 'GeoBook' })).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Navigazione principale' })).toBeInTheDocument();
-    expect(screen.getByText(/privacy e accessibilita/i)).toBeInTheDocument();
+    expect(screen.getByText(/privacy e accessibilità/i)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Salta al contenuto principale' })).toHaveAttribute(
       'href',
       '#main-content',
