@@ -1,0 +1,20 @@
+.container {
+  max-width: 40rem;
+  padding: 2rem 0;
+}
+
+.code {
+  margin: 0;
+  color: var(--accent-strong);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.container p:not(.code) {
+  color: var(--text-muted);
+}
+
+.container a {
+  color: var(--accent-strong);
+  font-weight: 800;
+}

@@ -14,14 +14,15 @@
 - Completata in anticipo il 3 settembre 2026 la milestone prevista per il 4 settembre: schema PostGIS, seed dimostrativo e script riproducibili di reset e verifica.
 - Completata in anticipo il 3 settembre 2026 la milestone prevista per il 5 settembre: fondazione Express, configurazione validata, pool PostgreSQL, middleware di sicurezza e health check.
 - Completata in anticipo il 4 settembre 2026 la milestone prevista per il 6 settembre: autenticazione con cookie HttpOnly e API protette per profilo, consenso e revoca della posizione.
+- Completata in anticipo il 4 settembre 2026 la milestone prevista per il 7 settembre: shell React accessibile, client API con credenziali, autenticazione da browser, profilo modificabile e rotte protette.
 
 ### Attività in corso
 
-- Nessuna. Autenticazione e profilo sono completi e verificati; il frontend di autenticazione resta pianificato per il 7 settembre.
+- Nessuna. Frontend di autenticazione e profilo sono completi e verificati; categorie e CRUD libri restano pianificati per l'8 settembre.
 
 ### Attività pianificate
 
-- Implementazione incrementale dell'MVP dal 7 al 16 settembre 2026.
+- Implementazione incrementale dell'MVP dall'8 al 16 settembre 2026.
 - Stabilizzazione senza nuove funzionalità dal 17 al 20 settembre 2026, salvo requisiti indispensabili mancanti.
 
 ## Piano Giornaliero
@@ -110,6 +111,12 @@ e un flusso reale contro il database locale sono stati completati con successo.
 6. **Test da eseguire:** React Testing Library su form auth/profilo e route protette; build frontend.
 7. **Messaggi di commit suggeriti:** `feat(frontend): add auth flows and protected layout`.
 8. **Rischi o decisioni ancora aperte:** mantenere UI sobria, accessibile e non decorativa.
+
+**Esito anticipato del 4 settembre 2026:** implementati router, layout con collegamento di salto,
+client API centralizzato con cookie, contesto di autenticazione, homepage, registrazione, login,
+logout e profilo protetto modificabile. I form espongono errori associati ai campi e stati di
+caricamento, errore, assenza dati e successo; i test React coprono i flussi principali e la build
+di produzione è stata verificata.
 
 ### 8 settembre 2026 - Categorie e CRUD libri API
 

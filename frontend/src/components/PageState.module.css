@@ -1,0 +1,24 @@
+.container {
+  max-width: 42rem;
+  padding: 2rem 0;
+}
+
+.container h1 {
+  margin-bottom: 0.75rem;
+}
+
+.container p {
+  color: var(--text-muted);
+  margin: 0 0 1.25rem;
+}
+
+.action {
+  border: 0;
+  border-radius: 0.2rem;
+  background: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.7rem 1rem;
+}

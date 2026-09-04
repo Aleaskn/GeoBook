@@ -1,0 +1,61 @@
+.card {
+  max-width: 34rem;
+  margin: 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  border-top: 0.3rem solid var(--highlight);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: clamp(1.25rem, 4vw, 2rem);
+}
+
+.introduction {
+  color: var(--text-muted);
+  margin: -0.35rem 0 1.5rem;
+}
+
+.form {
+  display: grid;
+  gap: 1rem;
+}
+
+.notice,
+.success {
+  border-radius: 0.2rem;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  padding: 0.75rem;
+}
+
+.formError {
+  border-radius: 0.2rem;
+  background: var(--danger-soft);
+  color: var(--danger);
+  padding: 0.75rem;
+}
+
+.submitButton {
+  border: 0;
+  border-radius: 0.2rem;
+  background: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 0.8rem 1rem;
+}
+
+.submitButton:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.alternateAction {
+  margin: 1.5rem 0 0;
+  color: var(--text-muted);
+}
+
+.alternateAction a {
+  color: var(--accent-strong);
+  font-weight: 700;
+}
