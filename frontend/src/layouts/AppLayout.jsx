@@ -17,6 +17,8 @@ export function AppLayout() {
 
     try {
       await logout();
+      // Il layout resta montato tra logout e login: azzeriamo lo stato prima che il pulsante ricompaia.
+      setLogoutState({ pending: false, error: '' });
       navigate('/login', { replace: true, state: { notice: 'Disconnessione completata.' } });
     } catch (error) {
       setLogoutState({
