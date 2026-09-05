@@ -15,14 +15,15 @@
 - Completata in anticipo il 3 settembre 2026 la milestone prevista per il 5 settembre: fondazione Express, configurazione validata, pool PostgreSQL, middleware di sicurezza e health check.
 - Completata in anticipo il 4 settembre 2026 la milestone prevista per il 6 settembre: autenticazione con cookie HttpOnly e API protette per profilo, consenso e revoca della posizione.
 - Completata in anticipo il 4 settembre 2026 la milestone prevista per il 7 settembre: shell React accessibile, client API con credenziali, autenticazione da browser, profilo modificabile e rotte protette.
+- Completata in anticipo il 5 settembre 2026 la milestone prevista per l'8 settembre: API categorie e CRUD dei libri personali con validazione, autorizzazione proprietario e transazioni.
 
 ### Attività in corso
 
-- Nessuna. Frontend di autenticazione e profilo sono completi e verificati; categorie e CRUD libri restano pianificati per l'8 settembre.
+- Nessuna. Le API di categorie e libri sono complete e verificate; la biblioteca personale frontend resta pianificata per il 9 settembre.
 
 ### Attività pianificate
 
-- Implementazione incrementale dell'MVP dall'8 al 16 settembre 2026.
+- Implementazione incrementale dell'MVP dal 9 al 16 settembre 2026.
 - Stabilizzazione senza nuove funzionalità dal 17 al 20 settembre 2026, salvo requisiti indispensabili mancanti.
 
 ## Piano Giornaliero
@@ -127,7 +128,15 @@ di produzione è stata verificata.
 5. **Criteri di accettazione verificabili:** solo proprietario modifica/elimina; validazione anno/categorie; cancellazione coerente.
 6. **Test da eseguire:** CRUD positivo, modifica libro altrui 403, input non valido 400, categorie.
 7. **Messaggi di commit suggeriti:** `feat(books): add book and category APIs`.
-8. **Rischi o decisioni ancora aperte:** comportamento DELETE su libri con richieste storiche.
+8. **Rischi o decisioni ancora aperte:** nessuna; la DELETE preserva i libri con richieste
+   storiche e risponde con conflitto.
+
+**Esito anticipato del 5 settembre 2026:** implementati elenco pubblico delle categorie,
+biblioteca personale protetta e creazione, modifica e cancellazione dei libri. Gli input sono
+validati con Zod, le query sono parametrizzate, le associazioni N:M sono gestite in transazione
+e soltanto il proprietario può modificare o eliminare. I libri con richieste storiche vengono
+preservati con risposta `409`. Test automatici e flusso CRUD reale su PostgreSQL sono stati
+verificati con successo.
 
 ### 9 settembre 2026 - Biblioteca personale e form libro
 

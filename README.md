@@ -22,9 +22,11 @@ e ordinata, basandomi sulla progettazione fatta nell'ultimo mese a partire dal 2
   posizione.
 - 4 settembre 2026: completata in anticipo la milestone prevista per il 7 settembre: frontend
   React con layout accessibile, autenticazione via cookie, rotte protette e gestione del profilo.
+- 5 settembre 2026: completata in anticipo la milestone prevista per l'8 settembre: API per
+  categorie e CRUD dei libri personali con validazione, proprietà e transazioni.
 
-Non sono ancora implementati catalogo, ricerca, mappa o dashboard: queste funzionalità sono
-pianificate nelle milestone successive.
+Non sono ancora implementati interfaccia del catalogo, upload, ricerca, mappa o dashboard:
+queste funzionalità sono pianificate nelle milestone successive.
 
 ## Stack previsto
 
@@ -206,6 +208,34 @@ in produzione. Per salvare la posizione, `PATCH /profile/location` richiede `lat
 `consent: true`. Le risposte restituiscono solo la data del consenso: coordinate
 e hash password non fanno parte del DTO utente. La revoca elimina sia la posizione sia la data
 del consenso.
+
+## API di categorie e biblioteca personale
+
+Gli endpoint disponibili sono:
+
+- `GET /api/v1/categories`, pubblico;
+- `GET /api/v1/me/books`, autenticato;
+- `POST /api/v1/books`, autenticato;
+- `PATCH /api/v1/books/:id` e `DELETE /api/v1/books/:id`, riservati al proprietario.
+
+Creazione di un libro usando il cookie ottenuto con il login:
+
+```bash
+curl -b /tmp/geobook.cookies \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Libro dimostrativo","author":"Autore Fittizio","publicationYear":2024,"categoryIds":[1,3]}' \
+  http://localhost:3000/api/v1/books
+```
+
+Il corpo di creazione richiede `title`, `author` e `publicationYear`; accetta inoltre
+`description`, `isbn`, `available` e `categoryIds`. La modifica accetta gli stessi campi e
+richiede che almeno uno sia presente. Le categorie devono esistere e non possono essere
+duplicate. Le operazioni sulle categorie del libro sono atomiche rispetto alla creazione o
+modifica.
+
+La cancellazione rimuove in cascata associazioni alle categorie e visualizzazioni. Un libro con
+richieste di prestito storiche viene invece conservato e l'API risponde
+`409 BOOK_HAS_LOAN_REQUESTS`, così da non perdere la cronologia.
 
 ## Script principali
 
