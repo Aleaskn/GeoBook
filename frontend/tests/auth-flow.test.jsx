@@ -101,9 +101,12 @@ describe('authentication flows', () => {
     );
   });
 
-  it('ends the authenticated session through the logout control', async () => {
+  it('allows logout again after a new login in the same mounted layout', async () => {
     setRoute('/');
     window.fetch
+      .mockResolvedValueOnce(apiResponse(200, { data: { user: TEST_USER } }))
+      .mockResolvedValueOnce(apiResponse(204))
+      .mockResolvedValueOnce(apiResponse(200, { data: { user: TEST_USER } }))
       .mockResolvedValueOnce(apiResponse(200, { data: { user: TEST_USER } }))
       .mockResolvedValueOnce(apiResponse(204));
 
@@ -113,8 +116,28 @@ describe('authentication flows', () => {
 
     expect(await screen.findByText('Disconnessione completata.')).toBeInTheDocument();
     await waitFor(() => expect(window.location.pathname).toBe('/login'));
+
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: TEST_USER.email },
+    });
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'PasswordDemo1!' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Accedi' }));
+
+    expect(await screen.findByDisplayValue(TEST_USER.name)).toBeInTheDocument();
+    const secondLogout = screen.getByRole('button', { name: 'Esci' });
+    expect(secondLogout).toBeEnabled();
+    fireEvent.click(secondLogout);
+
+    await waitFor(() => expect(window.location.pathname).toBe('/login'));
     expect(window.fetch).toHaveBeenNthCalledWith(
       2,
+      'http://localhost:3000/api/v1/auth/logout',
+      expect.objectContaining({ method: 'POST', credentials: 'include' }),
+    );
+    expect(window.fetch).toHaveBeenNthCalledWith(
+      5,
       'http://localhost:3000/api/v1/auth/logout',
       expect.objectContaining({ method: 'POST', credentials: 'include' }),
     );
