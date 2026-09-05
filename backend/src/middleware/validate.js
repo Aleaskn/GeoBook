@@ -25,3 +25,17 @@ export function validateBody(schema) {
     next();
   };
 }
+
+export function validateParams(schema) {
+  return function paramsValidator(request, _response, next) {
+    const result = schema.safeParse(request.params);
+
+    if (!result.success) {
+      next(validationError(result.error.issues));
+      return;
+    }
+
+    request.validatedParams = result.data;
+    next();
+  };
+}
