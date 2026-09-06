@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 360" role="img" aria-labelledby="title description">
+  <title id="title">Copertina non disponibile</title>
+  <desc id="description">Segnaposto decorativo con il simbolo di un libro.</desc>
+  <rect width="240" height="360" fill="#f3e4d0"/>
+  <rect x="38" y="62" width="164" height="236" rx="8" fill="#fffaf3" stroke="#7d3f2e" stroke-width="5"/>
+  <path d="M120 88v178M62 105h40M138 105h40M62 127h40M138 127h40" fill="none" stroke="#d49a3a" stroke-linecap="round" stroke-width="7"/>
+  <path d="M120 266c-17-15-36-22-58-20V105c22-2 41 5 58 20 17-15 36-22 58-20v141c-22-2-41 5-58 20Z" fill="none" stroke="#7d3f2e" stroke-linejoin="round" stroke-width="6"/>
+</svg>

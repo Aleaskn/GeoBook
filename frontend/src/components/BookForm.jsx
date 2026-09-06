@@ -5,6 +5,7 @@ import { ApiError } from '../api/api-client.js';
 import { getFieldErrors } from '../utils/form-errors.js';
 import { hasValidationErrors, validateBook } from '../utils/validation.js';
 import { FormField } from './FormField.jsx';
+import { CoverUploader } from './CoverUploader.jsx';
 import styles from './BookForm.module.css';
 
 function createInitialValues(book) {
@@ -16,6 +17,7 @@ function createInitialValues(book) {
     isbn: book?.isbn ?? '',
     available: book?.available ?? true,
     categoryIds: (book?.categories ?? []).map((category) => String(category.id)),
+    cover: null,
   };
 }
 
@@ -23,7 +25,7 @@ function createPayload(values) {
   const description = values.description.trim();
   const isbn = values.isbn.trim();
 
-  return {
+  const payload = {
     title: values.title.trim(),
     author: values.author.trim(),
     publicationYear: Number(values.publicationYear),
@@ -32,6 +34,12 @@ function createPayload(values) {
     available: values.available,
     categoryIds: values.categoryIds.map(Number),
   };
+
+  if (values.cover) {
+    payload.cover = values.cover;
+  }
+
+  return payload;
 }
 
 export function BookForm({ book, categories, submitLabel, pendingLabel, onSubmit }) {
@@ -61,9 +69,15 @@ export function BookForm({ book, categories, submitLabel, pendingLabel, onSubmit
     setSubmission((current) => ({ ...current, error: '' }));
   }
 
+  function handleCoverChange(cover, error) {
+    setValues((currentValues) => ({ ...currentValues, cover }));
+    setErrors((currentErrors) => ({ ...currentErrors, cover: error }));
+    setSubmission((current) => ({ ...current, error: '' }));
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
-    const validationErrors = validateBook(values);
+    const validationErrors = { ...validateBook(values), cover: errors.cover ?? '' };
 
     if (hasValidationErrors(validationErrors)) {
       setErrors(validationErrors);
@@ -155,6 +169,13 @@ export function BookForm({ book, categories, submitLabel, pendingLabel, onSubmit
             </span>
           ) : null}
         </div>
+        <CoverUploader
+          currentCoverPath={book?.coverPath}
+          bookTitle={values.title.trim()}
+          selectedFile={values.cover}
+          error={errors.cover}
+          onChange={handleCoverChange}
+        />
         <fieldset
           className={styles.categories}
           aria-describedby={errors.categoryIds ? categoriesErrorId : undefined}
@@ -225,6 +246,7 @@ BookForm.propTypes = {
     isbn: PropTypes.string,
     available: PropTypes.bool.isRequired,
     categories: PropTypes.arrayOf(categoryShape).isRequired,
+    coverPath: PropTypes.string,
   }),
   categories: PropTypes.arrayOf(categoryShape).isRequired,
   submitLabel: PropTypes.string.isRequired,

@@ -1,4 +1,5 @@
 import { AppError } from '../utils/app-error.js';
+import multer from 'multer';
 
 function normalizeError(error) {
   if (error instanceof AppError) {
@@ -18,6 +19,24 @@ function normalizeError(error) {
       statusCode: 413,
       code: 'PAYLOAD_TOO_LARGE',
       message: 'Il corpo della richiesta è troppo grande.',
+    });
+  }
+
+  if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+    return new AppError({
+      statusCode: 413,
+      code: 'COVER_TOO_LARGE',
+      message: 'La copertina supera la dimensione massima consentita.',
+      details: [{ field: 'cover', message: 'Scegli un file di dimensioni inferiori.' }],
+    });
+  }
+
+  if (error instanceof multer.MulterError) {
+    return new AppError({
+      statusCode: 400,
+      code: 'INVALID_UPLOAD',
+      message: 'Il caricamento della copertina non è valido.',
+      details: [{ field: 'cover', message: 'Invia una sola copertina nel campo cover.' }],
     });
   }
 

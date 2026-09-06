@@ -6,7 +6,11 @@ export function createBookController(bookService) {
     },
 
     async createBook(request, response) {
-      const book = await bookService.createBook(request.auth.userId, request.validatedBody);
+      const book = await bookService.createBook(
+        request.auth.userId,
+        request.validatedBody,
+        request.file,
+      );
       response.status(201).json({ data: { book } });
     },
 
@@ -15,6 +19,7 @@ export function createBookController(bookService) {
         request.auth.userId,
         request.validatedParams.id,
         request.validatedBody,
+        request.file,
       );
       response.status(200).json({ data: { book } });
     },

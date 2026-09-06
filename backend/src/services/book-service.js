@@ -37,7 +37,7 @@ function requireBookOwner(book, userId) {
   return book;
 }
 
-export function createBookService({ bookRepository, categoryRepository }) {
+export function createBookService({ bookRepository, categoryRepository, imageService, logger }) {
   async function validateCategories(categoryIds) {
     const categories = await categoryRepository.findByIds(categoryIds);
 
@@ -51,25 +51,48 @@ export function createBookService({ bookRepository, categoryRepository }) {
     }
   }
 
+  async function cleanupImages(book) {
+    if (!book) {
+      return;
+    }
+
+    try {
+      await imageService.deleteBookImages(book);
+    } catch (error) {
+      // Un errore di pulizia non deve mascherare l'esito della transazione già conclusa.
+      logger.error({ code: 'IMAGE_CLEANUP_FAILED', error });
+    }
+  }
+
   return {
     async listOwnedBooks(userId) {
       const books = await bookRepository.findByOwnerId(userId);
       return books.map(toBookDto);
     },
 
-    async createBook(userId, input) {
+    async createBook(userId, input, coverFile) {
       const categoryIds = input.categoryIds ?? [];
       await validateCategories(categoryIds);
 
-      return bookRepository.withTransaction(async (transactionRepository) => {
-        const created = await transactionRepository.create(userId, input);
-        await transactionRepository.replaceCategories(created.id, categoryIds);
-        const book = await transactionRepository.findById(created.id);
-        return toBookDto(book);
-      });
+      const imagePaths = await imageService.processCover(coverFile);
+
+      try {
+        return await bookRepository.withTransaction(async (transactionRepository) => {
+          const created = await transactionRepository.create(userId, {
+            ...input,
+            ...imagePaths,
+          });
+          await transactionRepository.replaceCategories(created.id, categoryIds);
+          const book = await transactionRepository.findById(created.id);
+          return toBookDto(book);
+        });
+      } catch (error) {
+        await cleanupImages(imagePaths);
+        throw error;
+      }
     },
 
-    async updateBook(userId, bookId, input) {
+    async updateBook(userId, bookId, input, coverFile) {
       const currentBook = await bookRepository.findById(bookId);
       requireBookOwner(currentBook, userId);
 
@@ -78,22 +101,37 @@ export function createBookService({ bookRepository, categoryRepository }) {
       }
 
       const { categoryIds, ...bookChanges } = input;
+      const imagePaths = await imageService.processCover(coverFile);
 
-      return bookRepository.withTransaction(async (transactionRepository) => {
-        await transactionRepository.update(bookId, bookChanges);
+      try {
+        const updatedBook = await bookRepository.withTransaction(async (transactionRepository) => {
+          await transactionRepository.update(bookId, {
+            ...bookChanges,
+            ...imagePaths,
+          });
 
-        if (categoryIds !== undefined) {
-          await transactionRepository.replaceCategories(bookId, categoryIds);
+          if (categoryIds !== undefined) {
+            await transactionRepository.replaceCategories(bookId, categoryIds);
+          }
+
+          const book = await transactionRepository.findById(bookId);
+
+          if (!book) {
+            throw bookNotFound();
+          }
+
+          return toBookDto(book);
+        });
+
+        if (imagePaths) {
+          await cleanupImages(currentBook);
         }
 
-        const book = await transactionRepository.findById(bookId);
-
-        if (!book) {
-          throw bookNotFound();
-        }
-
-        return toBookDto(book);
-      });
+        return updatedBook;
+      } catch (error) {
+        await cleanupImages(imagePaths);
+        throw error;
+      }
     },
 
     async deleteBook(userId, bookId) {
@@ -120,6 +158,8 @@ export function createBookService({ bookRepository, categoryRepository }) {
       if (!deletedBook) {
         throw bookNotFound();
       }
+
+      await cleanupImages(currentBook);
     },
   };
 }

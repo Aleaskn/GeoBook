@@ -2,6 +2,7 @@ const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:300
   /\/$/,
   '',
 );
+const PLACEHOLDER_COVER_PATH = '/uploads/placeholder-cover.svg';
 
 export class ApiError extends Error {
   constructor({ status, code, message, details = [], requestId, cause }) {
@@ -35,13 +36,16 @@ async function readPayload(response) {
 
 export async function apiRequest(path, { method = 'GET', body, signal } = {}) {
   let response;
+  const isFormData = typeof window.FormData !== 'undefined' && body instanceof window.FormData;
 
   try {
     response = await window.fetch(`${API_BASE_URL}${path}`, {
       method,
       credentials: 'include',
-      headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      // Il browser deve generare autonomamente il boundary delle richieste multipart.
+      headers:
+        body === undefined || isFormData ? undefined : { 'Content-Type': 'application/json' },
+      body: body === undefined || isFormData ? body : JSON.stringify(body),
       signal,
     });
   } catch (error) {
@@ -70,4 +74,9 @@ export async function apiRequest(path, { method = 'GET', body, signal } = {}) {
   }
 
   return payload?.data ?? null;
+}
+
+export function resolveApiAssetUrl(assetPath) {
+  const safePath = assetPath?.startsWith('/uploads/') ? assetPath : PLACEHOLDER_COVER_PATH;
+  return new window.URL(safePath, API_BASE_URL).href;
 }

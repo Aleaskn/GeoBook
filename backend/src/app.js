@@ -1,6 +1,7 @@
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import express from 'express';
+import { fileURLToPath, URL } from 'node:url';
 import { rateLimit } from 'express-rate-limit';
 import helmet from 'helmet';
 import { createAuthCookieOptions, createClearedAuthCookieOptions } from './config/auth.js';
@@ -10,7 +11,9 @@ import { createCategoryController } from './controllers/category-controller.js';
 import { createHealthController } from './controllers/health-controller.js';
 import { createProfileController } from './controllers/profile-controller.js';
 import { createErrorHandler } from './middleware/error-handler.js';
+import { createCoverUpload } from './middleware/cover-upload.js';
 import { notFound } from './middleware/not-found.js';
+import { parseBookForm, requireBookDataOrCover } from './middleware/parse-book-form.js';
 import { createRequireAuth } from './middleware/require-auth.js';
 import { requestId } from './middleware/request-id.js';
 import { validateBody, validateParams } from './middleware/validate.js';
@@ -28,6 +31,7 @@ import { createAuthService } from './services/auth-service.js';
 import { createBookService } from './services/book-service.js';
 import { createCategoryService } from './services/category-service.js';
 import { createHealthService } from './services/health-service.js';
+import { createImageService } from './services/image-service.js';
 import { createProfileService } from './services/profile-service.js';
 import { createTokenService } from './services/token-service.js';
 import { AppError } from './utils/app-error.js';
@@ -66,6 +70,7 @@ export function createApp({
   userRepository,
   bookRepository,
   categoryRepository,
+  imageService,
 }) {
   if (!config || !pool) {
     throw new TypeError('createApp richiede config e pool.');
@@ -85,9 +90,12 @@ export function createApp({
   const profileService = createProfileService(resolvedUserRepository);
   const resolvedBookRepository = bookRepository ?? createBookRepository(pool);
   const resolvedCategoryRepository = categoryRepository ?? createCategoryRepository(pool);
+  const resolvedImageService = imageService ?? createImageService({ uploadDir: config.uploadDir });
   const bookService = createBookService({
     bookRepository: resolvedBookRepository,
     categoryRepository: resolvedCategoryRepository,
+    imageService: resolvedImageService,
+    logger,
   });
   const categoryService = createCategoryService(resolvedCategoryRepository);
   const authController = createAuthController({
@@ -97,6 +105,7 @@ export function createApp({
   });
   const profileController = createProfileController(profileService);
   const bookController = createBookController(bookService);
+  const uploadCover = createCoverUpload({ maxUploadBytes: config.maxUploadBytes });
   const categoryController = createCategoryController(categoryService);
   const requireAuth = createRequireAuth(tokenService);
 
@@ -117,6 +126,17 @@ export function createApp({
   app.use(express.json({ limit: '100kb' }));
   app.use(cookieParser());
 
+  const publicImageHeaders = helmet.crossOriginResourcePolicy({ policy: 'cross-origin' });
+  const placeholderPath = fileURLToPath(new URL('./assets/placeholder-cover.svg', import.meta.url));
+  app.get('/uploads/placeholder-cover.svg', publicImageHeaders, (_request, response) => {
+    response.sendFile(placeholderPath);
+  });
+  app.use(
+    '/uploads',
+    publicImageHeaders,
+    express.static(config.uploadDir, { dotfiles: 'deny', fallthrough: true, index: false }),
+  );
+
   app.use('/api/v1/health', createHealthRouter(healthController));
   app.use('/api/v1/categories', createCategoryRouter(categoryController));
   app.use('/api/v1/auth', createAuthRouter({ authController, requireAuth, validateBody }));
@@ -124,7 +144,15 @@ export function createApp({
   app.use('/api/v1/me/books', createMyBookRouter({ bookController, requireAuth }));
   app.use(
     '/api/v1/books',
-    createBookRouter({ bookController, requireAuth, validateBody, validateParams }),
+    createBookRouter({
+      bookController,
+      requireAuth,
+      uploadCover,
+      parseBookForm,
+      requireBookDataOrCover,
+      validateBody,
+      validateParams,
+    }),
   );
 
   app.use(notFound);

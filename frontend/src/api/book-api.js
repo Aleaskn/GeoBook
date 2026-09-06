@@ -1,5 +1,28 @@
 import { apiRequest } from './api-client.js';
 
+function createBookFormData(book) {
+  const formData = new window.FormData();
+
+  Object.entries(book).forEach(([field, value]) => {
+    if (value === undefined || field === 'cover') {
+      return;
+    }
+
+    if (field === 'categoryIds') {
+      formData.append(field, JSON.stringify(value));
+      return;
+    }
+
+    formData.append(field, value === null ? '' : String(value));
+  });
+
+  if (book.cover) {
+    formData.append('cover', book.cover);
+  }
+
+  return formData;
+}
+
 export async function listCategories() {
   const data = await apiRequest('/categories');
   return data.categories;
@@ -11,12 +34,15 @@ export async function listMyBooks() {
 }
 
 export async function createBook(book) {
-  const data = await apiRequest('/books', { method: 'POST', body: book });
+  const data = await apiRequest('/books', { method: 'POST', body: createBookFormData(book) });
   return data.book;
 }
 
 export async function updateBook(bookId, changes) {
-  const data = await apiRequest('/books/' + bookId, { method: 'PATCH', body: changes });
+  const data = await apiRequest('/books/' + bookId, {
+    method: 'PATCH',
+    body: createBookFormData(changes),
+  });
   return data.book;
 }
 

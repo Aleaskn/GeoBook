@@ -11,6 +11,8 @@ const baseConfig = {
   jwtSecret: 'test-secret-with-at-least-32-characters',
   jwtExpiresIn: '2h',
   bcryptRounds: 10,
+  uploadDir: './storage',
+  maxUploadBytes: 5_242_880,
   rateLimitWindowMs: 60_000,
   rateLimitMax: 100,
 };

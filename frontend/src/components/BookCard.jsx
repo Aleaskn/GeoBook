@@ -1,12 +1,19 @@
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { resolveApiAssetUrl } from '../api/api-client.js';
 import styles from './BookCard.module.css';
 
 export function BookCard({ book, busy, pendingAction, onToggleAvailability, onDelete }) {
   const titleId = 'book-' + book.id + '-title';
+  const hasCover = book.thumbnailPath && !book.thumbnailPath.endsWith('/placeholder-cover.svg');
 
   return (
     <article className={styles.card} aria-labelledby={titleId} aria-busy={busy}>
+      <img
+        className={styles.cover}
+        src={resolveApiAssetUrl(book.thumbnailPath)}
+        alt={hasCover ? `Copertina di ${book.title}` : ''}
+      />
       <div className={styles.heading}>
         <div>
           <p className={styles.author}>{book.author}</p>
@@ -74,6 +81,7 @@ BookCard.propTypes = {
     description: PropTypes.string,
     isbn: PropTypes.string,
     available: PropTypes.bool.isRequired,
+    thumbnailPath: PropTypes.string,
     categories: PropTypes.arrayOf(
       PropTypes.shape({
         id: PropTypes.string.isRequired,

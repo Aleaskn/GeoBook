@@ -11,6 +11,16 @@
   padding: 1.25rem;
 }
 
+.cover {
+  width: 8rem;
+  max-width: 100%;
+  aspect-ratio: 2 / 3;
+  border: 1px solid var(--border);
+  border-radius: 0.2rem;
+  background: var(--accent-soft);
+  object-fit: cover;
+}
+
 .heading {
   display: flex;
   align-items: flex-start;
