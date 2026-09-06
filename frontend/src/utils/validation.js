@@ -1,5 +1,9 @@
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ISBN_PATTERN = /^[0-9Xx-]{10,20}$/;
 const ALLOWED_SHARE_RADII = new Set(['1', '5', '10', '20']);
+const MIN_PUBLICATION_YEAR = 1450;
+const MAX_DESCRIPTION_LENGTH = 5_000;
+const MAX_CATEGORIES_PER_BOOK = 20;
 
 function validateRequiredText(value, label, maximumLength, requiredMessage) {
   const normalizedValue = value.trim();
@@ -85,6 +89,44 @@ export function validateProfile(values) {
     shareRadiusKm: ALLOWED_SHARE_RADII.has(values.shareRadiusKm)
       ? ''
       : 'Seleziona un raggio di condivisione valido.',
+  };
+}
+
+export function validateBook(values) {
+  const title = values.title.trim();
+  const author = values.author.trim();
+  const description = values.description.trim();
+  const isbn = values.isbn.trim();
+  const publicationYear = Number(values.publicationYear);
+
+  return {
+    title: !title
+      ? 'Titolo obbligatorio.'
+      : title.length > 200
+        ? 'Il titolo non può superare 200 caratteri.'
+        : '',
+    author: !author
+      ? 'Autore obbligatorio.'
+      : author.length > 160
+        ? "L'autore non può superare 160 caratteri."
+        : '',
+    publicationYear:
+      !values.publicationYear.trim() || !Number.isInteger(publicationYear)
+        ? "L'anno di pubblicazione deve essere intero."
+        : publicationYear < MIN_PUBLICATION_YEAR
+          ? "L'anno di pubblicazione non può precedere il " + MIN_PUBLICATION_YEAR + '.'
+          : publicationYear > new Date().getFullYear()
+            ? "L'anno di pubblicazione non può essere nel futuro."
+            : '',
+    description:
+      description.length > MAX_DESCRIPTION_LENGTH
+        ? 'La descrizione non può superare ' + MAX_DESCRIPTION_LENGTH + ' caratteri.'
+        : '',
+    isbn: isbn && !ISBN_PATTERN.test(isbn) ? "L'ISBN non è valido." : '',
+    categoryIds:
+      values.categoryIds.length > MAX_CATEGORIES_PER_BOOK
+        ? 'Non puoi selezionare più di ' + MAX_CATEGORIES_PER_BOOK + ' categorie.'
+        : '',
   };
 }
 

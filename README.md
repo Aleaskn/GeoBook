@@ -24,9 +24,11 @@ e ordinata, basandomi sulla progettazione fatta nell'ultimo mese a partire dal 2
   React con layout accessibile, autenticazione via cookie, rotte protette e gestione del profilo.
 - 5 settembre 2026: completata in anticipo la milestone prevista per l'8 settembre: API per
   categorie e CRUD dei libri personali con validazione, proprietà e transazioni.
+- 6 settembre 2026: completata in anticipo la milestone prevista per il 9 settembre: biblioteca
+  personale React con form di creazione e modifica, disponibilità e cancellazione confermata.
 
-Non sono ancora implementati interfaccia del catalogo, upload, ricerca, mappa o dashboard:
-queste funzionalità sono pianificate nelle milestone successive.
+Non sono ancora implementati upload, ricerca, mappa o dashboard: queste funzionalità sono
+pianificate nelle milestone successive.
 
 ## Stack previsto
 
@@ -170,14 +172,15 @@ cp frontend/.env.example frontend/.env
 npm run dev:frontend
 ```
 
-Aprire `http://localhost:5173`. Sono disponibili la homepage e le pagine `/register`, `/login`
-e `/profile`; quest'ultima richiede una sessione valida. Tutte le chiamate usano il client API
-centralizzato con credenziali abilitate, perciò il cookie HttpOnly viene gestito dal browser e
-non deve essere copiato nel codice o salvato in `localStorage`.
+Aprire `http://localhost:5173`. Sono disponibili la homepage, le pagine di autenticazione,
+`/profile`, `/my-library`, `/books/new` e `/books/:id/edit`; le pagine personali richiedono una
+sessione valida. Tutte le chiamate usano il client API centralizzato con credenziali abilitate,
+perciò il cookie HttpOnly viene gestito dal browser e non deve essere copiato nel codice o
+salvato in `localStorage`.
 
 Per una prova rapida è possibile accedere dal browser con uno dei profili demo indicati nella
-sezione database, modificare nome, città, zona pubblica e raggio di condivisione, quindi usare
-il comando **Esci** nella navigazione.
+sezione database, modificare il profilo e gestire libri, categorie e disponibilità dalla pagina
+**Biblioteca**, quindi usare il comando **Esci** nella navigazione.
 
 ## API di autenticazione e profilo
 

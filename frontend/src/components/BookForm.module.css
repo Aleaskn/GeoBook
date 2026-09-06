@@ -1,0 +1,168 @@
+.form {
+  display: grid;
+  gap: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  border-top: 0.3rem solid var(--highlight);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: clamp(1.25rem, 4vw, 2rem);
+}
+
+.fields {
+  display: grid;
+  gap: 1.25rem;
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.twoColumns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.field label,
+.categories legend {
+  font-weight: 700;
+}
+
+.field textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.2rem;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  padding: 0.7rem 0.75rem;
+}
+
+.field textarea[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.categories {
+  display: grid;
+  gap: 0.7rem;
+  min-width: 0;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.2rem;
+  padding: 1rem;
+}
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.categoryOption,
+.availability {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  cursor: pointer;
+}
+
+.categoryOption {
+  border: 1px solid var(--border);
+  border-radius: 0.2rem;
+  background: #fcf3e7;
+  padding: 0.65rem;
+}
+
+.categoryOption:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.categoryOption input,
+.availability input {
+  flex: 0 0 auto;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0.15rem 0 0;
+  accent-color: var(--accent);
+}
+
+.availability {
+  width: fit-content;
+  font-weight: 700;
+}
+
+.fieldError {
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.helpText {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.formError {
+  margin: 0;
+  border-radius: 0.2rem;
+  background: var(--danger-soft);
+  color: var(--danger);
+  padding: 0.75rem;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.submitButton,
+.cancelLink {
+  border-radius: 0.2rem;
+  font-weight: 800;
+  padding: 0.8rem 1.1rem;
+}
+
+.submitButton {
+  border: 0;
+  background: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.submitButton:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.cancelLink {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--accent-strong);
+  text-decoration: none;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+@media (max-width: 42rem) {
+  .twoColumns,
+  .categoryGrid {
+    grid-template-columns: 1fr;
+  }
+}
