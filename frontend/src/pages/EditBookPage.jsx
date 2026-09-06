@@ -101,7 +101,7 @@ export function EditBookPage() {
       <header className={styles.heading}>
         <p className={styles.eyebrow}>La tua biblioteca</p>
         <h1>Modifica libro</h1>
-        <p>Aggiorna metadati, categorie e disponibilità del volume.</p>
+        <p>Aggiorna metadati, copertina, categorie e disponibilità del volume.</p>
       </header>
       <BookForm
         book={editorState.book}

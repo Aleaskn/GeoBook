@@ -71,7 +71,7 @@ export function NewBookPage() {
       <header className={styles.heading}>
         <p className={styles.eyebrow}>La tua biblioteca</p>
         <h1>Aggiungi un libro</h1>
-        <p>Inserisci le informazioni essenziali. La copertina sarà disponibile in seguito.</p>
+        <p>Inserisci le informazioni essenziali e, se vuoi, aggiungi una copertina.</p>
       </header>
       <BookForm
         categories={categoryState.categories}

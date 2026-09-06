@@ -71,10 +71,7 @@ export const updateBookSchema = z
       Object.entries(bookFields).map(([field, schema]) => [field, schema.optional()]),
     ),
   )
-  .strict()
-  .refine((book) => Object.keys(book).length > 0, {
-    message: 'Specificare almeno un campo da modificare.',
-  });
+  .strict();
 
 export const bookIdParamsSchema = z
   .object({

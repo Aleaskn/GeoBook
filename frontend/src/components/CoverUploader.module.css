@@ -1,0 +1,82 @@
+.uploader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 9rem;
+  align-items: start;
+  gap: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.2rem;
+  background: #fffaf3;
+  padding: 1rem;
+}
+
+.control {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.control label {
+  font-weight: 700;
+}
+
+.control input {
+  width: 100%;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.2rem;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  padding: 0.55rem;
+}
+
+.control input::file-selector-button {
+  margin-right: 0.75rem;
+  border: 0;
+  border-radius: 0.15rem;
+  background: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.55rem 0.7rem;
+}
+
+.control input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.control p,
+.preview figcaption {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.preview {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.preview img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border: 1px solid var(--border);
+  border-radius: 0.2rem;
+  background: var(--accent-soft);
+  object-fit: cover;
+}
+
+@media (max-width: 36rem) {
+  .uploader {
+    grid-template-columns: 1fr;
+  }
+
+  .preview {
+    width: min(9rem, 100%);
+  }
+}

@@ -17,14 +17,15 @@
 - Completata in anticipo il 4 settembre 2026 la milestone prevista per il 7 settembre: shell React accessibile, client API con credenziali, autenticazione da browser, profilo modificabile e rotte protette.
 - Completata in anticipo il 5 settembre 2026 la milestone prevista per l'8 settembre: API categorie e CRUD dei libri personali con validazione, autorizzazione proprietario e transazioni.
 - Completata in anticipo il 6 settembre 2026 la milestone prevista per il 9 settembre: biblioteca personale React, form libro, disponibilità e cancellazione confermata.
+- Completata in anticipo il 6 settembre 2026 la milestone prevista per il 10 settembre: upload sicuro di copertine, generazione di cover e miniature WebP, cleanup e integrazione frontend.
 
 ### Attività in corso
 
-- Nessuna. La biblioteca personale frontend è completa e verificata; l'upload di copertine resta pianificato per il 10 settembre.
+- Nessuna. L'upload delle copertine è completo e verificato; la ricerca testuale resta pianificata per l'11 settembre.
 
 ### Attività pianificate
 
-- Implementazione incrementale dell'MVP dal 10 al 16 settembre 2026.
+- Implementazione incrementale dell'MVP dall'11 al 16 settembre 2026.
 - Stabilizzazione senza nuove funzionalità dal 17 al 20 settembre 2026, salvo requisiti indispensabili mancanti.
 
 ## Piano Giornaliero
@@ -167,6 +168,13 @@ flusso manuale nel browser con PostgreSQL reale sono stati verificati con succes
 6. **Test da eseguire:** Supertest multipart valido/non valido, dimensione limite, cleanup; test UI anteprima.
 7. **Messaggi di commit suggeriti:** `feat(images): add cover upload and thumbnail generation`.
 8. **Rischi o decisioni ancora aperte:** affidabilità test Sharp su Windows.
+
+**Esito anticipato del 6 settembre 2026:** implementati upload multipart in memoria, verifica
+del MIME e del contenuto decodificabile, correzione EXIF e generazione WebP di cover e miniatura.
+I file hanno nomi casuali, sono esposti solo da directory controllate e vengono rimossi in caso
+di rollback, sostituzione o cancellazione; i libri senza immagine usano un placeholder locale.
+Il form React offre selezione e anteprima accessibile. Test automatici e flusso reale con
+PostgreSQL e browser sono stati verificati con successo anche sul runtime Sharp locale.
 
 ### 11 settembre 2026 - Ricerca testuale e paginazione
 

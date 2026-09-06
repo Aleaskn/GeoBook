@@ -6,6 +6,8 @@ function toIsoString(value) {
   return value instanceof Date ? value.toISOString() : value;
 }
 
+const PLACEHOLDER_COVER_PATH = '/uploads/placeholder-cover.svg';
+
 export function toCategoryDto(category) {
   return {
     id: String(category.id),
@@ -24,8 +26,8 @@ export function toBookDto(book) {
     publicationYear: book.publicationYear,
     description: book.description,
     isbn: book.isbn,
-    coverPath: book.coverPath,
-    thumbnailPath: book.thumbnailPath,
+    coverPath: book.coverPath ?? PLACEHOLDER_COVER_PATH,
+    thumbnailPath: book.thumbnailPath ?? PLACEHOLDER_COVER_PATH,
     available: book.available,
     categories: (book.categories ?? []).map(toCategoryDto),
     createdAt: toIsoString(book.createdAt),

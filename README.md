@@ -26,9 +26,11 @@ e ordinata, basandomi sulla progettazione fatta nell'ultimo mese a partire dal 2
   categorie e CRUD dei libri personali con validazione, proprietà e transazioni.
 - 6 settembre 2026: completata in anticipo la milestone prevista per il 9 settembre: biblioteca
   personale React con form di creazione e modifica, disponibilità e cancellazione confermata.
+- 6 settembre 2026: completata in anticipo la milestone prevista per il 10 settembre: upload
+  sicuro delle copertine, generazione WebP di cover e miniature e integrazione nel frontend.
 
-Non sono ancora implementati upload, ricerca, mappa o dashboard: queste funzionalità sono
-pianificate nelle milestone successive.
+Non sono ancora implementati ricerca, mappa o dashboard: queste funzionalità sono pianificate
+nelle milestone successive.
 
 ## Stack previsto
 
@@ -179,8 +181,8 @@ perciò il cookie HttpOnly viene gestito dal browser e non deve essere copiato n
 salvato in `localStorage`.
 
 Per una prova rapida è possibile accedere dal browser con uno dei profili demo indicati nella
-sezione database, modificare il profilo e gestire libri, categorie e disponibilità dalla pagina
-**Biblioteca**, quindi usare il comando **Esci** nella navigazione.
+sezione database, modificare il profilo e gestire libri, categorie, copertine e disponibilità
+dalla pagina **Biblioteca**, quindi usare il comando **Esci** nella navigazione.
 
 ## API di autenticazione e profilo
 
@@ -221,20 +223,33 @@ Gli endpoint disponibili sono:
 - `POST /api/v1/books`, autenticato;
 - `PATCH /api/v1/books/:id` e `DELETE /api/v1/books/:id`, riservati al proprietario.
 
-Creazione di un libro usando il cookie ottenuto con il login:
+Creazione di un libro con copertina usando il cookie ottenuto con il login:
 
 ```bash
 curl -b /tmp/geobook.cookies \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Libro dimostrativo","author":"Autore Fittizio","publicationYear":2024,"categoryIds":[1,3]}' \
+  -F "title=Libro dimostrativo" \
+  -F "author=Autore Fittizio" \
+  -F "publicationYear=2024" \
+  -F 'categoryIds=[1,3]' \
+  -F "cover=@/percorso/copertina.png;type=image/png" \
   http://localhost:3000/api/v1/books
 ```
 
-Il corpo di creazione richiede `title`, `author` e `publicationYear`; accetta inoltre
-`description`, `isbn`, `available` e `categoryIds`. La modifica accetta gli stessi campi e
-richiede che almeno uno sia presente. Le categorie devono esistere e non possono essere
-duplicate. Le operazioni sulle categorie del libro sono atomiche rispetto alla creazione o
-modifica.
+Le operazioni di creazione e modifica accettano `multipart/form-data`. Il corpo richiede
+`title`, `author` e `publicationYear`; accetta inoltre `description`, `isbn`, `available`,
+`categoryIds` come array JSON e il campo file facoltativo `cover`. La modifica accetta gli
+stessi campi e richiede almeno un metadato o una copertina. Le categorie devono esistere e non
+possono essere duplicate. Le operazioni sulle categorie e sui percorsi delle immagini sono
+atomiche rispetto alla creazione o modifica. Le richieste JSON senza file restano supportate
+per compatibilità con i client esistenti.
+
+La copertina può essere JPEG, PNG o WebP e non può superare il limite configurato da
+`MAX_UPLOAD_BYTES`, pari a 5 MiB nell'esempio. Il backend verifica sia il MIME sia il contenuto
+decodificabile, corregge l'orientamento EXIF e genera due file WebP con nomi casuali: una cover
+entro 1200×1800 pixel e una miniatura 240×360. I file sono serviti sotto `/uploads`, mentre i
+libri privi di immagine usano un placeholder locale. In caso di errore DB, sostituzione o
+cancellazione, il servizio rimuove i file che non devono più essere conservati. Gli upload
+reali presenti in `backend/storage` sono esclusi da Git.
 
 La cancellazione rimuove in cascata associazioni alle categorie e visualizzazioni. Un libro con
 richieste di prestito storiche viene invece conservato e l'API risponde

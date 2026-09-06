@@ -29,6 +29,8 @@ const UPDATABLE_COLUMNS = {
   description: 'description',
   isbn: 'isbn',
   available: 'available',
+  coverPath: 'cover_path',
+  thumbnailPath: 'thumbnail_path',
 };
 
 function createBookQueries(queryable) {
@@ -56,12 +58,16 @@ function createBookQueries(queryable) {
       return result.rows[0] ?? null;
     },
 
-    async create(ownerId, { title, author, publicationYear, description, isbn, available }) {
+    async create(
+      ownerId,
+      { title, author, publicationYear, description, isbn, available, coverPath, thumbnailPath },
+    ) {
       const result = await queryable.query(
         `INSERT INTO books (
-           owner_id, title, author, publication_year, description, isbn, available
+           owner_id, title, author, publication_year, description, isbn, available,
+           cover_path, thumbnail_path
          )
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          RETURNING id`,
         [
           ownerId,
@@ -71,6 +77,8 @@ function createBookQueries(queryable) {
           description ?? null,
           isbn ?? null,
           available ?? true,
+          coverPath ?? null,
+          thumbnailPath ?? null,
         ],
       );
 

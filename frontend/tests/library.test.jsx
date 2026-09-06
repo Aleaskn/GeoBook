@@ -28,6 +28,19 @@ function authenticatedResponse() {
   return apiResponse(200, { data: { user: TEST_USER } });
 }
 
+function expectMultipartRequest(callNumber, expectedPath, expectedFields) {
+  const [url, options] = window.fetch.mock.calls[callNumber - 1];
+
+  expect(url).toBe('http://localhost:3000/api/v1' + expectedPath);
+  expect(options).toMatchObject({ credentials: 'include' });
+  expect(options.headers).toBeUndefined();
+  expect(options.body).toBeInstanceOf(window.FormData);
+
+  Object.entries(expectedFields).forEach(([field, value]) => {
+    expect(options.body.get(field)).toBe(value);
+  });
+}
+
 describe('personal library', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
@@ -75,8 +88,10 @@ describe('personal library', () => {
 
     render(<App />);
 
-    await screen.findByRole('heading', { name: 'Aggiungi un libro' });
-    fireEvent.click(screen.getByRole('button', { name: 'Aggiungi libro' }));
+    window.URL.createObjectURL = vi.fn(() => 'blob:cover-preview');
+    window.URL.revokeObjectURL = vi.fn();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Aggiungi libro' }));
 
     expect(screen.getByText('Titolo obbligatorio.')).toBeInTheDocument();
     expect(screen.getByText('Autore obbligatorio.')).toBeInTheDocument();
@@ -99,29 +114,30 @@ describe('personal library', () => {
       target: { value: createdBook.isbn },
     });
     fireEvent.click(screen.getByRole('checkbox', { name: 'Informatica' }));
+    const cover = new window.File(['copertina'], 'copertina.png', { type: 'image/png' });
+    fireEvent.change(screen.getByLabelText('Copertina (facoltativa)'), {
+      target: { files: [cover] },
+    });
+    expect(screen.getByRole('img', { name: /Anteprima della nuova copertina/ })).toHaveAttribute(
+      'src',
+      'blob:cover-preview',
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Aggiungi libro' }));
 
     expect(await screen.findByText('Libro aggiunto alla biblioteca.')).toHaveAttribute(
       'role',
       'status',
     );
-    expect(window.fetch).toHaveBeenNthCalledWith(
-      3,
-      'http://localhost:3000/api/v1/books',
-      expect.objectContaining({
-        method: 'POST',
-        credentials: 'include',
-        body: JSON.stringify({
-          title: createdBook.title,
-          author: createdBook.author,
-          publicationYear: createdBook.publicationYear,
-          description: createdBook.description,
-          isbn: createdBook.isbn,
-          available: true,
-          categoryIds: [3],
-        }),
-      }),
-    );
+    expectMultipartRequest(3, '/books', {
+      title: createdBook.title,
+      author: createdBook.author,
+      publicationYear: String(createdBook.publicationYear),
+      description: createdBook.description,
+      isbn: createdBook.isbn,
+      available: 'true',
+      categoryIds: '[3]',
+      cover,
+    });
   });
 
   it('loads an owned book and updates all editable fields', async () => {
@@ -151,22 +167,15 @@ describe('personal library', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Salva modifiche' }));
 
     expect(await screen.findByText('Libro aggiornato correttamente.')).toBeInTheDocument();
-    expect(window.fetch).toHaveBeenNthCalledWith(
-      4,
-      'http://localhost:3000/api/v1/books/10',
-      expect.objectContaining({
-        method: 'PATCH',
-        body: JSON.stringify({
-          title: updatedBook.title,
-          author: BOOK.author,
-          publicationYear: BOOK.publicationYear,
-          description: BOOK.description,
-          isbn: BOOK.isbn,
-          available: false,
-          categoryIds: [3],
-        }),
-      }),
-    );
+    expectMultipartRequest(4, '/books/10', {
+      title: updatedBook.title,
+      author: BOOK.author,
+      publicationYear: String(BOOK.publicationYear),
+      description: BOOK.description,
+      isbn: BOOK.isbn,
+      available: 'false',
+      categoryIds: '[3]',
+    });
   });
 
   it('changes availability and requires confirmation before deletion', async () => {
@@ -186,14 +195,7 @@ describe('personal library', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'Segna come non disponibile' }));
     expect(await screen.findByText('Non disponibile')).toBeInTheDocument();
-    expect(window.fetch).toHaveBeenNthCalledWith(
-      3,
-      'http://localhost:3000/api/v1/books/10',
-      expect.objectContaining({
-        method: 'PATCH',
-        body: JSON.stringify({ available: false }),
-      }),
-    );
+    expectMultipartRequest(3, '/books/10', { available: 'false' });
 
     fireEvent.click(screen.getByRole('button', { name: 'Elimina' }));
     expect(window.fetch).toHaveBeenCalledTimes(3);
