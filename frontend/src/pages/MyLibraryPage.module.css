@@ -1,0 +1,111 @@
+.container {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.heading h1 {
+  margin-bottom: 0.75rem;
+}
+
+.heading p:not(.eyebrow) {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 1.05rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: #815414;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.addLink {
+  flex: 0 0 auto;
+  border-radius: 0.2rem;
+  background: var(--accent);
+  color: #ffffff;
+  font-weight: 800;
+  padding: 0.8rem 1.1rem;
+  text-decoration: none;
+}
+
+.notice,
+.error {
+  margin: 0;
+  border-radius: 0.2rem;
+  padding: 0.75rem;
+}
+
+.notice {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.error {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.bookGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bookGrid li {
+  min-width: 0;
+}
+
+.bookGrid article {
+  height: 100%;
+}
+
+.emptyState {
+  max-width: 38rem;
+  border: 1px solid var(--border);
+  border-left: 0.3rem solid var(--highlight);
+  border-radius: 0.25rem;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: clamp(1.25rem, 4vw, 2rem);
+}
+
+.emptyState h2 {
+  margin: 0 0 0.5rem;
+  color: var(--accent-strong);
+  font-family: var(--title-font);
+  font-size: 1.6rem;
+}
+
+.emptyState p {
+  color: var(--text-muted);
+}
+
+.emptyState a {
+  color: var(--accent-strong);
+  font-weight: 800;
+}
+
+@media (max-width: 48rem) {
+  .heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .bookGrid {
+    grid-template-columns: 1fr;
+  }
+}

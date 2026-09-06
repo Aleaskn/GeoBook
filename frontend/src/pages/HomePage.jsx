@@ -15,8 +15,8 @@ export function HomePage() {
       </p>
       <div className={styles.actions}>
         {status === 'authenticated' ? (
-          <Link className={styles.primaryAction} to="/profile">
-            Apri il tuo profilo{user?.name ? `, ${user.name}` : ''}
+          <Link className={styles.primaryAction} to="/my-library">
+            Apri la tua biblioteca{user?.name ? `, ${user.name}` : ''}
           </Link>
         ) : (
           <>
@@ -30,8 +30,8 @@ export function HomePage() {
         )}
       </div>
       <p className={styles.scopeNote}>
-        In questa versione puoi registrarti, accedere e gestire le informazioni essenziali del tuo
-        profilo.
+        In questa versione puoi gestire il profilo e organizzare i libri della tua biblioteca
+        personale.
       </p>
     </section>
   );

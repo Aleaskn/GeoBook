@@ -1,0 +1,20 @@
+.container {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 50rem;
+  margin: 0 auto;
+}
+
+.heading p:not(.eyebrow) {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: #815414;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}

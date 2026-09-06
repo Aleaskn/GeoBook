@@ -16,14 +16,15 @@
 - Completata in anticipo il 4 settembre 2026 la milestone prevista per il 6 settembre: autenticazione con cookie HttpOnly e API protette per profilo, consenso e revoca della posizione.
 - Completata in anticipo il 4 settembre 2026 la milestone prevista per il 7 settembre: shell React accessibile, client API con credenziali, autenticazione da browser, profilo modificabile e rotte protette.
 - Completata in anticipo il 5 settembre 2026 la milestone prevista per l'8 settembre: API categorie e CRUD dei libri personali con validazione, autorizzazione proprietario e transazioni.
+- Completata in anticipo il 6 settembre 2026 la milestone prevista per il 9 settembre: biblioteca personale React, form libro, disponibilità e cancellazione confermata.
 
 ### Attività in corso
 
-- Nessuna. Le API di categorie e libri sono complete e verificate; la biblioteca personale frontend resta pianificata per il 9 settembre.
+- Nessuna. La biblioteca personale frontend è completa e verificata; l'upload di copertine resta pianificato per il 10 settembre.
 
 ### Attività pianificate
 
-- Implementazione incrementale dell'MVP dal 9 al 16 settembre 2026.
+- Implementazione incrementale dell'MVP dal 10 al 16 settembre 2026.
 - Stabilizzazione senza nuove funzionalità dal 17 al 20 settembre 2026, salvo requisiti indispensabili mancanti.
 
 ## Piano Giornaliero
@@ -147,7 +148,14 @@ verificati con successo.
 5. **Criteri di accettazione verificabili:** utente crea, modifica, elimina e cambia disponibilità dei propri libri; errori campo per campo.
 6. **Test da eseguire:** React Testing Library su form libro, validazioni, delete confirm; build frontend.
 7. **Messaggi di commit suggeriti:** `feat(frontend): add personal library management`.
-8. **Rischi o decisioni ancora aperte:** usabilità selezione categorie su mobile.
+8. **Rischi o decisioni ancora aperte:** nessuna; la selezione categorie è stata verificata su
+   viewport mobile a 360 px.
+
+**Esito anticipato del 6 settembre 2026:** implementati biblioteca personale, form riusabile e
+card libro nelle rotte protette previste. L'utente può creare e modificare metadati e categorie,
+cambiare la disponibilità ed eliminare con conferma; ogni pagina gestisce caricamento, errore,
+stato vuoto e successo. Validazioni ed errori campo per campo sono accessibili. Test React e
+flusso manuale nel browser con PostgreSQL reale sono stati verificati con successo.
 
 ### 10 settembre 2026 - Upload copertine e miniature
 

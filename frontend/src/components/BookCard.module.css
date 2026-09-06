@@ -1,0 +1,169 @@
+.card {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  border-top: 0.3rem solid var(--highlight);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+}
+
+.heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.heading h2 {
+  margin: 0;
+  color: var(--accent-strong);
+  font-family: var(--title-font);
+  font-size: 1.45rem;
+  line-height: 1.15;
+}
+
+.author {
+  margin: 0 0 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.available,
+.unavailable {
+  flex: 0 0 auto;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 0.25rem 0.55rem;
+}
+
+.available {
+  border-color: #427052;
+  background: #e3efe4;
+  color: #254c34;
+}
+
+.unavailable {
+  border-color: var(--border-strong);
+  background: #eee5db;
+  color: #5c4d45;
+}
+
+.metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin: 0;
+}
+
+.metadata div {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.metadata dt {
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.metadata dd {
+  margin: 0;
+}
+
+.description {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  color: var(--text-muted);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.categories span {
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
+}
+
+.categories .noCategory {
+  background: transparent;
+  color: var(--text-muted);
+  padding-left: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: auto;
+}
+
+.editLink,
+.availabilityButton,
+.deleteButton {
+  border-radius: 0.2rem;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  padding: 0.6rem 0.75rem;
+}
+
+.editLink {
+  border: 0;
+  background: var(--accent);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.availabilityButton {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--accent-strong);
+  cursor: pointer;
+}
+
+.deleteButton {
+  border: 1px solid var(--danger);
+  background: var(--surface);
+  color: var(--danger);
+  cursor: pointer;
+}
+
+.availabilityButton:disabled,
+.deleteButton:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+@media (max-width: 30rem) {
+  .heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .editLink,
+  .availabilityButton,
+  .deleteButton {
+    text-align: center;
+  }
+}
