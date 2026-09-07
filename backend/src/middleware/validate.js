@@ -1,12 +1,12 @@
 import { AppError } from '../utils/app-error.js';
 
-function validationError(issues) {
+function validationError(issues, fallbackField) {
   return new AppError({
     statusCode: 400,
     code: 'VALIDATION_ERROR',
     message: 'I dati inviati non sono validi.',
     details: issues.map((issue) => ({
-      field: issue.path.join('.') || 'body',
+      field: issue.path.join('.') || fallbackField,
       message: issue.message,
     })),
   });
@@ -17,7 +17,7 @@ export function validateBody(schema) {
     const result = schema.safeParse(request.body);
 
     if (!result.success) {
-      next(validationError(result.error.issues));
+      next(validationError(result.error.issues, 'body'));
       return;
     }
 
@@ -31,11 +31,25 @@ export function validateParams(schema) {
     const result = schema.safeParse(request.params);
 
     if (!result.success) {
-      next(validationError(result.error.issues));
+      next(validationError(result.error.issues, 'params'));
       return;
     }
 
     request.validatedParams = result.data;
+    next();
+  };
+}
+
+export function validateQuery(schema) {
+  return function queryValidator(request, _response, next) {
+    const result = schema.safeParse(request.query);
+
+    if (!result.success) {
+      next(validationError(result.error.issues, 'query'));
+      return;
+    }
+
+    request.validatedQuery = result.data;
     next();
   };
 }

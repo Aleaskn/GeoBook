@@ -3,6 +3,36 @@ import { createBookRepository } from '../src/repositories/book-repository.js';
 import { createCategoryRepository } from '../src/repositories/category-repository.js';
 
 describe('catalog repositories', () => {
+  it('parameterizes catalog filters and applies stable pagination ordering', async () => {
+    const query = vi
+      .fn()
+      .mockResolvedValueOnce({ rows: [{ total: 3 }] })
+      .mockResolvedValueOnce({ rows: [{ id: '12', title: 'Titolo prova' }] });
+    const repository = createBookRepository({ query });
+    const maliciousQuery = "romanzo' OR TRUE --";
+
+    await expect(
+      repository.search({
+        q: maliciousQuery,
+        category: 'narrativa',
+        page: 2,
+        limit: 10,
+      }),
+    ).resolves.toEqual({ books: [{ id: '12', title: 'Titolo prova' }], total: 3 });
+
+    const [countSql, countParameters] = query.mock.calls[0];
+    const [searchSql, searchParameters] = query.mock.calls[1];
+    expect(countSql).toContain('POSITION(LOWER($1) IN LOWER(b.title))');
+    expect(countSql).toContain('filtered_c.slug = $2');
+    expect(searchSql).toContain('ORDER BY b.created_at DESC, b.id DESC');
+    expect(searchSql).toContain('LIMIT $3');
+    expect(searchSql).toContain('OFFSET $4');
+    expect(countSql).not.toContain(maliciousQuery);
+    expect(searchSql).not.toContain(maliciousQuery);
+    expect(countParameters).toEqual([maliciousQuery, 'narrativa']);
+    expect(searchParameters).toEqual([maliciousQuery, 'narrativa', 10, 10]);
+  });
+
   it('keeps book values separate from dynamic update SQL', async () => {
     const query = vi.fn().mockResolvedValue({ rows: [{ id: '12' }] });
     const repository = createBookRepository({ query });

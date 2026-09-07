@@ -63,6 +63,9 @@ const books = [
     coverPath: null,
     thumbnailPath: null,
     available: true,
+    publicArea: 'Zona Murat',
+    ownerEmail: 'owner@example.test',
+    exactLocation: 'POINT(16.87 41.12)',
     categoryIds: ['1'],
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -78,6 +81,9 @@ const books = [
     coverPath: null,
     thumbnailPath: null,
     available: true,
+    publicArea: 'Zona Carrassi',
+    ownerEmail: 'other@example.test',
+    exactLocation: 'POINT(16.88 41.10)',
     categoryIds: ['2'],
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -93,6 +99,9 @@ const books = [
     coverPath: null,
     thumbnailPath: null,
     available: false,
+    publicArea: 'Zona Murat',
+    ownerEmail: 'owner@example.test',
+    exactLocation: 'POINT(16.87 41.12)',
     categoryIds: [],
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -125,6 +134,62 @@ async function authenticatedAgent(app, email = 'owner@example.test') {
 }
 
 describe('categories and books API', () => {
+  it('searches the public catalog by text and category without exposing owner data', async () => {
+    const { app } = createTestContext();
+    const response = await request(app)
+      .get('/api/v1/books?q=AUTRICE&category=narrativa&page=1&limit=1')
+      .expect(200);
+
+    expect(response.body).toEqual({
+      data: {
+        books: [
+          {
+            id: '1',
+            title: 'Libro della proprietaria',
+            author: 'Autrice Demo',
+            publicationYear: 2020,
+            thumbnailPath: '/uploads/placeholder-cover.svg',
+            available: true,
+            publicArea: 'Zona Murat',
+            categories: [{ id: '1', name: 'Narrativa', slug: 'narrativa' }],
+          },
+        ],
+        meta: { page: 1, limit: 1, total: 1, totalPages: 1 },
+      },
+    });
+    expect(JSON.stringify(response.body)).not.toContain('ownerId');
+    expect(JSON.stringify(response.body)).not.toContain('owner@example.test');
+    expect(JSON.stringify(response.body)).not.toContain('POINT');
+  });
+
+  it('returns an empty paginated result and validates public search parameters', async () => {
+    const { app } = createTestContext();
+    const emptyResponse = await request(app)
+      .get('/api/v1/books?q=inesistente&page=2&limit=5')
+      .expect(200);
+
+    expect(emptyResponse.body.data).toEqual({
+      books: [],
+      meta: { page: 2, limit: 5, total: 0, totalPages: 0 },
+    });
+
+    const invalidPage = await request(app).get('/api/v1/books?page=0').expect(400);
+    const invalidLimit = await request(app).get('/api/v1/books?limit=51').expect(400);
+    const invalidCategory = await request(app)
+      .get('/api/v1/books?category=../../segreta')
+      .expect(400);
+
+    expect(invalidPage.body.error.details).toContainEqual(
+      expect.objectContaining({ field: 'page' }),
+    );
+    expect(invalidLimit.body.error.details).toContainEqual(
+      expect.objectContaining({ field: 'limit' }),
+    );
+    expect(invalidCategory.body.error.details).toContainEqual(
+      expect.objectContaining({ field: 'category' }),
+    );
+  });
+
   it('lists categories publicly while protecting personal book operations', async () => {
     const { app } = createTestContext();
     const response = await request(app).get('/api/v1/categories').expect(200);

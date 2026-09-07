@@ -16,7 +16,7 @@ import { notFound } from './middleware/not-found.js';
 import { parseBookForm, requireBookDataOrCover } from './middleware/parse-book-form.js';
 import { createRequireAuth } from './middleware/require-auth.js';
 import { requestId } from './middleware/request-id.js';
-import { validateBody, validateParams } from './middleware/validate.js';
+import { validateBody, validateParams, validateQuery } from './middleware/validate.js';
 import { createBookRepository } from './repositories/book-repository.js';
 import { createCategoryRepository } from './repositories/category-repository.js';
 import { createHealthRepository } from './repositories/health-repository.js';
@@ -152,6 +152,7 @@ export function createApp({
       requireBookDataOrCover,
       validateBody,
       validateParams,
+      validateQuery,
     }),
   );
 

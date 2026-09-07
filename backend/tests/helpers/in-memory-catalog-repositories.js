@@ -33,6 +33,40 @@ export function createInMemoryCatalogRepositories({
   }
 
   const bookRepository = {
+    async search({ q, category, page, limit }) {
+      const normalizedQuery = q?.toLocaleLowerCase('it');
+      const matchingBooks = storedBooks
+        .filter((book) => book.available)
+        .filter(
+          (book) =>
+            !normalizedQuery ||
+            book.title.toLocaleLowerCase('it').includes(normalizedQuery) ||
+            book.author.toLocaleLowerCase('it').includes(normalizedQuery),
+        )
+        .filter((book) => {
+          if (!category) {
+            return true;
+          }
+
+          return book.categoryIds.some((categoryId) => {
+            const matchingCategory = storedCategories.find(
+              (candidate) => String(candidate.id) === String(categoryId),
+            );
+            return matchingCategory?.slug === category;
+          });
+        })
+        .sort((first, second) => {
+          const dateDifference = new Date(second.createdAt) - new Date(first.createdAt);
+          return dateDifference || Number(second.id) - Number(first.id);
+        });
+      const offset = (page - 1) * limit;
+
+      return {
+        books: matchingBooks.slice(offset, offset + limit).map(hydrateBook),
+        total: matchingBooks.length,
+      };
+    },
+
     async findByOwnerId(ownerId) {
       return storedBooks
         .filter((book) => String(book.ownerId) === String(ownerId))

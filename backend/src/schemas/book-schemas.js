@@ -4,6 +4,11 @@ const MIN_PUBLICATION_YEAR = 1450;
 const MAX_DESCRIPTION_LENGTH = 5_000;
 const MAX_CATEGORIES_PER_BOOK = 20;
 const CURRENT_YEAR = new Date().getFullYear();
+const DEFAULT_PAGE_SIZE = 12;
+const MAX_PAGE_SIZE = 50;
+
+const emptyStringToUndefined = (value) =>
+  typeof value === 'string' && value.trim() === '' ? undefined : value;
 
 const requiredText = (label, maximumLength) =>
   z
@@ -79,5 +84,38 @@ export const bookIdParamsSchema = z
       .number({ error: "L'identificativo del libro deve essere un numero." })
       .int("L'identificativo del libro deve essere intero.")
       .positive("L'identificativo del libro deve essere positivo."),
+  })
+  .strict();
+
+export const searchBooksQuerySchema = z
+  .object({
+    q: z.preprocess(
+      emptyStringToUndefined,
+      z
+        .string({ error: 'Il testo di ricerca deve essere una stringa.' })
+        .trim()
+        .max(200, 'Il testo di ricerca non può superare 200 caratteri.')
+        .optional(),
+    ),
+    category: z.preprocess(
+      emptyStringToUndefined,
+      z
+        .string({ error: 'La categoria deve essere una stringa.' })
+        .trim()
+        .max(90, 'La categoria non può superare 90 caratteri.')
+        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'La categoria non è valida.')
+        .optional(),
+    ),
+    page: z.coerce
+      .number({ error: 'La pagina deve essere un numero.' })
+      .int('La pagina deve essere intera.')
+      .positive('La pagina deve essere positiva.')
+      .default(1),
+    limit: z.coerce
+      .number({ error: 'Il limite deve essere un numero.' })
+      .int('Il limite deve essere intero.')
+      .min(1, 'Il limite deve essere almeno 1.')
+      .max(MAX_PAGE_SIZE, `Il limite non può superare ${MAX_PAGE_SIZE}.`)
+      .default(DEFAULT_PAGE_SIZE),
   })
   .strict();

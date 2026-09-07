@@ -8,6 +8,7 @@ import { NewBookPage } from '../pages/NewBookPage.jsx';
 import { NotFoundPage } from '../pages/NotFoundPage.jsx';
 import { ProfilePage } from '../pages/ProfilePage.jsx';
 import { RegisterPage } from '../pages/RegisterPage.jsx';
+import { SearchPage } from '../pages/SearchPage.jsx';
 import { ProtectedRoute } from './ProtectedRoute.jsx';
 import { PublicOnlyRoute } from './PublicOnlyRoute.jsx';
 
@@ -16,6 +17,7 @@ export function AppRoutes() {
     <Routes>
       <Route element={<AppLayout />}>
         <Route index element={<HomePage />} />
+        <Route path="search" element={<SearchPage />} />
         <Route element={<PublicOnlyRoute />}>
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />

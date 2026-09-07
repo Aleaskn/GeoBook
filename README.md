@@ -28,9 +28,11 @@ e ordinata, basandomi sulla progettazione fatta nell'ultimo mese a partire dal 2
   personale React con form di creazione e modifica, disponibilità e cancellazione confermata.
 - 6 settembre 2026: completata in anticipo la milestone prevista per il 10 settembre: upload
   sicuro delle copertine, generazione WebP di cover e miniature e integrazione nel frontend.
+- 7 settembre 2026: completata in anticipo la milestone prevista per l'11 settembre: ricerca
+  pubblica per testo e categoria, paginazione e filtri frontend sincronizzati con l'URL.
 
-Non sono ancora implementati ricerca, mappa o dashboard: queste funzionalità sono pianificate
-nelle milestone successive.
+Non sono ancora implementati ricerca geografica, mappa o dashboard: queste funzionalità sono
+pianificate nelle milestone successive.
 
 ## Stack previsto
 
@@ -174,11 +176,11 @@ cp frontend/.env.example frontend/.env
 npm run dev:frontend
 ```
 
-Aprire `http://localhost:5173`. Sono disponibili la homepage, le pagine di autenticazione,
-`/profile`, `/my-library`, `/books/new` e `/books/:id/edit`; le pagine personali richiedono una
-sessione valida. Tutte le chiamate usano il client API centralizzato con credenziali abilitate,
-perciò il cookie HttpOnly viene gestito dal browser e non deve essere copiato nel codice o
-salvato in `localStorage`.
+Aprire `http://localhost:5173`. Sono disponibili la homepage, la ricerca pubblica in `/search`,
+le pagine di autenticazione, `/profile`, `/my-library`, `/books/new` e `/books/:id/edit`; le
+pagine personali richiedono una sessione valida. Tutte le chiamate usano il client API
+centralizzato con credenziali abilitate, perciò il cookie HttpOnly viene gestito dal browser e
+non deve essere copiato nel codice o salvato in `localStorage`.
 
 Per una prova rapida è possibile accedere dal browser con uno dei profili demo indicati nella
 sezione database, modificare il profilo e gestire libri, categorie, copertine e disponibilità
@@ -214,14 +216,26 @@ in produzione. Per salvare la posizione, `PATCH /profile/location` richiede `lat
 e hash password non fanno parte del DTO utente. La revoca elimina sia la posizione sia la data
 del consenso.
 
-## API di categorie e biblioteca personale
+## API di categorie, ricerca e biblioteca personale
 
 Gli endpoint disponibili sono:
 
 - `GET /api/v1/categories`, pubblico;
+- `GET /api/v1/books`, ricerca pubblica;
 - `GET /api/v1/me/books`, autenticato;
 - `POST /api/v1/books`, autenticato;
 - `PATCH /api/v1/books/:id` e `DELETE /api/v1/books/:id`, riservati al proprietario.
+
+La ricerca accetta `q` per titolo o autore, `category` come slug, `page` e `limit`. I valori
+predefiniti sono pagina 1 e 12 risultati; il limite massimo è 50. L'ordinamento è stabile dal
+libro più recente e la risposta include i metadati `page`, `limit`, `total` e `totalPages`.
+
+```bash
+curl "http://localhost:3000/api/v1/books?q=romanzo&category=narrativa&page=1&limit=12"
+```
+
+Il DTO pubblico contiene soltanto titolo, autore, anno, miniatura, disponibilità, categorie e
+zona dichiarata pubblica. Non espone identità del proprietario, email o coordinate.
 
 Creazione di un libro con copertina usando il cookie ottenuto con il login:
 

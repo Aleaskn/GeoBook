@@ -42,6 +42,9 @@ export function AppLayout() {
             <NavLink className={navigationClass} to="/" end>
               Home
             </NavLink>
+            <NavLink className={navigationClass} to="/search">
+              Cerca
+            </NavLink>
             {status === 'authenticated' ? (
               <>
                 <NavLink className={navigationClass} to="/my-library">

@@ -18,14 +18,15 @@
 - Completata in anticipo il 5 settembre 2026 la milestone prevista per l'8 settembre: API categorie e CRUD dei libri personali con validazione, autorizzazione proprietario e transazioni.
 - Completata in anticipo il 6 settembre 2026 la milestone prevista per il 9 settembre: biblioteca personale React, form libro, disponibilità e cancellazione confermata.
 - Completata in anticipo il 6 settembre 2026 la milestone prevista per il 10 settembre: upload sicuro di copertine, generazione di cover e miniature WebP, cleanup e integrazione frontend.
+- Completata in anticipo il 7 settembre 2026 la milestone prevista per l'11 settembre: ricerca pubblica per titolo/autore e categoria, paginazione stabile e filtri React sincronizzati con l'URL.
 
 ### Attività in corso
 
-- Nessuna. L'upload delle copertine è completo e verificato; la ricerca testuale resta pianificata per l'11 settembre.
+- Nessuna. La ricerca testuale e la paginazione sono complete e verificate; la ricerca geografica resta pianificata per il 12 settembre.
 
 ### Attività pianificate
 
-- Implementazione incrementale dell'MVP dall'11 al 16 settembre 2026.
+- Implementazione incrementale dell'MVP dal 12 al 16 settembre 2026.
 - Stabilizzazione senza nuove funzionalità dal 17 al 20 settembre 2026, salvo requisiti indispensabili mancanti.
 
 ## Piano Giornaliero
@@ -186,6 +187,13 @@ PostgreSQL e browser sono stati verificati con successo anche sul runtime Sharp 
 6. **Test da eseguire:** API ricerca positiva/vuota/input errato; React Testing Library su sincronizzazione filtri URL.
 7. **Messaggi di commit suggeriti:** `feat(search): add text and category search`.
 8. **Rischi o decisioni ancora aperte:** indice testuale semplice sufficiente per MVP.
+
+**Esito anticipato del 7 settembre 2026:** implementato `GET /api/v1/books` pubblico con ricerca
+case-insensitive per titolo/autore, filtro per slug categoria, paginazione validata e ordinamento
+stabile. Il DTO espone soltanto i dati necessari del libro e la zona pubblica. La pagina React
+`/search` sincronizza filtri e pagina con la query URL e gestisce caricamento, errore, assenza
+di risultati e ripetizione della richiesta. Test API, repository e frontend verificano input,
+query parametrizzate, privacy del payload e sincronizzazione URL.
 
 ### 12 settembre 2026 - Ricerca geografica e privacy
 
