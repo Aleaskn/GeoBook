@@ -1,5 +1,10 @@
 export function createBookController(bookService) {
   return {
+    async searchBooks(request, response) {
+      const result = await bookService.searchBooks(request.validatedQuery);
+      response.status(200).json({ data: result });
+    },
+
     async listOwnedBooks(request, response) {
       const books = await bookService.listOwnedBooks(request.auth.userId);
       response.status(200).json({ data: { books } });

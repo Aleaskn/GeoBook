@@ -33,6 +33,19 @@ export async function listMyBooks() {
   return data.books;
 }
 
+export async function searchBooks(filters, { signal } = {}) {
+  const searchParams = new window.URLSearchParams();
+
+  Object.entries(filters).forEach(([name, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      searchParams.set(name, String(value));
+    }
+  });
+
+  const query = searchParams.toString();
+  return apiRequest('/books' + (query ? `?${query}` : ''), { signal });
+}
+
 export async function createBook(book) {
   const data = await apiRequest('/books', { method: 'POST', body: createBookFormData(book) });
   return data.book;

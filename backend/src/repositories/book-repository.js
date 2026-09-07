@@ -33,8 +33,78 @@ const UPDATABLE_COLUMNS = {
   thumbnailPath: 'thumbnail_path',
 };
 
+function createSearchFilter({ q, category }) {
+  const conditions = ['b.available = TRUE'];
+  const parameters = [];
+
+  if (q) {
+    parameters.push(q);
+    const qParameter = `$${parameters.length}`;
+    conditions.push(
+      `(POSITION(LOWER(${qParameter}) IN LOWER(b.title)) > 0 OR ` +
+        `POSITION(LOWER(${qParameter}) IN LOWER(b.author)) > 0)`,
+    );
+  }
+
+  if (category) {
+    parameters.push(category);
+    conditions.push(
+      `EXISTS (
+         SELECT 1
+         FROM book_categories filtered_bc
+         JOIN categories filtered_c ON filtered_c.id = filtered_bc.category_id
+         WHERE filtered_bc.book_id = b.id
+           AND filtered_c.slug = $${parameters.length}
+       )`,
+    );
+  }
+
+  return { whereClause: conditions.join('\n         AND '), parameters };
+}
+
 function createBookQueries(queryable) {
   return {
+    async search({ q, category, page, limit }) {
+      const { whereClause, parameters } = createSearchFilter({ q, category });
+      const countResult = await queryable.query(
+        `SELECT COUNT(*)::integer AS total
+         FROM books b
+         WHERE ${whereClause}`,
+        parameters,
+      );
+      const limitParameter = `$${parameters.length + 1}`;
+      const offsetParameter = `$${parameters.length + 2}`;
+      const offset = (page - 1) * limit;
+      const result = await queryable.query(
+        `SELECT b.id,
+                b.title,
+                b.author,
+                b.publication_year AS "publicationYear",
+                b.thumbnail_path AS "thumbnailPath",
+                b.available,
+                u.public_area AS "publicArea",
+                COALESCE(
+                  JSONB_AGG(
+                    JSONB_BUILD_OBJECT('id', c.id, 'name', c.name, 'slug', c.slug)
+                    ORDER BY c.name, c.id
+                  ) FILTER (WHERE c.id IS NOT NULL),
+                  '[]'::jsonb
+                ) AS categories
+         FROM books b
+         JOIN users u ON u.id = b.owner_id
+         LEFT JOIN book_categories bc ON bc.book_id = b.id
+         LEFT JOIN categories c ON c.id = bc.category_id
+         WHERE ${whereClause}
+         GROUP BY b.id, u.id
+         ORDER BY b.created_at DESC, b.id DESC
+         LIMIT ${limitParameter}
+         OFFSET ${offsetParameter}`,
+        [...parameters, limit, offset],
+      );
+
+      return { books: result.rows, total: countResult.rows[0]?.total ?? 0 };
+    },
+
     async findByOwnerId(ownerId) {
       const result = await queryable.query(
         `${BOOK_SELECTION}

@@ -30,8 +30,8 @@ export function HomePage() {
         )}
       </div>
       <p className={styles.scopeNote}>
-        In questa versione puoi gestire il profilo e organizzare i libri della tua biblioteca
-        personale.
+        In questa versione puoi cercare nel catalogo condiviso, gestire il profilo e organizzare i
+        libri della tua biblioteca personale.
       </p>
     </section>
   );
