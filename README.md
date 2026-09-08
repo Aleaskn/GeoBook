@@ -30,9 +30,11 @@ e ordinata, basandomi sulla progettazione fatta nell'ultimo mese a partire dal 2
   sicuro delle copertine, generazione WebP di cover e miniature e integrazione nel frontend.
 - 7 settembre 2026: completata in anticipo la milestone prevista per l'11 settembre: ricerca
   pubblica per testo e categoria, paginazione e filtri frontend sincronizzati con l'URL.
+- 8 settembre 2026: completata in anticipo la milestone prevista per il 12 settembre: ricerca
+  PostGIS per raggio, distanza arrotondata e coordinate pubbliche approssimate.
 
-Non sono ancora implementati ricerca geografica, mappa o dashboard: queste funzionalità sono
-pianificate nelle milestone successive.
+Non sono ancora implementati mappa o dashboard: queste funzionalità sono pianificate nelle
+milestone successive.
 
 ## Stack previsto
 
@@ -229,13 +231,18 @@ Gli endpoint disponibili sono:
 La ricerca accetta `q` per titolo o autore, `category` come slug, `page` e `limit`. I valori
 predefiniti sono pagina 1 e 12 risultati; il limite massimo è 50. L'ordinamento è stabile dal
 libro più recente e la risposta include i metadati `page`, `limit`, `total` e `totalPages`.
+Per limitare i risultati nello spazio occorre fornire insieme `lat`, `lon` e `radiusKm`; il
+raggio deve essere 1, 5, 10 o 20 km.
 
 ```bash
 curl "http://localhost:3000/api/v1/books?q=romanzo&category=narrativa&page=1&limit=12"
+curl "http://localhost:3000/api/v1/books?lat=41.1171&lon=16.8719&radiusKm=5"
 ```
 
 Il DTO pubblico contiene soltanto titolo, autore, anno, miniatura, disponibilità, categorie e
-zona dichiarata pubblica. Non espone identità del proprietario, email o coordinate.
+zona dichiarata pubblica. Quando è attivo il filtro geografico aggiunge `distanceKm`, arrotondata
+a un decimale, e `approximateLocation` su una griglia di 0,01 gradi. Non espone identità del
+proprietario, email o coordinate esatte.
 
 Creazione di un libro con copertina usando il cookie ottenuto con il login:
 
@@ -299,4 +306,10 @@ geobook/
 
 ## Privacy
 
-Il progetto non deve versionare file `.env`, upload reali o dipendenze installate. Le coordinate esatte saranno gestite solo lato backend e mai restituite nei DTO pubblici quando la funzionalità geografica verrà implementata.
+Il progetto non deve versionare file `.env`, upload reali o dipendenze installate. Le coordinate
+sono salvate soltanto dopo consenso esplicito. La ricerca geografica considera esclusivamente
+utenti con posizione e consenso attivi, usa `ST_DWithin` sul tipo `geography` e non seleziona mai
+il punto esatto per il DTO pubblico. La posizione restituita viene arrotondata lato database a
+due decimali, cioè una griglia di circa 0,01 gradi; la distanza è espressa in chilometri e
+arrotondata a un decimale. La revoca del consenso azzera posizione e data del consenso, rendendo
+i relativi libri assenti dalle ricerche spaziali.

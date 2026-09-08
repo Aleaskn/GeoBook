@@ -33,6 +33,47 @@ describe('catalog repositories', () => {
     expect(searchParameters).toEqual([maliciousQuery, 'narrativa', 10, 10]);
   });
 
+  it('uses PostGIS with consent and returns only rounded geographic values', async () => {
+    const query = vi
+      .fn()
+      .mockResolvedValueOnce({ rows: [{ total: 1 }] })
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            id: '12',
+            distanceKm: 0.8,
+            approximateLat: 41.12,
+            approximateLon: 16.87,
+          },
+        ],
+      });
+    const repository = createBookRepository({ query });
+
+    await repository.search({
+      q: 'reti',
+      category: 'informatica',
+      lat: 41.1171,
+      lon: 16.8719,
+      radiusKm: 1,
+      page: 1,
+      limit: 12,
+    });
+
+    const [countSql, countParameters] = query.mock.calls[0];
+    const [searchSql, searchParameters] = query.mock.calls[1];
+    expect(countSql).toContain('u.location_consent_at IS NOT NULL');
+    expect(countSql).toContain('ST_DWithin(u.location');
+    expect(searchSql).toContain('ST_Distance(u.location');
+    expect(searchSql).toContain('ST_Y(u.location::geometry)::numeric');
+    expect(searchSql).toContain('ST_X(u.location::geometry)::numeric');
+    expect(searchSql).toContain('LIMIT $6');
+    expect(searchSql).toContain('OFFSET $7');
+    expect(countSql).not.toMatch(/41\.1171|16\.8719/);
+    expect(searchSql).not.toMatch(/41\.1171|16\.8719/);
+    expect(countParameters).toEqual(['reti', 'informatica', 16.8719, 41.1171, 1_000]);
+    expect(searchParameters).toEqual(['reti', 'informatica', 16.8719, 41.1171, 1_000, 12, 0]);
+  });
+
   it('keeps book values separate from dynamic update SQL', async () => {
     const query = vi.fn().mockResolvedValue({ rows: [{ id: '12' }] });
     const repository = createBookRepository({ query });

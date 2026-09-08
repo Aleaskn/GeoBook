@@ -217,10 +217,20 @@ export function ProfilePage() {
           {saveState.pending ? 'Salvataggio…' : 'Salva modifiche'}
         </button>
       </form>
-      <p className={styles.privacyNote}>
-        La gestione del consenso alla posizione esatta sarà disponibile nella fase geografica; la
-        posizione non viene mai mostrata in questa pagina.
-      </p>
+      <section className={styles.locationInfo} aria-labelledby="profile-location-information">
+        <h2 id="profile-location-information">Coordinate e consenso</h2>
+        <p>
+          In questa versione le coordinate precise non si inseriscono da questa pagina. Per i test
+          devono essere inviate all’API protetta <code>PATCH /api/v1/profile/location</code>{' '}
+          indicando <code>lat</code>, <code>lon</code> e <code>consent: true</code>. La revoca usa{' '}
+          <code>DELETE /api/v1/profile/location</code>.
+        </p>
+        <p>
+          Lo stato “Posizione precisa” qui sopra conferma se il consenso è attivo. GeoBook conserva
+          il punto esatto soltanto nel database per calcolare le distanze; nei risultati pubblici
+          mostra esclusivamente una posizione approssimata.
+        </p>
+      </section>
     </section>
   );
 }

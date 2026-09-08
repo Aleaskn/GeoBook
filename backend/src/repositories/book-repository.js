@@ -1,3 +1,10 @@
+import {
+  APPROXIMATE_COORDINATE_DECIMALS,
+  DISTANCE_KM_DECIMALS,
+  hasGeographicSearch,
+  METERS_PER_KILOMETER,
+} from '../utils/geographic-search.js';
+
 const BOOK_SELECTION = `
   SELECT b.id,
          b.owner_id AS "ownerId",
@@ -33,9 +40,10 @@ const UPDATABLE_COLUMNS = {
   thumbnailPath: 'thumbnail_path',
 };
 
-function createSearchFilter({ q, category }) {
+function createSearchFilter({ q, category, lat, lon, radiusKm }) {
   const conditions = ['b.available = TRUE'];
   const parameters = [];
+  let geographicPointExpression = null;
 
   if (q) {
     parameters.push(q);
@@ -59,16 +67,54 @@ function createSearchFilter({ q, category }) {
     );
   }
 
-  return { whereClause: conditions.join('\n         AND '), parameters };
+  if (hasGeographicSearch({ lat, lon, radiusKm })) {
+    parameters.push(lon, lat, radiusKm * METERS_PER_KILOMETER);
+    const longitudeParameter = `$${parameters.length - 2}`;
+    const latitudeParameter = `$${parameters.length - 1}`;
+    const radiusParameter = `$${parameters.length}`;
+    geographicPointExpression = `ST_SetSRID(ST_MakePoint(${longitudeParameter}, ${latitudeParameter}), 4326)::geography`;
+    conditions.push('u.location_consent_at IS NOT NULL');
+    conditions.push('u.location IS NOT NULL');
+    conditions.push(`ST_DWithin(u.location, ${geographicPointExpression}, ${radiusParameter})`);
+  }
+
+  return {
+    whereClause: conditions.join('\n         AND '),
+    parameters,
+    geographicPointExpression,
+  };
 }
 
 function createBookQueries(queryable) {
   return {
-    async search({ q, category, page, limit }) {
-      const { whereClause, parameters } = createSearchFilter({ q, category });
+    async search({ q, category, lat, lon, radiusKm, page, limit }) {
+      const { whereClause, parameters, geographicPointExpression } = createSearchFilter({
+        q,
+        category,
+        lat,
+        lon,
+        radiusKm,
+      });
+      const geographicSelection = geographicPointExpression
+        ? `,
+                ROUND(
+                  (ST_Distance(u.location, ${geographicPointExpression}) /
+                    ${METERS_PER_KILOMETER})::numeric,
+                  ${DISTANCE_KM_DECIMALS}
+                )::double precision AS "distanceKm",
+                ROUND(
+                  ST_Y(u.location::geometry)::numeric,
+                  ${APPROXIMATE_COORDINATE_DECIMALS}
+                )::double precision AS "approximateLat",
+                ROUND(
+                  ST_X(u.location::geometry)::numeric,
+                  ${APPROXIMATE_COORDINATE_DECIMALS}
+                )::double precision AS "approximateLon"`
+        : '';
       const countResult = await queryable.query(
         `SELECT COUNT(*)::integer AS total
          FROM books b
+         JOIN users u ON u.id = b.owner_id
          WHERE ${whereClause}`,
         parameters,
       );
@@ -82,7 +128,7 @@ function createBookQueries(queryable) {
                 b.publication_year AS "publicationYear",
                 b.thumbnail_path AS "thumbnailPath",
                 b.available,
-                u.public_area AS "publicArea",
+                u.public_area AS "publicArea"${geographicSelection},
                 COALESCE(
                   JSONB_AGG(
                     JSONB_BUILD_OBJECT('id', c.id, 'name', c.name, 'slug', c.slug)

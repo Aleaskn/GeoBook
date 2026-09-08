@@ -31,8 +31,8 @@ const users = [
     city: 'Bari',
     publicArea: 'Zona Murat',
     shareRadiusKm: 10,
-    location: null,
-    locationConsentAt: null,
+    location: { lat: 41.1171, lon: 16.8719 },
+    locationConsentAt: timestamp,
     createdAt: timestamp,
     updatedAt: timestamp,
   },
@@ -44,6 +44,20 @@ const users = [
     role: 'USER',
     city: 'Bari',
     publicArea: 'Zona Carrassi',
+    shareRadiusKm: 10,
+    location: { lat: 41.1041, lon: 16.8623 },
+    locationConsentAt: timestamp,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  },
+  {
+    id: '3',
+    name: 'Proprietario senza consenso',
+    email: 'no-location@example.test',
+    passwordHash: DEMO_PASSWORD_HASH,
+    role: 'USER',
+    city: 'Bari',
+    publicArea: 'Zona Libertà',
     shareRadiusKm: 10,
     location: null,
     locationConsentAt: null,
@@ -106,6 +120,24 @@ const books = [
     createdAt: timestamp,
     updatedAt: timestamp,
   },
+  {
+    id: '4',
+    ownerId: '3',
+    title: 'Libro senza consenso geografico',
+    author: 'Autore Demo',
+    publicationYear: 2022,
+    description: null,
+    isbn: null,
+    coverPath: null,
+    thumbnailPath: null,
+    available: true,
+    publicArea: 'Zona Libertà',
+    ownerEmail: 'no-location@example.test',
+    exactLocation: 'POINT(16.8719 41.1171)',
+    categoryIds: ['2'],
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  },
 ];
 
 function createTestContext() {
@@ -114,6 +146,7 @@ function createTestContext() {
     categories,
     books,
     loanBookIds: ['3'],
+    getOwnerLocation: (ownerId) => userRepository.getPrivateUserById(ownerId),
   });
   const pool = { query: vi.fn().mockResolvedValue({ rows: [{ '?column?': 1 }] }) };
   const app = createApp({
@@ -162,6 +195,45 @@ describe('categories and books API', () => {
     expect(JSON.stringify(response.body)).not.toContain('POINT');
   });
 
+  it('filters by distance, approximates locations and excludes users without consent', async () => {
+    const { app } = createTestContext();
+    const nearby = await request(app)
+      .get('/api/v1/books?lat=41.1171&lon=16.8719&radiusKm=1&limit=10')
+      .expect(200);
+
+    expect(nearby.body.data).toEqual({
+      books: [
+        {
+          id: '1',
+          title: 'Libro della proprietaria',
+          author: 'Autrice Demo',
+          publicationYear: 2020,
+          thumbnailPath: '/uploads/placeholder-cover.svg',
+          available: true,
+          publicArea: 'Zona Murat',
+          categories: [{ id: '1', name: 'Narrativa', slug: 'narrativa' }],
+          distanceKm: 0,
+          approximateLocation: { lat: 41.12, lon: 16.87 },
+        },
+      ],
+      meta: { page: 1, limit: 10, total: 1, totalPages: 1 },
+    });
+    expect(JSON.stringify(nearby.body)).not.toMatch(/41\.1171|16\.8719|exactLocation|ownerEmail/);
+
+    const widerSearch = await request(app)
+      .get('/api/v1/books?lat=41.1171&lon=16.8719&radiusKm=5&limit=10')
+      .expect(200);
+    expect(widerSearch.body.data.books.map((book) => book.id)).toEqual(['2', '1']);
+    expect(widerSearch.body.data.books.map((book) => book.id)).not.toContain('4');
+
+    const ownerAgent = await authenticatedAgent(app);
+    await ownerAgent.delete('/api/v1/profile/location').expect(204);
+    const afterRevocation = await ownerAgent
+      .get('/api/v1/books?lat=41.1171&lon=16.8719&radiusKm=5&limit=10')
+      .expect(200);
+    expect(afterRevocation.body.data.books.map((book) => book.id)).toEqual(['2']);
+  });
+
   it('returns an empty paginated result and validates public search parameters', async () => {
     const { app } = createTestContext();
     const emptyResponse = await request(app)
@@ -187,6 +259,35 @@ describe('categories and books API', () => {
     );
     expect(invalidCategory.body.error.details).toContainEqual(
       expect.objectContaining({ field: 'category' }),
+    );
+  });
+
+  it('requires a complete and valid geographic filter', async () => {
+    const { app } = createTestContext();
+    const missingRadius = await request(app)
+      .get('/api/v1/books?lat=41.1171&lon=16.8719')
+      .expect(400);
+    const invalidLatitude = await request(app)
+      .get('/api/v1/books?lat=91&lon=16.8719&radiusKm=5')
+      .expect(400);
+    const invalidLongitude = await request(app)
+      .get('/api/v1/books?lat=41.1171&lon=-181&radiusKm=5')
+      .expect(400);
+    const invalidRadius = await request(app)
+      .get('/api/v1/books?lat=41.1171&lon=16.8719&radiusKm=3')
+      .expect(400);
+
+    expect(missingRadius.body.error.details).toContainEqual(
+      expect.objectContaining({ field: 'radiusKm' }),
+    );
+    expect(invalidLatitude.body.error.details).toContainEqual(
+      expect.objectContaining({ field: 'lat' }),
+    );
+    expect(invalidLongitude.body.error.details).toContainEqual(
+      expect.objectContaining({ field: 'lon' }),
+    );
+    expect(invalidRadius.body.error.details).toContainEqual(
+      expect.objectContaining({ field: 'radiusKm' }),
     );
   });
 

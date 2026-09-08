@@ -24,6 +24,12 @@ describe('profile page', () => {
 
     expect(await screen.findByDisplayValue(TEST_USER.name)).toBeInTheDocument();
     expect(screen.getByText('Non condivisa')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Coordinate e consenso' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('PATCH /api/v1/profile/location')).toBeInTheDocument();
+    expect(screen.getByText('DELETE /api/v1/profile/location')).toBeInTheDocument();
+    expect(screen.getByText(/nei risultati pubblici mostra esclusivamente/i)).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: updatedUser.name } });
     fireEvent.change(screen.getByLabelText('Raggio di condivisione'), {
       target: { value: '20' },

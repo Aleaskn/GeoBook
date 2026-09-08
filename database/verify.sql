@@ -48,6 +48,38 @@ BEGIN
     RAISE EXCEPTION 'Le fixture geografiche non distinguono i raggi di 500 m e 1 km.';
   END IF;
 
+  IF (
+    SELECT COUNT(*)
+    FROM books
+    JOIN users ON users.id = books.owner_id
+    WHERE books.available = TRUE
+      AND users.location_consent_at IS NOT NULL
+      AND users.location IS NOT NULL
+      AND ST_DWithin(
+        users.location,
+        ST_SetSRID(ST_MakePoint(16.8719, 41.1171), 4326)::GEOGRAPHY,
+        1000
+      )
+  ) <> 5 THEN
+    RAISE EXCEPTION 'La fixture di ricerca entro un chilometro non restituisce 5 libri.';
+  END IF;
+
+  IF (
+    SELECT COUNT(*)
+    FROM books
+    JOIN users ON users.id = books.owner_id
+    WHERE books.available = TRUE
+      AND users.location_consent_at IS NOT NULL
+      AND users.location IS NOT NULL
+      AND ST_DWithin(
+        users.location,
+        ST_SetSRID(ST_MakePoint(16.8719, 41.1171), 4326)::GEOGRAPHY,
+        5000
+      )
+  ) <> 14 THEN
+    RAISE EXCEPTION 'La fixture di ricerca entro cinque chilometri non restituisce 14 libri.';
+  END IF;
+
   IF EXISTS (
     SELECT 1
     FROM users

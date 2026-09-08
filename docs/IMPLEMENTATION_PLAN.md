@@ -19,14 +19,15 @@
 - Completata in anticipo il 6 settembre 2026 la milestone prevista per il 9 settembre: biblioteca personale React, form libro, disponibilità e cancellazione confermata.
 - Completata in anticipo il 6 settembre 2026 la milestone prevista per il 10 settembre: upload sicuro di copertine, generazione di cover e miniature WebP, cleanup e integrazione frontend.
 - Completata in anticipo il 7 settembre 2026 la milestone prevista per l'11 settembre: ricerca pubblica per titolo/autore e categoria, paginazione stabile e filtri React sincronizzati con l'URL.
+- Completata in anticipo l'8 settembre 2026 la milestone prevista per il 12 settembre: ricerca PostGIS per raggio, distanza arrotondata e coordinate pubbliche approssimate su griglia.
 
 ### Attività in corso
 
-- Nessuna. La ricerca testuale e la paginazione sono complete e verificate; la ricerca geografica resta pianificata per il 12 settembre.
+- Nessuna. La ricerca geografica e le relative garanzie di privacy sono complete e verificate; mappa e dettaglio libro restano pianificati per il 13 settembre.
 
 ### Attività pianificate
 
-- Implementazione incrementale dell'MVP dal 12 al 16 settembre 2026.
+- Implementazione incrementale dell'MVP dal 13 al 16 settembre 2026.
 - Stabilizzazione senza nuove funzionalità dal 17 al 20 settembre 2026, salvo requisiti indispensabili mancanti.
 
 ## Piano Giornaliero
@@ -205,6 +206,13 @@ query parametrizzate, privacy del payload e sincronizzazione URL.
 6. **Test da eseguire:** test PostGIS con fixture note, privacy DTO, radius allowlist, lon/lat invalidi.
 7. **Messaggi di commit suggeriti:** `feat(search): add PostGIS radius filtering`.
 8. **Rischi o decisioni ancora aperte:** documentare precisione della griglia nella relazione.
+
+**Esito anticipato dell'8 settembre 2026:** esteso `GET /api/v1/books` con i filtri congiunti
+`lat`, `lon` e `radiusKm`, validati rispetto agli intervalli geografici e alla allowlist dei
+raggi. La query PostGIS parametrizzata usa `ST_DWithin` e `ST_Distance`, esclude proprietari
+senza posizione o consenso e seleziona soltanto distanza in chilometri arrotondata e coordinate
+su griglia di 0,01 gradi. I test verificano risultati dentro/fuori raggio, revoca del consenso,
+input incompleti o non validi, privacy del DTO e fixture PostGIS riproducibili.
 
 ### 13 settembre 2026 - Mappa e dettaglio libro
 
