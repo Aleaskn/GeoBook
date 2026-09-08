@@ -1,11 +1,41 @@
+import {
+  APPROXIMATE_COORDINATE_DECIMALS,
+  DISTANCE_KM_DECIMALS,
+  hasGeographicSearch,
+  METERS_PER_KILOMETER,
+} from '../../src/utils/geographic-search.js';
+
+const EARTH_RADIUS_METERS = 6_371_000;
+
 function cloneCategory(category) {
   return { ...category };
+}
+
+function toRadians(value) {
+  return (value * Math.PI) / 180;
+}
+
+function calculateDistanceMeters(first, second) {
+  const latitudeDelta = toRadians(second.lat - first.lat);
+  const longitudeDelta = toRadians(second.lon - first.lon);
+  const firstLatitude = toRadians(first.lat);
+  const secondLatitude = toRadians(second.lat);
+  const haversine =
+    Math.sin(latitudeDelta / 2) ** 2 +
+    Math.cos(firstLatitude) * Math.cos(secondLatitude) * Math.sin(longitudeDelta / 2) ** 2;
+
+  return EARTH_RADIUS_METERS * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+}
+
+function roundTo(value, decimalPlaces) {
+  return Number(value.toFixed(decimalPlaces));
 }
 
 export function createInMemoryCatalogRepositories({
   categories = [],
   books = [],
   loanBookIds = [],
+  getOwnerLocation,
 }) {
   const storedCategories = categories.map(cloneCategory);
   const storedBooks = books.map((book) => ({
@@ -33,8 +63,9 @@ export function createInMemoryCatalogRepositories({
   }
 
   const bookRepository = {
-    async search({ q, category, page, limit }) {
+    async search({ q, category, lat, lon, radiusKm, page, limit }) {
       const normalizedQuery = q?.toLocaleLowerCase('it');
+      const geographicSearch = hasGeographicSearch({ lat, lon, radiusKm });
       const matchingBooks = storedBooks
         .filter((book) => book.available)
         .filter(
@@ -55,6 +86,29 @@ export function createInMemoryCatalogRepositories({
             return matchingCategory?.slug === category;
           });
         })
+        .map((book) => {
+          if (!geographicSearch) {
+            return book;
+          }
+
+          const owner = getOwnerLocation ? getOwnerLocation(book.ownerId) : book;
+          if (!owner?.location || !owner.locationConsentAt) {
+            return null;
+          }
+
+          const distanceMeters = calculateDistanceMeters({ lat, lon }, owner.location);
+          if (distanceMeters > radiusKm * METERS_PER_KILOMETER) {
+            return null;
+          }
+
+          return {
+            ...book,
+            distanceKm: roundTo(distanceMeters / METERS_PER_KILOMETER, DISTANCE_KM_DECIMALS),
+            approximateLat: roundTo(owner.location.lat, APPROXIMATE_COORDINATE_DECIMALS),
+            approximateLon: roundTo(owner.location.lon, APPROXIMATE_COORDINATE_DECIMALS),
+          };
+        })
+        .filter(Boolean)
         .sort((first, second) => {
           const dateDifference = new Date(second.createdAt) - new Date(first.createdAt);
           return dateDifference || Number(second.id) - Number(first.id);

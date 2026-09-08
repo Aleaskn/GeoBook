@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ALLOWED_RADIUS_KM } from '../utils/geographic-search.js';
 
 const MIN_PUBLICATION_YEAR = 1450;
 const MAX_DESCRIPTION_LENGTH = 5_000;
@@ -6,9 +7,20 @@ const MAX_CATEGORIES_PER_BOOK = 20;
 const CURRENT_YEAR = new Date().getFullYear();
 const DEFAULT_PAGE_SIZE = 12;
 const MAX_PAGE_SIZE = 50;
+const GEOGRAPHIC_SEARCH_FIELDS = ['lat', 'lon', 'radiusKm'];
 
 const emptyStringToUndefined = (value) =>
   typeof value === 'string' && value.trim() === '' ? undefined : value;
+
+const optionalCoordinate = (label, minimum, maximum) =>
+  z.preprocess(
+    emptyStringToUndefined,
+    z.coerce
+      .number({ error: `${label} deve essere un numero.` })
+      .min(minimum, `${label} deve essere almeno ${minimum}.`)
+      .max(maximum, `${label} non può superare ${maximum}.`)
+      .optional(),
+  );
 
 const requiredText = (label, maximumLength) =>
   z
@@ -106,6 +118,18 @@ export const searchBooksQuerySchema = z
         .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'La categoria non è valida.')
         .optional(),
     ),
+    lat: optionalCoordinate('La latitudine', -90, 90),
+    lon: optionalCoordinate('La longitudine', -180, 180),
+    radiusKm: z.preprocess(
+      emptyStringToUndefined,
+      z.coerce
+        .number({ error: 'Il raggio deve essere un numero.' })
+        .int('Il raggio deve essere intero.')
+        .refine((value) => ALLOWED_RADIUS_KM.includes(value), {
+          message: `Il raggio deve essere uno tra ${ALLOWED_RADIUS_KM.join(', ')} km.`,
+        })
+        .optional(),
+    ),
     page: z.coerce
       .number({ error: 'La pagina deve essere un numero.' })
       .int('La pagina deve essere intera.')
@@ -118,4 +142,19 @@ export const searchBooksQuerySchema = z
       .max(MAX_PAGE_SIZE, `Il limite non può superare ${MAX_PAGE_SIZE}.`)
       .default(DEFAULT_PAGE_SIZE),
   })
-  .strict();
+  .strict()
+  .superRefine((query, context) => {
+    const providedFields = GEOGRAPHIC_SEARCH_FIELDS.filter((field) => query[field] !== undefined);
+
+    if (providedFields.length === 0 || providedFields.length === GEOGRAPHIC_SEARCH_FIELDS.length) {
+      return;
+    }
+
+    GEOGRAPHIC_SEARCH_FIELDS.filter((field) => query[field] === undefined).forEach((field) => {
+      context.addIssue({
+        code: 'custom',
+        path: [field],
+        message: 'Latitudine, longitudine e raggio devono essere forniti insieme.',
+      });
+    });
+  });

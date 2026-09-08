@@ -115,9 +115,33 @@
   opacity: 0.68;
 }
 
-.privacyNote {
+.locationInfo {
+  margin-top: 1.25rem;
+  border-left: 0.25rem solid var(--highlight);
+  background: var(--surface);
+  padding: 1rem 1.15rem;
+}
+
+.locationInfo h2 {
+  margin: 0 0 0.65rem;
+  color: var(--accent-strong);
+  font-family: var(--title-font);
+  font-size: 1.25rem;
+}
+
+.locationInfo p {
+  margin: 0;
   color: var(--text-muted);
   font-size: 0.95rem;
+}
+
+.locationInfo p + p {
+  margin-top: 0.65rem;
+}
+
+.locationInfo code {
+  overflow-wrap: anywhere;
+  color: var(--text);
 }
 
 @media (max-width: 42rem) {

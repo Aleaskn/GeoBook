@@ -37,7 +37,7 @@ export function toBookDto(book) {
 
 export function toPublicBookDto(book) {
   // Il catalogo espone soltanto la zona dichiarata pubblica, mai identità o posizione precisa.
-  return {
+  const publicBook = {
     id: String(book.id),
     title: book.title,
     author: book.author,
@@ -47,4 +47,18 @@ export function toPublicBookDto(book) {
     publicArea: book.publicArea,
     categories: (book.categories ?? []).map(toCategoryDto),
   };
+
+  if (
+    Number.isFinite(book.distanceKm) &&
+    Number.isFinite(book.approximateLat) &&
+    Number.isFinite(book.approximateLon)
+  ) {
+    publicBook.distanceKm = book.distanceKm;
+    publicBook.approximateLocation = {
+      lat: book.approximateLat,
+      lon: book.approximateLon,
+    };
+  }
+
+  return publicBook;
 }

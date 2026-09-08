@@ -95,5 +95,9 @@ export function createInMemoryUserRepository(initialUsers = []) {
     getPrivateUserByEmail(email) {
       return users.find((candidate) => candidate.email.toLowerCase() === email.toLowerCase());
     },
+
+    getPrivateUserById(userId) {
+      return users.find((candidate) => String(candidate.id) === String(userId));
+    },
   };
 }
