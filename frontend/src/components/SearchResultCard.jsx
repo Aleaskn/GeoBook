@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { resolveApiAssetUrl } from '../api/api-client.js';
 import styles from './SearchResultCard.module.css';
 
-export function SearchResultCard({ book }) {
+export function SearchResultCard({ book, detailSearch = '' }) {
   const hasCover = book.thumbnailPath && !book.thumbnailPath.endsWith('/placeholder-cover.svg');
 
   return (
@@ -14,7 +15,9 @@ export function SearchResultCard({ book }) {
       />
       <div className={styles.content}>
         <p className={styles.author}>{book.author}</p>
-        <h3>{book.title}</h3>
+        <h3>
+          <Link to={`/books/${book.id}${detailSearch}`}>{book.title}</Link>
+        </h3>
         <dl className={styles.metadata}>
           <div>
             <dt>Anno</dt>
@@ -24,6 +27,12 @@ export function SearchResultCard({ book }) {
             <dt>Zona</dt>
             <dd>{book.publicArea}</dd>
           </div>
+          {Number.isFinite(book.distanceKm) ? (
+            <div>
+              <dt>Distanza</dt>
+              <dd>{book.distanceKm.toLocaleString('it-IT')} km</dd>
+            </div>
+          ) : null}
         </dl>
         <div className={styles.categories} aria-label="Categorie">
           {book.categories.length > 0 ? (
@@ -45,6 +54,7 @@ SearchResultCard.propTypes = {
     publicationYear: PropTypes.number.isRequired,
     thumbnailPath: PropTypes.string.isRequired,
     publicArea: PropTypes.string.isRequired,
+    distanceKm: PropTypes.number,
     categories: PropTypes.arrayOf(
       PropTypes.shape({
         id: PropTypes.string.isRequired,
@@ -52,4 +62,5 @@ SearchResultCard.propTypes = {
       }),
     ).isRequired,
   }).isRequired,
+  detailSearch: PropTypes.string,
 };

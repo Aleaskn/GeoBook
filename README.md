@@ -32,13 +32,15 @@ e ordinata, basandomi sulla progettazione fatta nell'ultimo mese a partire dal 2
   pubblica per testo e categoria, paginazione e filtri frontend sincronizzati con l'URL.
 - 8 settembre 2026: completata in anticipo la milestone prevista per il 12 settembre: ricerca
   PostGIS per raggio, distanza arrotondata e coordinate pubbliche approssimate.
+- 13 settembre 2026: completata la mappa accessibile con Leaflet e OpenStreetMap, il dettaglio
+  pubblico dei libri e la registrazione anonima delle visualizzazioni.
 
-Non sono ancora implementati mappa o dashboard: queste funzionalità sono pianificate nelle
-milestone successive.
+Non sono ancora implementati il flusso delle richieste di prestito o la dashboard: queste
+funzionalità sono pianificate nelle milestone successive.
 
 ## Stack previsto
 
-- Frontend: React, Vite, React Router, CSS modulare.
+- Frontend: React, Vite, React Router, Leaflet con OpenStreetMap, CSS modulare.
 - Backend: Node.js LTS, Express, JavaScript ES modules.
 - Database: PostgreSQL con PostGIS.
 - Test: Vitest, Supertest, React Testing Library.
@@ -179,10 +181,11 @@ npm run dev:frontend
 ```
 
 Aprire `http://localhost:5173`. Sono disponibili la homepage, la ricerca pubblica in `/search`,
-le pagine di autenticazione, `/profile`, `/my-library`, `/books/new` e `/books/:id/edit`; le
-pagine personali richiedono una sessione valida. Tutte le chiamate usano il client API
-centralizzato con credenziali abilitate, perciò il cookie HttpOnly viene gestito dal browser e
-non deve essere copiato nel codice o salvato in `localStorage`.
+la mappa in `/map`, il dettaglio pubblico in `/books/:id`, le pagine di autenticazione,
+`/profile`, `/my-library`, `/books/new` e `/books/:id/edit`; le pagine personali richiedono una
+sessione valida. Tutte le chiamate usano il client API centralizzato con credenziali abilitate,
+perciò il cookie HttpOnly viene gestito dal browser e non deve essere copiato nel codice o
+salvato in `localStorage`.
 
 Per una prova rapida è possibile accedere dal browser con uno dei profili demo indicati nella
 sezione database, modificare il profilo e gestire libri, categorie, copertine e disponibilità
@@ -224,6 +227,8 @@ Gli endpoint disponibili sono:
 
 - `GET /api/v1/categories`, pubblico;
 - `GET /api/v1/books`, ricerca pubblica;
+- `GET /api/v1/books/:id`, dettaglio pubblico;
+- `POST /api/v1/books/:id/view`, registrazione anonima di una visualizzazione;
 - `GET /api/v1/me/books`, autenticato;
 - `POST /api/v1/books`, autenticato;
 - `PATCH /api/v1/books/:id` e `DELETE /api/v1/books/:id`, riservati al proprietario.
@@ -243,6 +248,24 @@ Il DTO pubblico contiene soltanto titolo, autore, anno, miniatura, disponibilit�
 zona dichiarata pubblica. Quando è attivo il filtro geografico aggiunge `distanceKm`, arrotondata
 a un decimale, e `approximateLocation` su una griglia di 0,01 gradi. Non espone identità del
 proprietario, email o coordinate esatte.
+
+La pagina `/map` richiede latitudine, longitudine e un raggio ammesso, conserva i filtri
+nell'URL e usa esattamente lo stesso insieme di risultati sia per i marker sia per la lista
+testuale accessibile. I marker Leaflet mostrano esclusivamente le coordinate approssimate dal
+backend; le tile provengono da OpenStreetMap e durante la demo richiedono una connessione di
+rete. La lista resta disponibile anche se le tile non vengono caricate.
+
+Il dettaglio può ricevere `lat` e `lon` insieme per mostrare la distanza arrotondata. L'apertura
+della pagina registra una visualizzazione anonima; il frontend usa `sessionStorage` per non
+registrare più volte lo stesso libro durante la medesima sessione del browser.
+
+| Zona demo    | Latitudine      |Longitudine|
+
+| Murat        | `41.1171`       | `16.8719` |
+| Madonnella   | `41.1218`       | `16.8797` |
+| Poggiofranco | `41.1077`       | `16.8548` |
+| Carrassi     | `41.1041`       | `16.8623` |
+| Japigia      | `41.0985`       | `16.8882` |
 
 Creazione di un libro con copertina usando il cookie ottenuto con il login:
 

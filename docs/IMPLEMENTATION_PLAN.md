@@ -20,14 +20,15 @@
 - Completata in anticipo il 6 settembre 2026 la milestone prevista per il 10 settembre: upload sicuro di copertine, generazione di cover e miniature WebP, cleanup e integrazione frontend.
 - Completata in anticipo il 7 settembre 2026 la milestone prevista per l'11 settembre: ricerca pubblica per titolo/autore e categoria, paginazione stabile e filtri React sincronizzati con l'URL.
 - Completata in anticipo l'8 settembre 2026 la milestone prevista per il 12 settembre: ricerca PostGIS per raggio, distanza arrotondata e coordinate pubbliche approssimate su griglia.
+- Completata il 13 settembre 2026 la milestone prevista: mappa Leaflet con lista equivalente, dettaglio pubblico dei libri e registrazione anonima delle visualizzazioni.
 
 ### Attività in corso
 
-- Nessuna. La ricerca geografica e le relative garanzie di privacy sono complete e verificate; mappa e dettaglio libro restano pianificati per il 13 settembre.
+- Nessuna. Mappa e dettaglio libro sono completi e verificati; le richieste di prestito restano pianificate per il 14 settembre.
 
 ### Attività pianificate
 
-- Implementazione incrementale dell'MVP dal 13 al 16 settembre 2026.
+- Implementazione incrementale dell'MVP dal 14 al 16 settembre 2026.
 - Stabilizzazione senza nuove funzionalità dal 17 al 20 settembre 2026, salvo requisiti indispensabili mancanti.
 
 ## Piano Giornaliero
@@ -224,6 +225,15 @@ input incompleti o non validi, privacy del DTO e fixture PostGIS riproducibili.
 6. **Test da eseguire:** API dettaglio/vista; React Testing Library su stati mappa/lista; test manuale tastiera e viewport 360/768/1440.
 7. **Messaggi di commit suggeriti:** `feat(map): add accessible map and book detail views`.
 8. **Rischi o decisioni ancora aperte:** tile OSM dipendenti dalla rete durante demo.
+
+**Esito del 13 settembre 2026:** implementati dettaglio pubblico e registrazione anonima delle
+visualizzazioni con endpoint validati e query parametrizzate. La pagina `/map` applica filtri
+geografici sincronizzati con l'URL e rappresenta lo stesso insieme di libri tramite marker
+Leaflet su coordinate approssimate e una lista testuale equivalente che precede la mappa su
+viewport ridotte. Il dettaglio mostra copertina, area pubblica, disponibilità e distanza
+arrotondata quando sono disponibili coordinate di ricerca; `sessionStorage` evita conteggi
+ripetuti dello stesso libro nella singola sessione browser. Test API, repository e React coprono
+percorsi positivi, input errati, assenze e stati vuoti o di errore.
 
 ### 14 settembre 2026 - Richieste di prestito
 

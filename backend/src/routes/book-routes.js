@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+  bookDetailQuerySchema,
   bookIdParamsSchema,
   createBookSchema,
   searchBooksQuerySchema,
@@ -20,6 +21,17 @@ export function createBookRouter({
   const router = Router();
 
   router.get('/', validateQuery(searchBooksQuerySchema), asyncHandler(bookController.searchBooks));
+  router.get(
+    '/:id',
+    validateParams(bookIdParamsSchema),
+    validateQuery(bookDetailQuerySchema),
+    asyncHandler(bookController.getBook),
+  );
+  router.post(
+    '/:id/view',
+    validateParams(bookIdParamsSchema),
+    asyncHandler(bookController.recordBookView),
+  );
 
   router.use(requireAuth);
   router.post(

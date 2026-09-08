@@ -74,6 +74,37 @@ describe('catalog repositories', () => {
     expect(searchParameters).toEqual(['reti', 'informatica', 16.8719, 41.1171, 1_000, 12, 0]);
   });
 
+  it('parameterizes optional coordinates in the public book detail', async () => {
+    const query = vi.fn().mockResolvedValue({
+      rows: [{ id: '12', distanceKm: 0.8 }],
+    });
+    const repository = createBookRepository({ query });
+
+    await expect(repository.findPublicById('12', { lat: 41.1171, lon: 16.8719 })).resolves.toEqual({
+      id: '12',
+      distanceKm: 0.8,
+    });
+
+    const [sql, parameters] = query.mock.calls[0];
+    expect(sql).toContain('WHERE b.id = $1');
+    expect(sql).toContain('ST_Distance(u.location');
+    expect(sql).toContain('u.location_consent_at IS NOT NULL');
+    expect(sql).not.toMatch(/41\.1171|16\.8719/);
+    expect(parameters).toEqual(['12', 16.8719, 41.1171]);
+  });
+
+  it('records an anonymous view only when the book exists', async () => {
+    const query = vi.fn().mockResolvedValue({ rows: [{ id: '31' }] });
+    const repository = createBookRepository({ query });
+
+    await expect(repository.recordView('12')).resolves.toEqual({ id: '31' });
+
+    const [sql, parameters] = query.mock.calls[0];
+    expect(sql).toContain('INSERT INTO book_views (book_id, viewer_id)');
+    expect(sql).toContain('SELECT id, NULL');
+    expect(parameters).toEqual(['12']);
+  });
+
   it('keeps book values separate from dynamic update SQL', async () => {
     const query = vi.fn().mockResolvedValue({ rows: [{ id: '12' }] });
     const repository = createBookRepository({ query });

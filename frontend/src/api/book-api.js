@@ -46,6 +46,23 @@ export async function searchBooks(filters, { signal } = {}) {
   return apiRequest('/books' + (query ? `?${query}` : ''), { signal });
 }
 
+export async function getBook(bookId, coordinates = {}, { signal } = {}) {
+  const searchParams = new window.URLSearchParams();
+
+  if (coordinates.lat !== undefined && coordinates.lon !== undefined) {
+    searchParams.set('lat', String(coordinates.lat));
+    searchParams.set('lon', String(coordinates.lon));
+  }
+
+  const query = searchParams.toString();
+  const data = await apiRequest(`/books/${bookId}` + (query ? `?${query}` : ''), { signal });
+  return data.book;
+}
+
+export function recordBookView(bookId, { signal } = {}) {
+  return apiRequest(`/books/${bookId}/view`, { method: 'POST', signal });
+}
+
 export async function createBook(book) {
   const data = await apiRequest('/books', { method: 'POST', body: createBookFormData(book) });
   return data.book;

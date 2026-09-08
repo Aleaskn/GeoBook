@@ -1,4 +1,5 @@
 import { BrowserRouter } from 'react-router-dom';
+import 'leaflet/dist/leaflet.css';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { AppRoutes } from './routes/AppRoutes.jsx';
 import './styles/global.css';
