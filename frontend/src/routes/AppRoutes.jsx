@@ -1,8 +1,10 @@
 import { Route, Routes } from 'react-router-dom';
 import { AppLayout } from '../layouts/AppLayout.jsx';
 import { EditBookPage } from '../pages/EditBookPage.jsx';
+import { BookDetailPage } from '../pages/BookDetailPage.jsx';
 import { HomePage } from '../pages/HomePage.jsx';
 import { LoginPage } from '../pages/LoginPage.jsx';
+import { MapPage } from '../pages/MapPage.jsx';
 import { MyLibraryPage } from '../pages/MyLibraryPage.jsx';
 import { NewBookPage } from '../pages/NewBookPage.jsx';
 import { NotFoundPage } from '../pages/NotFoundPage.jsx';
@@ -18,6 +20,8 @@ export function AppRoutes() {
       <Route element={<AppLayout />}>
         <Route index element={<HomePage />} />
         <Route path="search" element={<SearchPage />} />
+        <Route path="map" element={<MapPage />} />
+        <Route path="books/:id" element={<BookDetailPage />} />
         <Route element={<PublicOnlyRoute />}>
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />

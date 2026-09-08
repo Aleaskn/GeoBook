@@ -43,6 +43,7 @@ export function createInMemoryCatalogRepositories({
     categoryIds: [...(book.categoryIds ?? [])],
   }));
   const booksWithLoans = new Set(loanBookIds.map(String));
+  const recordedViews = [];
   let nextBookId = storedBooks.reduce((maximum, book) => Math.max(maximum, Number(book.id)), 0) + 1;
 
   function hydrateBook(book) {
@@ -127,6 +128,42 @@ export function createInMemoryCatalogRepositories({
         .map(hydrateBook);
     },
 
+    async findPublicById(bookId, { lat, lon }) {
+      const book = storedBooks.find((candidate) => String(candidate.id) === String(bookId));
+
+      if (!book) {
+        return null;
+      }
+
+      const hydratedBook = hydrateBook(book);
+      if (lat === undefined || lon === undefined) {
+        return hydratedBook;
+      }
+
+      const owner = getOwnerLocation ? getOwnerLocation(book.ownerId) : book;
+      if (!owner?.location || !owner.locationConsentAt) {
+        return hydratedBook;
+      }
+
+      const distanceMeters = calculateDistanceMeters({ lat, lon }, owner.location);
+      return {
+        ...hydratedBook,
+        distanceKm: roundTo(distanceMeters / METERS_PER_KILOMETER, DISTANCE_KM_DECIMALS),
+      };
+    },
+
+    async recordView(bookId) {
+      const book = storedBooks.find((candidate) => String(candidate.id) === String(bookId));
+
+      if (!book) {
+        return null;
+      }
+
+      const view = { id: String(recordedViews.length + 1), bookId: String(bookId), viewerId: null };
+      recordedViews.push(view);
+      return view;
+    },
+
     async findById(bookId) {
       return hydrateBook(storedBooks.find((book) => String(book.id) === String(bookId)));
     },
@@ -207,5 +244,5 @@ export function createInMemoryCatalogRepositories({
     },
   };
 
-  return { bookRepository, categoryRepository };
+  return { bookRepository, categoryRepository, recordedViews };
 }

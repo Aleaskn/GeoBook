@@ -10,6 +10,19 @@ export function createBookController(bookService) {
       response.status(200).json({ data: { books } });
     },
 
+    async getBook(request, response) {
+      const book = await bookService.getPublicBook(
+        request.validatedParams.id,
+        request.validatedQuery,
+      );
+      response.status(200).json({ data: { book } });
+    },
+
+    async recordBookView(request, response) {
+      await bookService.recordBookView(request.validatedParams.id);
+      response.status(201).json({ data: { recorded: true } });
+    },
+
     async createBook(request, response) {
       const book = await bookService.createBook(
         request.auth.userId,

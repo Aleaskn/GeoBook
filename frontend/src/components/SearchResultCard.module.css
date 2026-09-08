@@ -42,6 +42,16 @@
   line-height: 1.15;
 }
 
+.content h3 a {
+  text-decoration-color: var(--highlight);
+  text-decoration-thickness: 0.12rem;
+  text-underline-offset: 0.18rem;
+}
+
+.content h3 a:hover {
+  color: var(--accent);
+}
+
 .metadata {
   display: grid;
   gap: 0.45rem;
@@ -50,17 +60,20 @@
 
 .metadata div {
   display: grid;
-  grid-template-columns: 3.2rem minmax(0, 1fr);
-  gap: 0.35rem;
+  grid-template-columns: 5.25rem minmax(0, 1fr);
+  gap: 0.55rem;
 }
 
 .metadata dt {
   color: var(--text-muted);
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .metadata dd {
+  min-width: 0;
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .categories {

@@ -8,6 +8,7 @@ const CURRENT_YEAR = new Date().getFullYear();
 const DEFAULT_PAGE_SIZE = 12;
 const MAX_PAGE_SIZE = 50;
 const GEOGRAPHIC_SEARCH_FIELDS = ['lat', 'lon', 'radiusKm'];
+const GEOGRAPHIC_POINT_FIELDS = ['lat', 'lon'];
 
 const emptyStringToUndefined = (value) =>
   typeof value === 'string' && value.trim() === '' ? undefined : value;
@@ -98,6 +99,28 @@ export const bookIdParamsSchema = z
       .positive("L'identificativo del libro deve essere positivo."),
   })
   .strict();
+
+export const bookDetailQuerySchema = z
+  .object({
+    lat: optionalCoordinate('La latitudine', -90, 90),
+    lon: optionalCoordinate('La longitudine', -180, 180),
+  })
+  .strict()
+  .superRefine((query, context) => {
+    const providedFields = GEOGRAPHIC_POINT_FIELDS.filter((field) => query[field] !== undefined);
+
+    if (providedFields.length === 0 || providedFields.length === GEOGRAPHIC_POINT_FIELDS.length) {
+      return;
+    }
+
+    GEOGRAPHIC_POINT_FIELDS.filter((field) => query[field] === undefined).forEach((field) => {
+      context.addIssue({
+        code: 'custom',
+        path: [field],
+        message: 'Latitudine e longitudine devono essere fornite insieme.',
+      });
+    });
+  });
 
 export const searchBooksQuerySchema = z
   .object({

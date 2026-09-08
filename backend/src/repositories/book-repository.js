@@ -151,6 +151,67 @@ function createBookQueries(queryable) {
       return { books: result.rows, total: countResult.rows[0]?.total ?? 0 };
     },
 
+    async findPublicById(bookId, { lat, lon }) {
+      const parameters = [bookId];
+      let distanceSelection = '';
+
+      if (lat !== undefined && lon !== undefined) {
+        parameters.push(lon, lat);
+        const pointExpression = 'ST_SetSRID(ST_MakePoint($2, $3), 4326)::geography';
+        distanceSelection = `,
+          CASE
+            WHEN u.location_consent_at IS NOT NULL AND u.location IS NOT NULL THEN
+              ROUND(
+                (ST_Distance(u.location, ${pointExpression}) /
+                  ${METERS_PER_KILOMETER})::numeric,
+                ${DISTANCE_KM_DECIMALS}
+              )::double precision
+            ELSE NULL
+          END AS "distanceKm"`;
+      }
+
+      const result = await queryable.query(
+        `SELECT b.id,
+                b.title,
+                b.author,
+                b.publication_year AS "publicationYear",
+                b.description,
+                b.isbn,
+                b.cover_path AS "coverPath",
+                b.available,
+                u.public_area AS "publicArea"${distanceSelection},
+                COALESCE(
+                  JSONB_AGG(
+                    JSONB_BUILD_OBJECT('id', c.id, 'name', c.name, 'slug', c.slug)
+                    ORDER BY c.name, c.id
+                  ) FILTER (WHERE c.id IS NOT NULL),
+                  '[]'::jsonb
+                ) AS categories
+         FROM books b
+         JOIN users u ON u.id = b.owner_id
+         LEFT JOIN book_categories bc ON bc.book_id = b.id
+         LEFT JOIN categories c ON c.id = bc.category_id
+         WHERE b.id = $1
+         GROUP BY b.id, u.id`,
+        parameters,
+      );
+
+      return result.rows[0] ?? null;
+    },
+
+    async recordView(bookId) {
+      const result = await queryable.query(
+        `INSERT INTO book_views (book_id, viewer_id)
+         SELECT id, NULL
+         FROM books
+         WHERE id = $1
+         RETURNING id`,
+        [bookId],
+      );
+
+      return result.rows[0] ?? null;
+    },
+
     async findByOwnerId(ownerId) {
       const result = await queryable.query(
         `${BOOK_SELECTION}

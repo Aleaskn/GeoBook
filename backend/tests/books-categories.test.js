@@ -234,6 +234,48 @@ describe('categories and books API', () => {
     expect(afterRevocation.body.data.books.map((book) => book.id)).toEqual(['2']);
   });
 
+  it('returns a public book detail and records anonymous views', async () => {
+    const { app, recordedViews } = createTestContext();
+    const detail = await request(app).get('/api/v1/books/1?lat=41.1171&lon=16.8719').expect(200);
+
+    expect(detail.body.data.book).toEqual({
+      id: '1',
+      title: 'Libro della proprietaria',
+      author: 'Autrice Demo',
+      publicationYear: 2020,
+      description: null,
+      isbn: null,
+      coverPath: '/uploads/placeholder-cover.svg',
+      available: true,
+      publicArea: 'Zona Murat',
+      categories: [{ id: '1', name: 'Narrativa', slug: 'narrativa' }],
+      distanceKm: 0,
+    });
+    expect(JSON.stringify(detail.body)).not.toMatch(/ownerId|ownerEmail|exactLocation|41\.1171/);
+
+    await request(app)
+      .post('/api/v1/books/1/view')
+      .expect(201, {
+        data: { recorded: true },
+      });
+    expect(recordedViews).toEqual([{ id: '1', bookId: '1', viewerId: null }]);
+  });
+
+  it('validates public detail input and rejects views for missing books', async () => {
+    const { app } = createTestContext();
+
+    await request(app).get('/api/v1/books/not-a-number').expect(400);
+    const incompleteCoordinates = await request(app).get('/api/v1/books/1?lat=41.1171').expect(400);
+    expect(incompleteCoordinates.body.error.details).toContainEqual(
+      expect.objectContaining({ field: 'lon' }),
+    );
+
+    const missingDetail = await request(app).get('/api/v1/books/999').expect(404);
+    const missingView = await request(app).post('/api/v1/books/999/view').expect(404);
+    expect(missingDetail.body.error.code).toBe('BOOK_NOT_FOUND');
+    expect(missingView.body.error.code).toBe('BOOK_NOT_FOUND');
+  });
+
   it('returns an empty paginated result and validates public search parameters', async () => {
     const { app } = createTestContext();
     const emptyResponse = await request(app)

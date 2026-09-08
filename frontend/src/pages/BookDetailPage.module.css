@@ -1,0 +1,146 @@
+.detail {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.backLinks {
+  display: flex;
+  gap: 1rem;
+}
+
+.backLinks a {
+  color: var(--accent-strong);
+  font-weight: 800;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(14rem, 19rem) minmax(0, 1fr);
+  align-items: start;
+  gap: 2rem;
+}
+
+.cover {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  background: var(--accent-soft);
+  box-shadow: var(--shadow);
+  object-fit: cover;
+}
+
+.content {
+  min-width: 0;
+}
+
+.author {
+  margin: 0 0 0.4rem;
+  color: var(--text-muted);
+  font-weight: 800;
+}
+
+.content h1 {
+  margin-bottom: 0.85rem;
+}
+
+.available,
+.unavailable {
+  width: fit-content;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-weight: 800;
+  padding: 0.35rem 0.7rem;
+}
+
+.available {
+  color: var(--accent-strong);
+}
+
+.unavailable {
+  color: var(--danger);
+}
+
+.metadata {
+  display: grid;
+  gap: 0.6rem;
+  margin: 1.4rem 0;
+}
+
+.metadata div {
+  display: grid;
+  grid-template-columns: minmax(9rem, 12rem) minmax(0, 1fr);
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.55rem;
+}
+
+.metadata dt {
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.metadata dd {
+  margin: 0;
+}
+
+.description,
+.categories {
+  margin-top: 1.4rem;
+}
+
+.description h2,
+.categories h2 {
+  margin: 0 0 0.5rem;
+  color: var(--accent-strong);
+  font-family: var(--title-font);
+  font-size: 1.45rem;
+}
+
+.description p,
+.categories p {
+  margin: 0;
+}
+
+.categories ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.categories li {
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+}
+
+.privacyNote {
+  margin: 1.5rem 0 0;
+  border-left: 0.25rem solid var(--highlight);
+  background: var(--surface);
+  color: var(--text-muted);
+  padding: 0.85rem 1rem;
+}
+
+@media (max-width: 42rem) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cover {
+    max-width: 18rem;
+  }
+}
+
+@media (max-width: 30rem) {
+  .metadata div {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+}

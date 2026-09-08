@@ -1,5 +1,5 @@
 import { AppError } from '../utils/app-error.js';
-import { toBookDto, toPublicBookDto } from '../utils/book-dto.js';
+import { toBookDto, toPublicBookDetailDto, toPublicBookDto } from '../utils/book-dto.js';
 
 function bookNotFound() {
   return new AppError({
@@ -82,6 +82,24 @@ export function createBookService({ bookRepository, categoryRepository, imageSer
     async listOwnedBooks(userId) {
       const books = await bookRepository.findByOwnerId(userId);
       return books.map(toBookDto);
+    },
+
+    async getPublicBook(bookId, query) {
+      const book = await bookRepository.findPublicById(bookId, query);
+
+      if (!book) {
+        throw bookNotFound();
+      }
+
+      return toPublicBookDetailDto(book);
+    },
+
+    async recordBookView(bookId) {
+      const recordedView = await bookRepository.recordView(bookId);
+
+      if (!recordedView) {
+        throw bookNotFound();
+      }
     },
 
     async createBook(userId, input, coverFile) {

@@ -1,0 +1,151 @@
+.container {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.heading h1 {
+  margin-bottom: 0.75rem;
+}
+
+.heading p:not(.eyebrow) {
+  max-width: 47rem;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 1.05rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: #815414;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 1rem;
+  border: 1px solid var(--border);
+  border-left: 0.3rem solid var(--highlight);
+  border-radius: 0.25rem;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.field label {
+  font-weight: 700;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-height: 2.8rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.2rem;
+  background: var(--surface);
+  color: var(--text);
+  padding: 0.65rem 0.75rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.submitButton,
+.resetButton,
+.error button {
+  border-radius: 0.2rem;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 0.7rem 0.9rem;
+}
+
+.submitButton {
+  border: 0;
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.resetButton,
+.error button {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--accent-strong);
+}
+
+.status {
+  display: grid;
+  gap: 1rem;
+}
+
+.status > p,
+.emptyState p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.resultCount {
+  font-weight: 800;
+}
+
+.error,
+.emptyState {
+  border-radius: 0.25rem;
+  padding: 1rem;
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.error p {
+  margin: 0;
+}
+
+.emptyState {
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.emptyState h2 {
+  margin: 0 0 0.4rem;
+  color: var(--accent-strong);
+  font-family: var(--title-font);
+}
+
+@media (max-width: 52rem) {
+  .filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 36rem) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    grid-column: auto;
+    flex-direction: column;
+  }
+}
