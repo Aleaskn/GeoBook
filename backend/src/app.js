@@ -6,6 +6,7 @@ import { rateLimit } from 'express-rate-limit';
 import helmet from 'helmet';
 import { createAuthCookieOptions, createClearedAuthCookieOptions } from './config/auth.js';
 import { createAuthController } from './controllers/auth-controller.js';
+import { createAdminController } from './controllers/admin-controller.js';
 import { createBookController } from './controllers/book-controller.js';
 import { createCategoryController } from './controllers/category-controller.js';
 import { createHealthController } from './controllers/health-controller.js';
@@ -16,14 +17,17 @@ import { createCoverUpload } from './middleware/cover-upload.js';
 import { notFound } from './middleware/not-found.js';
 import { parseBookForm, requireBookDataOrCover } from './middleware/parse-book-form.js';
 import { createRequireAuth } from './middleware/require-auth.js';
+import { requireRole } from './middleware/require-role.js';
 import { requestId } from './middleware/request-id.js';
 import { validateBody, validateParams, validateQuery } from './middleware/validate.js';
 import { createBookRepository } from './repositories/book-repository.js';
+import { createAdminRepository } from './repositories/admin-repository.js';
 import { createCategoryRepository } from './repositories/category-repository.js';
 import { createHealthRepository } from './repositories/health-repository.js';
 import { createLoanRequestRepository } from './repositories/loan-request-repository.js';
 import { createUserRepository } from './repositories/user-repository.js';
 import { createAuthRouter } from './routes/auth-routes.js';
+import { createAdminRouter } from './routes/admin-routes.js';
 import { createBookRouter } from './routes/book-routes.js';
 import { createCategoryRouter } from './routes/category-routes.js';
 import { createHealthRouter } from './routes/health-routes.js';
@@ -34,6 +38,7 @@ import {
 import { createMyBookRouter } from './routes/my-book-routes.js';
 import { createProfileRouter } from './routes/profile-routes.js';
 import { createAuthService } from './services/auth-service.js';
+import { createAdminService } from './services/admin-service.js';
 import { createBookService } from './services/book-service.js';
 import { createCategoryService } from './services/category-service.js';
 import { createHealthService } from './services/health-service.js';
@@ -75,6 +80,7 @@ export function createApp({
   pool,
   logger = console,
   userRepository,
+  adminRepository,
   bookRepository,
   categoryRepository,
   loanRequestRepository,
@@ -89,12 +95,14 @@ export function createApp({
   const healthService = createHealthService(healthRepository);
   const healthController = createHealthController(healthService);
   const resolvedUserRepository = userRepository ?? createUserRepository(pool);
+  const resolvedAdminRepository = adminRepository ?? createAdminRepository(pool);
   const tokenService = createTokenService(config);
   const authService = createAuthService({
     userRepository: resolvedUserRepository,
     tokenService,
     bcryptRounds: config.bcryptRounds,
   });
+  const adminService = createAdminService(resolvedAdminRepository);
   const profileService = createProfileService(resolvedUserRepository);
   const resolvedBookRepository = bookRepository ?? createBookRepository(pool);
   const resolvedCategoryRepository = categoryRepository ?? createCategoryRepository(pool);
@@ -113,12 +121,14 @@ export function createApp({
     authCookieOptions: createAuthCookieOptions(config),
     clearedCookieOptions: createClearedAuthCookieOptions(config),
   });
+  const adminController = createAdminController(adminService);
   const profileController = createProfileController(profileService);
   const bookController = createBookController(bookService);
   const uploadCover = createCoverUpload({ maxUploadBytes: config.maxUploadBytes });
   const categoryController = createCategoryController(categoryService);
   const loanRequestController = createLoanRequestController(loanRequestService);
   const requireAuth = createRequireAuth(tokenService);
+  const requireAdmin = requireRole('ADMIN');
 
   app.disable('x-powered-by');
   // Il request ID precede gli altri middleware affinché anche gli errori iniziali siano tracciabili.
@@ -149,6 +159,7 @@ export function createApp({
   );
 
   app.use('/api/v1/health', createHealthRouter(healthController));
+  app.use('/api/v1/admin', createAdminRouter({ adminController, requireAuth, requireAdmin }));
   app.use('/api/v1/categories', createCategoryRouter(categoryController));
   app.use('/api/v1/auth', createAuthRouter({ authController, requireAuth, validateBody }));
   app.use('/api/v1/profile', createProfileRouter({ profileController, requireAuth, validateBody }));

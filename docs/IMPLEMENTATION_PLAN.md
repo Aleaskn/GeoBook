@@ -22,14 +22,15 @@
 - Completata in anticipo l'8 settembre 2026 la milestone prevista per il 12 settembre: ricerca PostGIS per raggio, distanza arrotondata e coordinate pubbliche approssimate su griglia.
 - Completata in anticipo l'8 settembre 2026 la milestone prevista per il 13 settembre: mappa Leaflet con lista equivalente, dettaglio pubblico dei libri e registrazione anonima delle visualizzazioni.
 - Completata in anticipo il 9 settembre 2026 la milestone prevista per il 14 settembre: workflow delle richieste di prestito con autorizzazioni, transizioni atomiche e UI in entrata/uscita.
+- Completata il 9 settembre 2026 la milestone prevista per il 15 settembre: dashboard amministrativa, statistiche aggregate, attività recenti e verifica dell'hardening HTTP.
 
 ### Attività in corso
 
-- Nessuna. Le richieste di prestito sono complete e verificate; dashboard e hardening restano pianificati per il 15 settembre.
+- Nessuna. Dashboard e hardening sono completi e verificati; il completamento tecnico dell'MVP resta pianificato per il 16 settembre.
 
 ### Attività pianificate
 
-- Implementazione incrementale dell'MVP dal 15 al 16 settembre 2026.
+- Completamento tecnico dell'MVP il 16 settembre 2026.
 - Stabilizzazione senza nuove funzionalità dal 17 al 20 settembre 2026, salvo requisiti indispensabili mancanti.
 
 ## Piano Giornaliero
@@ -265,6 +266,16 @@ stati di caricamento, errore, vuoto e successo.
 6. **Test da eseguire:** Supertest admin role, aggregazioni, payload privacy; React Testing Library dashboard; build.
 7. **Messaggi di commit suggeriti:** `feat(admin): add statistics dashboard`.
 8. **Rischi o decisioni ancora aperte:** grafici leggibili e accessibili senza sovraccaricare la UI.
+
+**Esito del 15 settembre 2026:** aggiunti gli endpoint amministrativi protetti
+`GET /api/v1/admin/stats` e `GET /api/v1/admin/recent-activity`, con aggregazioni per KPI,
+stato, mese, categorie e visualizzazioni e con attività recenti limitate ai dati necessari. La
+pagina protetta `/admin` presenta indicatori, classifiche e attività recenti, oltre a due grafici
+Chart.js accompagnati da tabelle testuali equivalenti. I test verificano autenticazione, ruolo
+`ADMIN`, aggregazioni, query parametrizzate e assenza di email, coordinate, hash e messaggi dai
+payload. La revisione di Helmet, CORS, rate limit e logging non ha richiesto ampliamenti: le
+impostazioni esistenti restano attive e gli errori di autorizzazione non producono log con dati
+dell'utente.
 
 ### 16 settembre 2026 - Completamento tecnico MVP
 

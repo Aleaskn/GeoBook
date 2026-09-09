@@ -1,4 +1,6 @@
+import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
+import { PageState } from '../components/PageState.jsx';
 import { AppLayout } from '../layouts/AppLayout.jsx';
 import { EditBookPage } from '../pages/EditBookPage.jsx';
 import { BookDetailPage } from '../pages/BookDetailPage.jsx';
@@ -12,8 +14,23 @@ import { ProfilePage } from '../pages/ProfilePage.jsx';
 import { RequestsPage } from '../pages/RequestsPage.jsx';
 import { RegisterPage } from '../pages/RegisterPage.jsx';
 import { SearchPage } from '../pages/SearchPage.jsx';
+import { AdminRoute } from './AdminRoute.jsx';
 import { ProtectedRoute } from './ProtectedRoute.jsx';
 import { PublicOnlyRoute } from './PublicOnlyRoute.jsx';
+
+const AdminPage = lazy(() =>
+  import('../pages/AdminPage.jsx').then((module) => ({ default: module.AdminPage })),
+);
+
+function DeferredAdminPage() {
+  return (
+    <Suspense
+      fallback={<PageState title="Dashboard amministrativa" message="Caricamento dashboard…" />}
+    >
+      <AdminPage />
+    </Suspense>
+  );
+}
 
 export function AppRoutes() {
   return (
@@ -33,6 +50,9 @@ export function AppRoutes() {
           <Route path="requests" element={<RequestsPage />} />
           <Route path="books/new" element={<NewBookPage />} />
           <Route path="books/:id/edit" element={<EditBookPage />} />
+          <Route element={<AdminRoute />}>
+            <Route path="admin" element={<DeferredAdminPage />} />
+          </Route>
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Route>

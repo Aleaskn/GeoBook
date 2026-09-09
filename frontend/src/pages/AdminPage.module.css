@@ -1,0 +1,159 @@
+.page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.intro {
+  max-width: 48rem;
+}
+
+.intro p:last-child {
+  margin-bottom: 0;
+  color: var(--text-muted);
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--accent-strong);
+  font-size: 0.85rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.kpis div {
+  border-top: 0.25rem solid var(--highlight);
+  border-radius: 0.3rem;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 1rem;
+}
+
+.kpis dt {
+  color: var(--text-muted);
+  font-weight: 800;
+}
+
+.kpis dd {
+  margin: 0.2rem 0 0;
+  color: var(--accent-strong);
+  font-family: var(--title-font);
+  font-size: 2rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.rankings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  gap: 1rem;
+}
+
+.panel,
+.activityCard {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  background: var(--surface);
+  padding: 1.25rem;
+}
+
+.panel h2,
+.activity h2,
+.activityCard h3 {
+  margin: 0 0 1rem;
+  color: var(--accent-strong);
+  font-family: var(--title-font);
+}
+
+.panel h2,
+.activity h2 {
+  font-size: 1.55rem;
+}
+
+.panel table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.panel th,
+.panel td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.65rem 0.35rem;
+  text-align: left;
+}
+
+.panel td {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.panel th span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.panel a,
+.activityCard a {
+  color: var(--accent-strong);
+  font-weight: 800;
+}
+
+.activityGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem;
+}
+
+.activityCard h3 {
+  font-size: 1.25rem;
+}
+
+.activityCard ul {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activityCard li {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.75rem;
+}
+
+.activityCard li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.activityCard strong,
+.activityCard span {
+  display: block;
+}
+
+.activityCard span {
+  margin-top: 0.15rem;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.empty {
+  color: var(--text-muted);
+}
+
+@media (max-width: 32rem) {
+  .panel,
+  .activityCard {
+    padding: 1rem;
+  }
+}

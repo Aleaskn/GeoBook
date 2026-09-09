@@ -38,8 +38,9 @@ e ordinata, basandomi sulla progettazione fatta nell'ultimo mese a partire dal 2
 - 9 settembre 2026: completata in anticipo la milestone prevista per il 14 settembre: workflow
   delle richieste di prestito con autorizzazioni, transizioni atomiche e interfaccia per richieste
   in entrata e in uscita.
+- 9 settembre 2026: ccompletata in anticipo la milestone prevista per il 15 settembre: dashboard amministrativa con statistiche aggregate, attività recente, grafici accessibili e protezione lato server basata sul ruolo.
 
-Non è ancora implementata la dashboard amministrativa, pianificata nella milestone successiva.
+Resta pianificato il completamento tecnico dell'MVP previsto per la milestone successiva.
 
 ## Stack previsto
 
@@ -185,10 +186,11 @@ npm run dev:frontend
 
 Aprire `http://localhost:5173`. Sono disponibili la homepage, la ricerca pubblica in `/search`,
 la mappa in `/map`, il dettaglio pubblico in `/books/:id`, le pagine di autenticazione,
-`/profile`, `/my-library`, `/books/new`, `/books/:id/edit` e `/requests`; le pagine personali
-richiedono una sessione valida. Tutte le chiamate usano il client API centralizzato con
-credenziali abilitate, perciò il cookie HttpOnly viene gestito dal browser e non deve essere
-copiato nel codice o salvato in `localStorage`.
+`/profile`, `/my-library`, `/books/new`, `/books/:id/edit`, `/requests` e `/admin`; le pagine
+personali richiedono una sessione valida e la dashboard richiede inoltre il ruolo `ADMIN`. Tutte
+le chiamate usano il client API centralizzato con credenziali abilitate, perciò il cookie
+HttpOnly viene gestito dal browser e non deve essere copiato nel codice o salvato in
+`localStorage`.
 
 Per una prova rapida è possibile accedere dal browser con uno dei profili demo indicati nella
 sezione database, modificare il profilo e gestire libri, categorie, copertine e disponibilità
@@ -322,6 +324,19 @@ La pagina protetta `/requests` separa le richieste in entrata e in uscita e most
 consentite al ruolo assunto dall'utente nella singola richiesta. I DTO includono nomi visualizzati
 e dati essenziali del libro per le sole parti coinvolte; non espongono email, coordinate o altri
 dati di contatto.
+
+## Dashboard amministrativa
+
+Gli endpoint `GET /api/v1/admin/stats` e `GET /api/v1/admin/recent-activity` richiedono una
+sessione con ruolo `ADMIN`; un utente autenticato senza tale ruolo riceve `403`. Il primo espone
+conteggi di utenti, libri, richieste e prestiti completati, richieste per stato e mese, categorie
+con più libri e libri più visualizzati. Il secondo restituisce gli ultimi cinque utenti, libri e
+richieste.
+
+La pagina `/admin`, raggiungibile dalla voce **Dashboard** visibile agli amministratori, presenta
+gli indicatori principali e due grafici Chart.js. Ogni grafico è accompagnato da una tabella
+testuale con gli stessi valori. Le risposte amministrative omettono password, hash, email,
+coordinate, messaggi delle richieste e altri dati non necessari alla sintesi.
 
 ## Script principali
 

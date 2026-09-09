@@ -59,6 +59,11 @@ export function AppLayout() {
                 <NavLink className={navigationClass} to="/profile">
                   Profilo
                 </NavLink>
+                {user.role === 'ADMIN' ? (
+                  <NavLink className={navigationClass} to="/admin">
+                    Dashboard
+                  </NavLink>
+                ) : null}
                 <span className={styles.userName}>{user.name}</span>
                 <button
                   className={styles.logoutButton}
