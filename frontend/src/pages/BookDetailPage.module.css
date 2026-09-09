@@ -85,12 +85,14 @@
 }
 
 .description,
-.categories {
+.categories,
+.loanRequest {
   margin-top: 1.4rem;
 }
 
 .description h2,
-.categories h2 {
+.categories h2,
+.loanRequest h2 {
   margin: 0 0 0.5rem;
   color: var(--accent-strong);
   font-family: var(--title-font);
@@ -98,8 +100,73 @@
 }
 
 .description p,
-.categories p {
+.categories p,
+.loanRequest p {
   margin: 0;
+}
+
+.loanForm {
+  display: grid;
+  gap: 0.55rem;
+  max-width: 36rem;
+}
+
+.loanForm label {
+  font-weight: 800;
+}
+
+.loanForm textarea {
+  width: 100%;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.25rem;
+  background: white;
+  color: var(--text);
+  font: inherit;
+  padding: 0.65rem;
+  resize: vertical;
+}
+
+.loanForm .hint {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.loanForm button {
+  width: fit-content;
+  min-height: 2.75rem;
+  border: 1px solid var(--accent-strong);
+  border-radius: 0.25rem;
+  background: var(--accent-strong);
+  color: white;
+  cursor: pointer;
+  font-weight: 800;
+  padding: 0.55rem 1rem;
+}
+
+.loanForm button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.requestSuccess,
+.requestError {
+  border: 1px solid currentColor;
+  border-radius: 0.3rem;
+  padding: 0.75rem 0.9rem;
+}
+
+.requestSuccess {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.requestSuccess a {
+  font-weight: 800;
+}
+
+.requestError {
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .categories ul {

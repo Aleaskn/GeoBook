@@ -9,6 +9,7 @@ import { MyLibraryPage } from '../pages/MyLibraryPage.jsx';
 import { NewBookPage } from '../pages/NewBookPage.jsx';
 import { NotFoundPage } from '../pages/NotFoundPage.jsx';
 import { ProfilePage } from '../pages/ProfilePage.jsx';
+import { RequestsPage } from '../pages/RequestsPage.jsx';
 import { RegisterPage } from '../pages/RegisterPage.jsx';
 import { SearchPage } from '../pages/SearchPage.jsx';
 import { ProtectedRoute } from './ProtectedRoute.jsx';
@@ -29,6 +30,7 @@ export function AppRoutes() {
         <Route element={<ProtectedRoute />}>
           <Route path="profile" element={<ProfilePage />} />
           <Route path="my-library" element={<MyLibraryPage />} />
+          <Route path="requests" element={<RequestsPage />} />
           <Route path="books/new" element={<NewBookPage />} />
           <Route path="books/:id/edit" element={<EditBookPage />} />
         </Route>

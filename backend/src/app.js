@@ -9,6 +9,7 @@ import { createAuthController } from './controllers/auth-controller.js';
 import { createBookController } from './controllers/book-controller.js';
 import { createCategoryController } from './controllers/category-controller.js';
 import { createHealthController } from './controllers/health-controller.js';
+import { createLoanRequestController } from './controllers/loan-request-controller.js';
 import { createProfileController } from './controllers/profile-controller.js';
 import { createErrorHandler } from './middleware/error-handler.js';
 import { createCoverUpload } from './middleware/cover-upload.js';
@@ -20,17 +21,23 @@ import { validateBody, validateParams, validateQuery } from './middleware/valida
 import { createBookRepository } from './repositories/book-repository.js';
 import { createCategoryRepository } from './repositories/category-repository.js';
 import { createHealthRepository } from './repositories/health-repository.js';
+import { createLoanRequestRepository } from './repositories/loan-request-repository.js';
 import { createUserRepository } from './repositories/user-repository.js';
 import { createAuthRouter } from './routes/auth-routes.js';
 import { createBookRouter } from './routes/book-routes.js';
 import { createCategoryRouter } from './routes/category-routes.js';
 import { createHealthRouter } from './routes/health-routes.js';
+import {
+  createLoanRequestRouter,
+  createMyLoanRequestRouter,
+} from './routes/loan-request-routes.js';
 import { createMyBookRouter } from './routes/my-book-routes.js';
 import { createProfileRouter } from './routes/profile-routes.js';
 import { createAuthService } from './services/auth-service.js';
 import { createBookService } from './services/book-service.js';
 import { createCategoryService } from './services/category-service.js';
 import { createHealthService } from './services/health-service.js';
+import { createLoanRequestService } from './services/loan-request-service.js';
 import { createImageService } from './services/image-service.js';
 import { createProfileService } from './services/profile-service.js';
 import { createTokenService } from './services/token-service.js';
@@ -70,6 +77,7 @@ export function createApp({
   userRepository,
   bookRepository,
   categoryRepository,
+  loanRequestRepository,
   imageService,
 }) {
   if (!config || !pool) {
@@ -91,6 +99,7 @@ export function createApp({
   const resolvedBookRepository = bookRepository ?? createBookRepository(pool);
   const resolvedCategoryRepository = categoryRepository ?? createCategoryRepository(pool);
   const resolvedImageService = imageService ?? createImageService({ uploadDir: config.uploadDir });
+  const resolvedLoanRequestRepository = loanRequestRepository ?? createLoanRequestRepository(pool);
   const bookService = createBookService({
     bookRepository: resolvedBookRepository,
     categoryRepository: resolvedCategoryRepository,
@@ -98,6 +107,7 @@ export function createApp({
     logger,
   });
   const categoryService = createCategoryService(resolvedCategoryRepository);
+  const loanRequestService = createLoanRequestService(resolvedLoanRequestRepository);
   const authController = createAuthController({
     authService,
     authCookieOptions: createAuthCookieOptions(config),
@@ -107,6 +117,7 @@ export function createApp({
   const bookController = createBookController(bookService);
   const uploadCover = createCoverUpload({ maxUploadBytes: config.maxUploadBytes });
   const categoryController = createCategoryController(categoryService);
+  const loanRequestController = createLoanRequestController(loanRequestService);
   const requireAuth = createRequireAuth(tokenService);
 
   app.disable('x-powered-by');
@@ -143,9 +154,23 @@ export function createApp({
   app.use('/api/v1/profile', createProfileRouter({ profileController, requireAuth, validateBody }));
   app.use('/api/v1/me/books', createMyBookRouter({ bookController, requireAuth }));
   app.use(
+    '/api/v1/me/loan-requests',
+    createMyLoanRequestRouter({ loanRequestController, requireAuth, validateQuery }),
+  );
+  app.use(
+    '/api/v1/loan-requests',
+    createLoanRequestRouter({
+      loanRequestController,
+      requireAuth,
+      validateBody,
+      validateParams,
+    }),
+  );
+  app.use(
     '/api/v1/books',
     createBookRouter({
       bookController,
+      loanRequestController,
       requireAuth,
       uploadCover,
       parseBookForm,

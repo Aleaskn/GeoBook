@@ -32,11 +32,14 @@ e ordinata, basandomi sulla progettazione fatta nell'ultimo mese a partire dal 2
   pubblica per testo e categoria, paginazione e filtri frontend sincronizzati con l'URL.
 - 8 settembre 2026: completata in anticipo la milestone prevista per il 12 settembre: ricerca
   PostGIS per raggio, distanza arrotondata e coordinate pubbliche approssimate.
-- 13 settembre 2026: completata la mappa accessibile con Leaflet e OpenStreetMap, il dettaglio
-  pubblico dei libri e la registrazione anonima delle visualizzazioni.
+- 8 settembre 2026: completata in anticipo la milestone prevista per il 13 settembre: mappa
+  accessibile con Leaflet e OpenStreetMap, dettaglio pubblico dei libri e registrazione anonima
+  delle visualizzazioni.
+- 9 settembre 2026: completata in anticipo la milestone prevista per il 14 settembre: workflow
+  delle richieste di prestito con autorizzazioni, transizioni atomiche e interfaccia per richieste
+  in entrata e in uscita.
 
-Non sono ancora implementati il flusso delle richieste di prestito o la dashboard: queste
-funzionalità sono pianificate nelle milestone successive.
+Non è ancora implementata la dashboard amministrativa, pianificata nella milestone successiva.
 
 ## Stack previsto
 
@@ -182,10 +185,10 @@ npm run dev:frontend
 
 Aprire `http://localhost:5173`. Sono disponibili la homepage, la ricerca pubblica in `/search`,
 la mappa in `/map`, il dettaglio pubblico in `/books/:id`, le pagine di autenticazione,
-`/profile`, `/my-library`, `/books/new` e `/books/:id/edit`; le pagine personali richiedono una
-sessione valida. Tutte le chiamate usano il client API centralizzato con credenziali abilitate,
-perciò il cookie HttpOnly viene gestito dal browser e non deve essere copiato nel codice o
-salvato in `localStorage`.
+`/profile`, `/my-library`, `/books/new`, `/books/:id/edit` e `/requests`; le pagine personali
+richiedono una sessione valida. Tutte le chiamate usano il client API centralizzato con
+credenziali abilitate, perciò il cookie HttpOnly viene gestito dal browser e non deve essere
+copiato nel codice o salvato in `localStorage`.
 
 Per una prova rapida è possibile accedere dal browser con uno dei profili demo indicati nella
 sezione database, modificare il profilo e gestire libri, categorie, copertine e disponibilità
@@ -259,13 +262,13 @@ Il dettaglio può ricevere `lat` e `lon` insieme per mostrare la distanza arroto
 della pagina registra una visualizzazione anonima; il frontend usa `sessionStorage` per non
 registrare più volte lo stesso libro durante la medesima sessione del browser.
 
-| Zona demo    | Latitudine      |Longitudine|
-
-| Murat        | `41.1171`       | `16.8719` |
-| Madonnella   | `41.1218`       | `16.8797` |
-| Poggiofranco | `41.1077`       | `16.8548` |
-| Carrassi     | `41.1041`       | `16.8623` |
-| Japigia      | `41.0985`       | `16.8882` |
+| Zona demo    | Latitudine | Longitudine |
+| ------------ | ---------- | ----------- |
+| Murat        | `41.1171`  | `16.8719`   |
+| Madonnella   | `41.1218`  | `16.8797`   |
+| Poggiofranco | `41.1077`  | `16.8548`   |
+| Carrassi     | `41.1041`  | `16.8623`   |
+| Japigia      | `41.0985`  | `16.8882`   |
 
 Creazione di un libro con copertina usando il cookie ottenuto con il login:
 
@@ -298,6 +301,27 @@ reali presenti in `backend/storage` sono esclusi da Git.
 La cancellazione rimuove in cascata associazioni alle categorie e visualizzazioni. Un libro con
 richieste di prestito storiche viene invece conservato e l'API risponde
 `409 BOOK_HAS_LOAN_REQUESTS`, così da non perdere la cronologia.
+
+## Richieste di prestito
+
+Gli endpoint autenticati del workflow sono:
+
+- `POST /api/v1/books/:id/loan-requests`, con `message` facoltativo fino a 500 caratteri;
+- `GET /api/v1/me/loan-requests?direction=incoming|outgoing`;
+- `PATCH /api/v1/loan-requests/:id/status`, con uno stato tra `ACCEPTED`, `REJECTED`,
+  `CANCELLED` e `RETURNED`.
+
+Una richiesta può essere creata solo per un libro altrui disponibile e non può duplicare una
+richiesta `PENDING` dello stesso utente per lo stesso libro. Il proprietario può accettare o
+rifiutare una richiesta in attesa e confermare la restituzione di un prestito accettato; il
+richiedente può annullare soltanto una propria richiesta in attesa. Accettazione e restituzione
+aggiornano la disponibilità del libro nella stessa transazione. Le altre transizioni restituiscono
+`409` senza modificare lo stato.
+
+La pagina protetta `/requests` separa le richieste in entrata e in uscita e mostra solo le azioni
+consentite al ruolo assunto dall'utente nella singola richiesta. I DTO includono nomi visualizzati
+e dati essenziali del libro per le sole parti coinvolte; non espongono email, coordinate o altri
+dati di contatto.
 
 ## Script principali
 

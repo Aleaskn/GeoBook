@@ -2,17 +2,22 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { getBook, recordBookView } from '../api/book-api.js';
 import { resolveApiAssetUrl } from '../api/api-client.js';
+import { createLoanRequest } from '../api/loan-request-api.js';
 import { PageState } from '../components/PageState.jsx';
+import { useAuth } from '../hooks/useAuth.js';
 import styles from './BookDetailPage.module.css';
 
 const VIEW_SESSION_KEY_PREFIX = 'geobook:viewed-book:';
 
 export function BookDetailPage() {
+  const { status: authStatus } = useAuth();
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const serializedSearch = searchParams.toString();
   const [revision, setRevision] = useState(0);
   const [state, setState] = useState({ status: 'loading', book: null, error: '' });
+  const [message, setMessage] = useState('');
+  const [requestState, setRequestState] = useState({ pending: false, error: '', success: false });
 
   useEffect(() => {
     const activeParams = new window.URLSearchParams(serializedSearch);
@@ -23,6 +28,8 @@ export function BookDetailPage() {
 
     async function loadBook() {
       setState({ status: 'loading', book: null, error: '' });
+      setMessage('');
+      setRequestState({ pending: false, error: '', success: false });
 
       try {
         const book = await getBook(id, coordinates, { signal: controller.signal });
@@ -49,6 +56,23 @@ export function BookDetailPage() {
     void loadBook();
     return () => controller.abort();
   }, [id, revision, serializedSearch]);
+
+  async function handleLoanRequest(event) {
+    event.preventDefault();
+    setRequestState({ pending: true, error: '', success: false });
+
+    try {
+      await createLoanRequest(id, message);
+      setMessage('');
+      setRequestState({ pending: false, error: '', success: true });
+    } catch (error) {
+      setRequestState({
+        pending: false,
+        error: error.message ?? 'Non è stato possibile inviare la richiesta.',
+        success: false,
+      });
+    }
+  }
 
   if (state.status === 'loading') {
     return <PageState title="Dettaglio libro" message="Caricamento del libro in corso…" />;
@@ -123,6 +147,49 @@ export function BookDetailPage() {
             ) : (
               <p>Nessuna categoria associata.</p>
             )}
+          </section>
+          <section className={styles.loanRequest} aria-labelledby="loan-request-title">
+            <h2 id="loan-request-title">Richiedi il libro</h2>
+            {!book.available ? <p>Questo libro non è disponibile per nuove richieste.</p> : null}
+            {book.available && authStatus === 'loading' ? (
+              <p role="status">Verifica della sessione in corso…</p>
+            ) : null}
+            {book.available && (authStatus === 'anonymous' || authStatus === 'error') ? (
+              <p>
+                <Link to="/login">Accedi</Link> per inviare una richiesta di prestito.
+              </p>
+            ) : null}
+            {book.available && authStatus === 'authenticated' && !requestState.success ? (
+              <form className={styles.loanForm} onSubmit={handleLoanRequest}>
+                <label htmlFor="loan-message">Messaggio facoltativo</label>
+                <textarea
+                  id="loan-message"
+                  name="message"
+                  value={message}
+                  maxLength={500}
+                  rows={4}
+                  aria-describedby="loan-message-hint"
+                  onChange={(event) => setMessage(event.target.value)}
+                />
+                <p id="loan-message-hint" className={styles.hint}>
+                  Massimo 500 caratteri. Non inserire indirizzi o altri dati personali.
+                </p>
+                <button type="submit" disabled={requestState.pending}>
+                  {requestState.pending ? 'Invio in corso…' : 'Invia richiesta'}
+                </button>
+              </form>
+            ) : null}
+            {requestState.success ? (
+              <p className={styles.requestSuccess} role="status">
+                Richiesta inviata. Puoi seguirne lo stato nella pagina{' '}
+                <Link to="/requests">Richieste</Link>.
+              </p>
+            ) : null}
+            {requestState.error ? (
+              <p className={styles.requestError} role="alert">
+                {requestState.error}
+              </p>
+            ) : null}
           </section>
           <p className={styles.privacyNote}>
             GeoBook mostra soltanto la zona dichiarata pubblica e, se disponibile, una distanza

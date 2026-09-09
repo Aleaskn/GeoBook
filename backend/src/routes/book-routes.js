@@ -6,10 +6,12 @@ import {
   searchBooksQuerySchema,
   updateBookSchema,
 } from '../schemas/book-schemas.js';
+import { createLoanRequestSchema } from '../schemas/loan-request-schemas.js';
 import { asyncHandler } from '../utils/async-handler.js';
 
 export function createBookRouter({
   bookController,
+  loanRequestController,
   requireAuth,
   uploadCover,
   parseBookForm,
@@ -34,6 +36,12 @@ export function createBookRouter({
   );
 
   router.use(requireAuth);
+  router.post(
+    '/:id/loan-requests',
+    validateParams(bookIdParamsSchema),
+    validateBody(createLoanRequestSchema),
+    asyncHandler(loanRequestController.createLoanRequest),
+  );
   router.post(
     '/',
     uploadCover,

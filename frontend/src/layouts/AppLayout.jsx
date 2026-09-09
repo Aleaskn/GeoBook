@@ -53,6 +53,9 @@ export function AppLayout() {
                 <NavLink className={navigationClass} to="/my-library">
                   Biblioteca
                 </NavLink>
+                <NavLink className={navigationClass} to="/requests">
+                  Richieste
+                </NavLink>
                 <NavLink className={navigationClass} to="/profile">
                   Profilo
                 </NavLink>
