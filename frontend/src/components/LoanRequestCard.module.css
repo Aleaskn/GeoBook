@@ -1,0 +1,111 @@
+.card {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 1rem;
+}
+
+.cover {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  background: var(--accent-soft);
+  object-fit: cover;
+}
+
+.content {
+  min-width: 0;
+}
+
+.content h3 {
+  margin: 0.7rem 0 0.15rem;
+  font-family: var(--title-font);
+  font-size: 1.45rem;
+}
+
+.content h3 a {
+  color: var(--accent-strong);
+}
+
+.author {
+  margin: 0;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.details {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.9rem 0;
+}
+
+.details div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.details dt {
+  font-weight: 800;
+}
+
+.details dt::after {
+  content: ':';
+}
+
+.details dd {
+  margin: 0;
+}
+
+.message {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0.9rem 0;
+}
+
+.message span {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.actions button {
+  min-height: 2.75rem;
+  border: 1px solid var(--accent-strong);
+  border-radius: 0.25rem;
+  background: var(--accent-strong);
+  color: white;
+  cursor: pointer;
+  font-weight: 800;
+  padding: 0.55rem 0.9rem;
+}
+
+.actions .secondaryAction {
+  background: transparent;
+  color: var(--accent-strong);
+}
+
+.actions button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+@media (max-width: 30rem) {
+  .card {
+    grid-template-columns: 5.25rem minmax(0, 1fr);
+    padding: 0.8rem;
+  }
+}

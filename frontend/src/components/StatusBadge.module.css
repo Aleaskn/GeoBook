@@ -1,0 +1,30 @@
+.badge {
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 0.3rem 0.65rem;
+}
+
+.pending {
+  color: #76500f;
+  background: #fff2cf;
+}
+
+.accepted {
+  color: #235f39;
+  background: #e3f3e8;
+}
+
+.rejected,
+.cancelled {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.returned {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+}

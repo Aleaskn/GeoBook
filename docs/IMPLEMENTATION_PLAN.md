@@ -20,15 +20,16 @@
 - Completata in anticipo il 6 settembre 2026 la milestone prevista per il 10 settembre: upload sicuro di copertine, generazione di cover e miniature WebP, cleanup e integrazione frontend.
 - Completata in anticipo il 7 settembre 2026 la milestone prevista per l'11 settembre: ricerca pubblica per titolo/autore e categoria, paginazione stabile e filtri React sincronizzati con l'URL.
 - Completata in anticipo l'8 settembre 2026 la milestone prevista per il 12 settembre: ricerca PostGIS per raggio, distanza arrotondata e coordinate pubbliche approssimate su griglia.
-- Completata il 13 settembre 2026 la milestone prevista: mappa Leaflet con lista equivalente, dettaglio pubblico dei libri e registrazione anonima delle visualizzazioni.
+- Completata in anticipo l'8 settembre 2026 la milestone prevista per il 13 settembre: mappa Leaflet con lista equivalente, dettaglio pubblico dei libri e registrazione anonima delle visualizzazioni.
+- Completata in anticipo il 9 settembre 2026 la milestone prevista per il 14 settembre: workflow delle richieste di prestito con autorizzazioni, transizioni atomiche e UI in entrata/uscita.
 
 ### Attività in corso
 
-- Nessuna. Mappa e dettaglio libro sono completi e verificati; le richieste di prestito restano pianificate per il 14 settembre.
+- Nessuna. Le richieste di prestito sono complete e verificate; dashboard e hardening restano pianificati per il 15 settembre.
 
 ### Attività pianificate
 
-- Implementazione incrementale dell'MVP dal 14 al 16 settembre 2026.
+- Implementazione incrementale dell'MVP dal 15 al 16 settembre 2026.
 - Stabilizzazione senza nuove funzionalità dal 17 al 20 settembre 2026, salvo requisiti indispensabili mancanti.
 
 ## Piano Giornaliero
@@ -245,6 +246,14 @@ percorsi positivi, input errati, assenze e stati vuoti o di errore.
 6. **Test da eseguire:** T07-T09, autorizzazioni 403, transazioni disponibilità; React Testing Library su azioni valide per ruolo.
 7. **Messaggi di commit suggeriti:** `feat(loans): add loan request workflow`.
 8. **Rischi o decisioni ancora aperte:** gestione libro eliminato con richieste esistenti.
+
+**Esito anticipato del 9 settembre 2026:** implementati creazione e consultazione delle richieste in
+entrata e in uscita, insieme alle transizioni autorizzate `PENDING` → `ACCEPTED`, `REJECTED` o
+`CANCELLED` e `ACCEPTED` → `RETURNED`. Il service blocca le righe coinvolte e aggiorna stato e
+disponibilità del libro nella stessa transazione. I test coprono T07-T09, attori non autorizzati,
+rollback e query parametrizzate. Il dettaglio libro consente l'invio con messaggio facoltativo e
+la pagina protetta `/requests` presenta solo le azioni valide per proprietario o richiedente, con
+stati di caricamento, errore, vuoto e successo.
 
 ### 15 settembre 2026 - Dashboard admin e hardening
 
