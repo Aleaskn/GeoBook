@@ -92,6 +92,33 @@ export function validateProfile(values) {
   };
 }
 
+function validateCoordinate(value, label, minimum, maximum) {
+  const normalizedValue = value.trim().replace(',', '.');
+  const coordinate = Number(normalizedValue);
+
+  if (!normalizedValue) {
+    return `${label} obbligatoria.`;
+  }
+
+  if (!Number.isFinite(coordinate) || coordinate < minimum || coordinate > maximum) {
+    return `${label} non valida.`;
+  }
+
+  return '';
+}
+
+export function validateProfileLocation(values) {
+  return {
+    lat: validateCoordinate(values.lat, 'Latitudine', -90, 90),
+    lon: validateCoordinate(values.lon, 'Longitudine', -180, 180),
+    consent: values.consent ? '' : 'Devi fornire il consenso esplicito per salvare la posizione.',
+  };
+}
+
+export function parseCoordinate(value) {
+  return Number(value.trim().replace(',', '.'));
+}
+
 export function validateBook(values) {
   const title = values.title.trim();
   const author = values.author.trim();

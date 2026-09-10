@@ -38,9 +38,15 @@ e ordinata, basandomi sulla progettazione fatta nell'ultimo mese a partire dal 2
 - 9 settembre 2026: completata in anticipo la milestone prevista per il 14 settembre: workflow
   delle richieste di prestito con autorizzazioni, transizioni atomiche e interfaccia per richieste
   in entrata e in uscita.
-- 9 settembre 2026: ccompletata in anticipo la milestone prevista per il 15 settembre: dashboard amministrativa con statistiche aggregate, attività recente, grafici accessibili e protezione lato server basata sul ruolo.
+- 9 settembre 2026: completata in anticipo la milestone prevista per il 15 settembre: dashboard
+  amministrativa con statistiche aggregate, attività recente, grafici accessibili e protezione
+  lato server basata sul ruolo.
+- 10 settembre 2026: completata in anticipo la milestone prevista per il 16 settembre: completamento tecnico dell'MVP con gestione del consenso geografico dal
+  profilo, verifica UTF-8 del seed, controlli di accessibilità, responsive e privacy e istruzioni
+  tecniche consolidate.
 
-Resta pianificato il completamento tecnico dell'MVP previsto per la milestone successiva.
+L'MVP è tecnicamente completo. Dal 17 al 20 settembre resta prevista esclusivamente la finestra
+di stabilizzazione, senza nuove funzionalità salvo requisiti indispensabili mancanti.
 
 ## Stack previsto
 
@@ -118,6 +124,8 @@ che coprono tutti gli stati e 36 visualizzazioni. Sono disponibili questi profil
 - password condivisa: `GeoBookDemo2026!`.
 
 Nel database è memorizzato soltanto l'hash bcrypt della password, con costo 12.
+Gli script SQL e i dati testuali usano UTF-8; `database/verify.sql` controlla anche che i
+caratteri accentati del seed siano stati importati correttamente.
 
 Per ricreare completamente i dati applicativi locali, eseguire prima il reset e poi ripetere i
 tre comandi precedenti:
@@ -225,6 +233,11 @@ in produzione. Per salvare la posizione, `PATCH /profile/location` richiede `lat
 `consent: true`. Le risposte restituiscono solo la data del consenso: coordinate
 e hash password non fanno parte del DTO utente. La revoca elimina sia la posizione sia la data
 del consenso.
+
+La pagina `/profile` permette di salvare e revocare direttamente posizione e consenso. Le
+coordinate possono essere copiate da un servizio di mappe scegliendo un punto rappresentativo
+della propria zona, senza indicare l'indirizzo di casa. Dopo il salvataggio i valori vengono
+rimossi dal form e non sono restituiti dall'API; resta visibile soltanto lo stato del consenso.
 
 ## API di categorie, ricerca e biblioteca personale
 
@@ -338,7 +351,7 @@ gli indicatori principali e due grafici Chart.js. Ogni grafico è accompagnato d
 testuale con gli stessi valori. Le risposte amministrative omettono password, hash, email,
 coordinate, messaggi delle richieste e altri dati non necessari alla sintesi.
 
-## Script principali
+## Verifica e avvio
 
 ```bash
 npm run lint
@@ -375,3 +388,24 @@ il punto esatto per il DTO pubblico. La posizione restituita viene arrotondata l
 due decimali, cioè una griglia di circa 0,01 gradi; la distanza è espressa in chilometri e
 arrotondata a un decimale. La revoca del consenso azzera posizione e data del consenso, rendendo
 i relativi libri assenti dalle ricerche spaziali.
+
+## Accessibilità e responsive
+
+Le pagine usano struttura semantica, un solo titolo principale, etichette esplicite per i campi,
+errori associati ai controlli, focus visibile e un collegamento per saltare alla sezione
+principale. Stati di caricamento, errore e successo sono annunciati con ruoli e regioni live
+pertinenti. La mappa è sempre affiancata da un elenco testuale equivalente e i grafici della
+dashboard dispongono di tabelle con gli stessi valori.
+
+I flussi principali sono progettati per viewport da 360, 768 e 1440 px. Su schermi ridotti i
+contenuti a colonne diventano sequenziali, la lista dei risultati precede la mappa e i controlli
+rimangono utilizzabili da tastiera.
+
+## Limiti del prototipo
+
+- Le coordinate vengono inserite manualmente: il prototipo non integra geocodifica o selezione
+  della posizione da una mappa.
+- Le tile OpenStreetMap richiedono una connessione di rete; l'elenco equivalente resta comunque
+  disponibile.
+- Richieste e prestiti sono simulati: non sono presenti chat, notifiche, pagamenti o contatti
+  personali.

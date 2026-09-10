@@ -27,8 +27,9 @@ describe('profile page', () => {
     expect(
       screen.getByRole('heading', { level: 2, name: 'Coordinate e consenso' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('PATCH /api/v1/profile/location')).toBeInTheDocument();
-    expect(screen.getByText('DELETE /api/v1/profile/location')).toBeInTheDocument();
+    expect(screen.getByLabelText('Latitudine')).toBeInTheDocument();
+    expect(screen.getByLabelText('Longitudine')).toBeInTheDocument();
+    expect(screen.getByLabelText(/acconsento al salvataggio/i)).toBeInTheDocument();
     expect(screen.getByText(/nei risultati pubblici mostra esclusivamente/i)).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: updatedUser.name } });
     fireEvent.change(screen.getByLabelText('Raggio di condivisione'), {
@@ -54,6 +55,85 @@ describe('profile page', () => {
         }),
       }),
     );
+  });
+
+  it('saves coordinates with explicit consent and confirms their revocation', async () => {
+    const locatedUser = {
+      ...TEST_USER,
+      locationConsentAt: '2026-09-16T10:00:00.000Z',
+    };
+    vi.stubGlobal(
+      'confirm',
+      vi.fn(() => true),
+    );
+    window.fetch
+      .mockResolvedValueOnce(apiResponse(200, { data: { user: TEST_USER } }))
+      .mockResolvedValueOnce(apiResponse(200, { data: { user: TEST_USER } }))
+      .mockResolvedValueOnce(apiResponse(200, { data: { user: locatedUser } }))
+      .mockResolvedValueOnce(apiResponse(204));
+
+    render(<App />);
+
+    fireEvent.change(await screen.findByLabelText('Latitudine'), {
+      target: { value: '41,1171' },
+    });
+    fireEvent.change(screen.getByLabelText('Longitudine'), {
+      target: { value: '16.8719' },
+    });
+    fireEvent.click(screen.getByLabelText(/acconsento al salvataggio/i));
+    fireEvent.click(screen.getByRole('button', { name: 'Salva posizione' }));
+
+    expect(await screen.findByText('Posizione e consenso salvati correttamente.')).toHaveAttribute(
+      'role',
+      'status',
+    );
+    expect(window.fetch).toHaveBeenNthCalledWith(
+      3,
+      'http://localhost:3000/api/v1/profile/location',
+      expect.objectContaining({
+        method: 'PATCH',
+        credentials: 'include',
+        body: JSON.stringify({ lat: 41.1171, lon: 16.8719, consent: true }),
+      }),
+    );
+    expect(screen.getByLabelText('Latitudine')).toHaveValue('');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Revoca consenso ed elimina posizione' }));
+
+    expect(window.confirm).toHaveBeenCalledWith(
+      'Vuoi revocare il consenso ed eliminare la posizione precisa salvata?',
+    );
+    expect(await screen.findByText('Consenso revocato e posizione eliminata.')).toHaveAttribute(
+      'role',
+      'status',
+    );
+    expect(window.fetch).toHaveBeenNthCalledWith(
+      4,
+      'http://localhost:3000/api/v1/profile/location',
+      expect.objectContaining({ method: 'DELETE', credentials: 'include' }),
+    );
+    expect(screen.getByText('Non condivisa')).toBeInTheDocument();
+  });
+
+  it('validates coordinates and explicit consent before contacting the API', async () => {
+    window.fetch
+      .mockResolvedValueOnce(apiResponse(200, { data: { user: TEST_USER } }))
+      .mockResolvedValueOnce(apiResponse(200, { data: { user: TEST_USER } }));
+
+    render(<App />);
+
+    fireEvent.change(await screen.findByLabelText('Latitudine'), {
+      target: { value: '91' },
+    });
+    fireEvent.change(screen.getByLabelText('Longitudine'), {
+      target: { value: '181' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Salva posizione' }));
+
+    expect(screen.getByText('Latitudine non valida.')).toBeInTheDocument();
+    expect(screen.getByText('Longitudine non valida.')).toBeInTheDocument();
+    expect(screen.getByText(/devi fornire il consenso esplicito/i)).toBeInTheDocument();
+    expect(window.fetch).toHaveBeenCalledTimes(2);
   });
 
   it('shows a recoverable loading error', async () => {

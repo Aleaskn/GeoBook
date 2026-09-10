@@ -27,7 +27,7 @@ export function EditBookPage() {
     setEditorState({ status: 'loading', book: null, categories: [], error: '' });
 
     try {
-      // Il dettaglio pubblico arriverà in una milestone successiva: qui usiamo solo i libri propri.
+      // L'elenco personale garantisce che l'editor non usi il DTO pubblico di un libro altrui.
       const [books, categories] = await Promise.all([listMyBooks(), listCategories()]);
       const book = books.find((candidate) => candidate.id === bookId);
 
