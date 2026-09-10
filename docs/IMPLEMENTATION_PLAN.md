@@ -23,14 +23,16 @@
 - Completata in anticipo l'8 settembre 2026 la milestone prevista per il 13 settembre: mappa Leaflet con lista equivalente, dettaglio pubblico dei libri e registrazione anonima delle visualizzazioni.
 - Completata in anticipo il 9 settembre 2026 la milestone prevista per il 14 settembre: workflow delle richieste di prestito con autorizzazioni, transizioni atomiche e UI in entrata/uscita.
 - Completata il 9 settembre 2026 la milestone prevista per il 15 settembre: dashboard amministrativa, statistiche aggregate, attività recenti e verifica dell'hardening HTTP.
+- Completata il 10 settembre 2026 la milestone prevista per il 16 settembre: gestione del
+  consenso geografico dal profilo, seed UTF-8 verificabile, audit mirato di accessibilità,
+  responsive e privacy e README tecnico consolidato.
 
 ### Attività in corso
 
-- Nessuna. Dashboard e hardening sono completi e verificati; il completamento tecnico dell'MVP resta pianificato per il 16 settembre.
+- Nessuna. L'MVP è tecnicamente completo e verificato; resta la finestra di stabilizzazione.
 
 ### Attività pianificate
 
-- Completamento tecnico dell'MVP il 16 settembre 2026.
 - Stabilizzazione senza nuove funzionalità dal 17 al 20 settembre 2026, salvo requisiti indispensabili mancanti.
 
 ## Piano Giornaliero
@@ -287,6 +289,14 @@ dell'utente.
 6. **Test da eseguire:** `npm run lint`, `npm test`, build frontend, test manuale browser, tastiera, mobile 360/768/1440, verifica payload privacy.
 7. **Messaggi di commit suggeriti:** `test: complete MVP verification coverage`, `docs: finalize technical setup`.
 8. **Rischi o decisioni ancora aperte:** correggere bug senza ampliare scope.
+
+**Esito del 16 settembre 2026:** completata la gestione della posizione direttamente dal profilo:
+coordinate validate anche con separatore decimale italiano, consenso esplicito, revoca confermata e
+azzeramento immediato dei valori precisi dal form e dai DTO. Il seed dichiara UTF-8 e la verifica SQL
+controlla un testo accentato, oltre a conteggi, PostGIS, indici e vincoli. Il README descrive setup,
+flusso geografico, privacy, accessibilità, responsive e limiti del prototipo. L'audit non ha richiesto
+nuove dipendenze o modifiche al contratto API; i test pertinenti coprono salvataggio, revoca e input
+geografici non validi.
 
 ## Finestra di Stabilizzazione
 

@@ -1,5 +1,5 @@
 \set ON_ERROR_STOP on
-\encoding WIN1252
+\encoding UTF8
 
 BEGIN;
 

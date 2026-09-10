@@ -20,6 +20,10 @@ BEGIN
     RAISE EXCEPTION 'Conteggio libri non valido.';
   END IF;
 
+  IF NOT EXISTS (SELECT 1 FROM books WHERE title = 'La città che legge') THEN
+    RAISE EXCEPTION 'Il seed non conserva correttamente i caratteri UTF-8.';
+  END IF;
+
   IF (SELECT COUNT(*) FROM loan_requests) <> 5 THEN
     RAISE EXCEPTION 'Conteggio richieste non valido.';
   END IF;

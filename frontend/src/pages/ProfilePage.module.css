@@ -144,8 +144,68 @@
   color: var(--text);
 }
 
+.locationForm {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1.25rem;
+}
+
+.coordinateFields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.consentField {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.65rem;
+}
+
+.consentField input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0.2rem 0 0;
+  accent-color: var(--accent);
+}
+
+.consentField label {
+  color: var(--text);
+  font-weight: 650;
+}
+
+.locationActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.deleteLocationButton {
+  border: 1px solid var(--danger);
+  border-radius: 0.2rem;
+  background: var(--surface);
+  color: var(--danger);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+  padding: 0.75rem 1rem;
+}
+
+.deleteLocationButton:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
 @media (max-width: 42rem) {
   .accountDetails {
+    grid-template-columns: 1fr;
+  }
+
+  .coordinateFields {
     grid-template-columns: 1fr;
   }
 }
