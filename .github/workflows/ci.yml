@@ -1,0 +1,109 @@
+name: Verifica GeoBook
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NODE_ENV: test
+  PORT: 3000
+  DATABASE_URL: postgres://geobook:geobook@localhost:5432/geobook
+  JWT_SECRET: github-actions-test-secret-with-at-least-32-characters
+  JWT_EXPIRES_IN: 2h
+  FRONTEND_ORIGIN: http://localhost:5173
+  UPLOAD_DIR: ./storage
+  MAX_UPLOAD_BYTES: 5242880
+  BCRYPT_ROUNDS: 12
+
+jobs:
+  verify-ubuntu:
+    name: Database e applicazione (Ubuntu)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgis/postgis:15-3.3
+        env:
+          POSTGRES_USER: geobook
+          POSTGRES_PASSWORD: geobook
+          POSTGRES_DB: geobook
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U geobook -d geobook"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Scarica il repository
+        uses: actions/checkout@v4
+
+      - name: Configura Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Installa le dipendenze
+        run: npm ci
+
+      - name: Verifica schema e dati dimostrativi
+        run: |
+          psql "$DATABASE_URL" -f database/schema.sql
+          psql "$DATABASE_URL" -f database/seed.sql
+          psql "$DATABASE_URL" -f database/verify.sql
+
+      - name: Esegue lint
+        run: npm run lint
+
+      - name: Esegue i test
+        run: npm test
+
+      - name: Verifica la formattazione
+        run: npm run format:check
+
+      - name: Esegue la build
+        run: npm run build
+
+  verify-windows:
+    name: Applicazione e Sharp (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Scarica il repository
+        uses: actions/checkout@v4
+
+      - name: Configura Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Installa le dipendenze
+        run: npm ci
+
+      - name: Verifica Sharp e la codifica WebP
+        working-directory: backend
+        run: |
+          node --input-type=module -e "import sharp from 'sharp'; const image = await sharp({ create: { width: 10, height: 10, channels: 3, background: '#c47b22' } }).webp().toBuffer(); if (image.length === 0) process.exit(1); console.log('Sharp WebP OK');"
+
+      - name: Esegue lint
+        run: npm run lint
+
+      - name: Esegue i test
+        run: npm test
+
+      - name: Verifica la formattazione
+        run: npm run format:check
+
+      - name: Esegue la build
+        run: npm run build
