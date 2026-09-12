@@ -31,17 +31,10 @@ export function BookDetailPage() {
       setMessage('');
       setRequestState({ pending: false, error: '', success: false });
 
+      let book;
+
       try {
-        const book = await getBook(id, coordinates, { signal: controller.signal });
-        const viewKey = `${VIEW_SESSION_KEY_PREFIX}${book.id}`;
-
-        // Una chiave di sessione evita incrementi ripetuti tornando più volte sullo stesso dettaglio.
-        if (window.sessionStorage.getItem(viewKey) !== 'recorded') {
-          await recordBookView(book.id, { signal: controller.signal });
-          window.sessionStorage.setItem(viewKey, 'recorded');
-        }
-
-        setState({ status: 'ready', book, error: '' });
+        book = await getBook(id, coordinates, { signal: controller.signal });
       } catch (error) {
         if (error.name !== 'AbortError') {
           setState({
@@ -49,6 +42,23 @@ export function BookDetailPage() {
             book: null,
             error: error.message ?? 'Non è stato possibile caricare il libro.',
           });
+        }
+
+        return;
+      }
+
+      setState({ status: 'ready', book, error: '' });
+      const viewKey = `${VIEW_SESSION_KEY_PREFIX}${book.id}`;
+
+      // Il conteggio è best-effort: un errore statistico non deve nascondere un dettaglio valido.
+      if (window.sessionStorage.getItem(viewKey) !== 'recorded') {
+        try {
+          await recordBookView(book.id, { signal: controller.signal });
+          window.sessionStorage.setItem(viewKey, 'recorded');
+        } catch (error) {
+          if (error.name !== 'AbortError') {
+            console.warn('Non è stato possibile registrare la visualizzazione del libro.');
+          }
         }
       }
     }

@@ -215,6 +215,44 @@ describe('map and public book detail', () => {
     });
   });
 
+  it('keeps a loaded detail visible when recording its view fails', async () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    setRoute('/books/10');
+    window.fetch.mockImplementation((url) => {
+      const response = commonResponse(url);
+      if (response) {
+        return Promise.resolve(response);
+      }
+
+      if (url.endsWith('/books/10/view')) {
+        return Promise.resolve(
+          apiResponse(500, {
+            error: { code: 'INTERNAL_ERROR', message: 'Visualizzazione non registrata.' },
+          }),
+        );
+      }
+
+      if (url.endsWith('/books/10')) {
+        return Promise.resolve(apiResponse(200, { data: { book: DETAIL_BOOK } }));
+      }
+
+      throw new Error(`Richiesta inattesa: ${url}`);
+    });
+
+    render(<App />);
+
+    expect(await screen.findByRole('heading', { level: 1, name: DETAIL_BOOK.title })).toBeVisible();
+    expect(
+      screen.queryByRole('heading', { name: 'Dettaglio non disponibile' }),
+    ).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(warning).toHaveBeenCalledWith(
+        'Non è stato possibile registrare la visualizzazione del libro.',
+      );
+    });
+    expect(window.sessionStorage.getItem('geobook:viewed-book:10')).toBeNull();
+  });
+
   it('renders the backend error when a detail is unavailable', async () => {
     setRoute('/books/999');
     window.fetch.mockImplementation((url) => {
