@@ -213,7 +213,7 @@ describe('categories and books API', () => {
           available: true,
           publicArea: 'Zona Murat',
           categories: [{ id: '1', name: 'Narrativa', slug: 'narrativa' }],
-          distanceKm: 0,
+          distanceKm: 0.4,
           approximateLocation: { lat: 41.12, lon: 16.87 },
         },
       ],
@@ -235,6 +235,49 @@ describe('categories and books API', () => {
     expect(afterRevocation.body.data.books.map((book) => book.id)).toEqual(['2']);
   });
 
+  it('bases repeated radius searches and detail distances on the public grid point', async () => {
+    const { app } = createTestContext();
+    const resourceQuery = 'q=Libro%20della%20proprietaria&limit=10';
+
+    // Il primo centro è entro 1 km dal punto pubblico (41.12, 16.87), ma non da quello interno.
+    const publicSide = await request(app)
+      .get(`/api/v1/books?${resourceQuery}&lat=41.1265&lon=16.8655&radiusKm=1`)
+      .expect(200);
+    expect(publicSide.body.data.books).toEqual([
+      expect.objectContaining({
+        id: '1',
+        distanceKm: 0.8,
+        approximateLocation: { lat: 41.12, lon: 16.87 },
+      }),
+    ]);
+
+    // Il secondo è entro 1 km dal punto interno, ma oltre 1 km dal punto pubblico.
+    const internalSide = await request(app)
+      .get(`/api/v1/books?${resourceQuery}&lat=41.1105&lon=16.876&radiusKm=1`)
+      .expect(200);
+    expect(internalSide.body.data.books).toEqual([]);
+
+    const widerRadius = await request(app)
+      .get(`/api/v1/books?${resourceQuery}&lat=41.1105&lon=16.876&radiusKm=5`)
+      .expect(200);
+    expect(widerRadius.body.data.books).toEqual([
+      expect.objectContaining({
+        id: '1',
+        distanceKm: 1.2,
+        approximateLocation: { lat: 41.12, lon: 16.87 },
+      }),
+    ]);
+
+    const detailFromPublicPoint = await request(app)
+      .get('/api/v1/books/1?lat=41.12&lon=16.87')
+      .expect(200);
+    const detailFromInternalPoint = await request(app)
+      .get('/api/v1/books/1?lat=41.1171&lon=16.8719')
+      .expect(200);
+    expect(detailFromPublicPoint.body.data.book.distanceKm).toBe(0);
+    expect(detailFromInternalPoint.body.data.book.distanceKm).toBe(0.4);
+  });
+
   it('returns a public book detail and records anonymous views', async () => {
     const { app, recordedViews } = createTestContext();
     const detail = await request(app).get('/api/v1/books/1?lat=41.1171&lon=16.8719').expect(200);
@@ -250,7 +293,7 @@ describe('categories and books API', () => {
       available: true,
       publicArea: 'Zona Murat',
       categories: [{ id: '1', name: 'Narrativa', slug: 'narrativa' }],
-      distanceKm: 0,
+      distanceKm: 0.4,
     });
     expect(JSON.stringify(detail.body)).not.toMatch(/ownerId|ownerEmail|exactLocation|41\.1171/);
 

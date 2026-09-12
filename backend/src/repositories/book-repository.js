@@ -40,10 +40,26 @@ const UPDATABLE_COLUMNS = {
   thumbnailPath: 'thumbnail_path',
 };
 
+const APPROXIMATE_LATITUDE_EXPRESSION = `(ROUND(
+  ST_Y(u.location::geometry)::numeric,
+  ${APPROXIMATE_COORDINATE_DECIMALS}
+)::double precision)`;
+const APPROXIMATE_LONGITUDE_EXPRESSION = `(ROUND(
+  ST_X(u.location::geometry)::numeric,
+  ${APPROXIMATE_COORDINATE_DECIMALS}
+)::double precision)`;
+const PUBLIC_LOCATION_EXPRESSION = `ST_SetSRID(
+  ST_MakePoint(
+    ${APPROXIMATE_LONGITUDE_EXPRESSION},
+    ${APPROXIMATE_LATITUDE_EXPRESSION}
+  ),
+  4326
+)::geography`;
+
 function createSearchFilter({ q, category, lat, lon, radiusKm }) {
   const conditions = ['b.available = TRUE'];
   const parameters = [];
-  let geographicPointExpression = null;
+  let searchOriginExpression = null;
 
   if (q) {
     parameters.push(q);
@@ -72,44 +88,42 @@ function createSearchFilter({ q, category, lat, lon, radiusKm }) {
     const longitudeParameter = `$${parameters.length - 2}`;
     const latitudeParameter = `$${parameters.length - 1}`;
     const radiusParameter = `$${parameters.length}`;
-    geographicPointExpression = `ST_SetSRID(ST_MakePoint(${longitudeParameter}, ${latitudeParameter}), 4326)::geography`;
+    searchOriginExpression = `ST_SetSRID(ST_MakePoint(${longitudeParameter}, ${latitudeParameter}), 4326)::geography`;
     conditions.push('u.location_consent_at IS NOT NULL');
     conditions.push('u.location IS NOT NULL');
-    conditions.push(`ST_DWithin(u.location, ${geographicPointExpression}, ${radiusParameter})`);
+    // Anche l'appartenenza al raggio usa il punto pubblico: il solo arrotondamento del DTO
+    // lascerebbe inferire il punto interno ripetendo ricerche da origini diverse.
+    conditions.push(
+      `ST_DWithin(${PUBLIC_LOCATION_EXPRESSION}, ${searchOriginExpression}, ${radiusParameter})`,
+    );
   }
 
   return {
     whereClause: conditions.join('\n         AND '),
     parameters,
-    geographicPointExpression,
+    searchOriginExpression,
   };
 }
 
 function createBookQueries(queryable) {
   return {
     async search({ q, category, lat, lon, radiusKm, page, limit }) {
-      const { whereClause, parameters, geographicPointExpression } = createSearchFilter({
+      const { whereClause, parameters, searchOriginExpression } = createSearchFilter({
         q,
         category,
         lat,
         lon,
         radiusKm,
       });
-      const geographicSelection = geographicPointExpression
+      const geographicSelection = searchOriginExpression
         ? `,
                 ROUND(
-                  (ST_Distance(u.location, ${geographicPointExpression}) /
+                  (ST_Distance(${PUBLIC_LOCATION_EXPRESSION}, ${searchOriginExpression}) /
                     ${METERS_PER_KILOMETER})::numeric,
                   ${DISTANCE_KM_DECIMALS}
                 )::double precision AS "distanceKm",
-                ROUND(
-                  ST_Y(u.location::geometry)::numeric,
-                  ${APPROXIMATE_COORDINATE_DECIMALS}
-                )::double precision AS "approximateLat",
-                ROUND(
-                  ST_X(u.location::geometry)::numeric,
-                  ${APPROXIMATE_COORDINATE_DECIMALS}
-                )::double precision AS "approximateLon"`
+                ${APPROXIMATE_LATITUDE_EXPRESSION} AS "approximateLat",
+                ${APPROXIMATE_LONGITUDE_EXPRESSION} AS "approximateLon"`
         : '';
       const countResult = await queryable.query(
         `SELECT COUNT(*)::integer AS total
@@ -162,7 +176,7 @@ function createBookQueries(queryable) {
           CASE
             WHEN u.location_consent_at IS NOT NULL AND u.location IS NOT NULL THEN
               ROUND(
-                (ST_Distance(u.location, ${pointExpression}) /
+                (ST_Distance(${PUBLIC_LOCATION_EXPRESSION}, ${pointExpression}) /
                   ${METERS_PER_KILOMETER})::numeric,
                 ${DISTANCE_KM_DECIMALS}
               )::double precision
