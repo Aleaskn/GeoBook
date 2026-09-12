@@ -31,6 +31,13 @@ function roundTo(value, decimalPlaces) {
   return Number(value.toFixed(decimalPlaces));
 }
 
+function toPublicLocation(location) {
+  return {
+    lat: roundTo(location.lat, APPROXIMATE_COORDINATE_DECIMALS),
+    lon: roundTo(location.lon, APPROXIMATE_COORDINATE_DECIMALS),
+  };
+}
+
 export function createInMemoryCatalogRepositories({
   categories = [],
   books = [],
@@ -99,7 +106,8 @@ export function createInMemoryCatalogRepositories({
             return null;
           }
 
-          const distanceMeters = calculateDistanceMeters({ lat, lon }, owner.location);
+          const publicLocation = toPublicLocation(owner.location);
+          const distanceMeters = calculateDistanceMeters({ lat, lon }, publicLocation);
           if (distanceMeters > radiusKm * METERS_PER_KILOMETER) {
             return null;
           }
@@ -107,8 +115,8 @@ export function createInMemoryCatalogRepositories({
           return {
             ...book,
             distanceKm: roundTo(distanceMeters / METERS_PER_KILOMETER, DISTANCE_KM_DECIMALS),
-            approximateLat: roundTo(owner.location.lat, APPROXIMATE_COORDINATE_DECIMALS),
-            approximateLon: roundTo(owner.location.lon, APPROXIMATE_COORDINATE_DECIMALS),
+            approximateLat: publicLocation.lat,
+            approximateLon: publicLocation.lon,
           };
         })
         .filter(Boolean)
@@ -147,7 +155,10 @@ export function createInMemoryCatalogRepositories({
         return hydratedBook;
       }
 
-      const distanceMeters = calculateDistanceMeters({ lat, lon }, owner.location);
+      const distanceMeters = calculateDistanceMeters(
+        { lat, lon },
+        toPublicLocation(owner.location),
+      );
       return {
         ...hydratedBook,
         distanceKm: roundTo(distanceMeters / METERS_PER_KILOMETER, DISTANCE_KM_DECIMALS),

@@ -278,8 +278,15 @@ curl "http://localhost:3000/api/v1/books?lat=41.1171&lon=16.8719&radiusKm=5"
 
 Il DTO pubblico contiene soltanto titolo, autore, anno, miniatura, disponibilità, categorie e
 zona dichiarata pubblica. Quando è attivo il filtro geografico aggiunge `distanceKm`, arrotondata
-a un decimale, e `approximateLocation` su una griglia di 0,01 gradi. Non espone identità del
-proprietario, email o coordinate esatte.
+a un decimale, e `approximateLocation` su una griglia di 0,01 gradi. Filtro per raggio, distanza
+e marker sono calcolati tutti rispetto a questo stesso punto pubblico approssimato, non rispetto
+alla posizione interna più precisa. Non vengono esposte identità del proprietario, email o
+coordinate esatte.
+
+Di conseguenza, vicino al bordo del raggio un libro può essere incluso o escluso in base al
+punto della griglia pubblica. L'arrotondamento a due decimali può spostare il punto fino a circa
+0,8 km nel caso peggiore; questa tolleranza è intenzionale e impedisce che ricerche ripetute da
+origini diverse affinino la posizione oltre la griglia mostrata.
 
 La pagina `/map` richiede latitudine, longitudine e un raggio ammesso, conserva i filtri
 nell'URL e usa esattamente lo stesso insieme di risultati sia per i marker sia per la lista
@@ -287,9 +294,10 @@ testuale accessibile. I marker Leaflet mostrano esclusivamente le coordinate app
 backend; le tile provengono da OpenStreetMap e durante la demo richiedono una connessione di
 rete. La lista resta disponibile anche se le tile non vengono caricate.
 
-Il dettaglio può ricevere `lat` e `lon` insieme per mostrare la distanza arrotondata. L'apertura
-della pagina registra una visualizzazione anonima; il frontend usa `sessionStorage` per non
-registrare più volte lo stesso libro durante la medesima sessione del browser.
+Il dettaglio può ricevere `lat` e `lon` insieme per mostrare la distanza arrotondata dal medesimo
+punto pubblico approssimato. L'apertura della pagina registra una visualizzazione anonima; il
+frontend usa `sessionStorage` per non registrare più volte lo stesso libro durante la medesima
+sessione del browser.
 
 | Zona demo    | Latitudine | Longitudine |
 | ------------ | ---------- | ----------- |
@@ -399,11 +407,12 @@ geobook/
 
 Il progetto non deve versionare file `.env`, upload reali o dipendenze installate. Le coordinate
 sono salvate soltanto dopo consenso esplicito. La ricerca geografica considera esclusivamente
-utenti con posizione e consenso attivi, usa `ST_DWithin` sul tipo `geography` e non seleziona mai
-il punto esatto per il DTO pubblico. La posizione restituita viene arrotondata lato database a
-due decimali, cioè una griglia di circa 0,01 gradi; la distanza è espressa in chilometri e
-arrotondata a un decimale. La revoca del consenso azzera posizione e data del consenso, rendendo
-i relativi libri assenti dalle ricerche spaziali.
+utenti con posizione e consenso attivi. Prima di applicare `ST_DWithin` e `ST_Distance` sul tipo
+`geography`, il backend arrotonda la posizione lato database a due decimali, cioè una griglia di
+circa 0,01 gradi. Lo stesso punto approssimato determina appartenenza al raggio, distanza pubblica
+e marker; il punto interno esatto non viene selezionato per il DTO pubblico. La distanza è
+espressa in chilometri e arrotondata a un decimale. La revoca del consenso azzera posizione e
+data del consenso, rendendo i relativi libri assenti dalle ricerche spaziali.
 
 ## Accessibilità e responsive
 
