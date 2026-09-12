@@ -9,6 +9,7 @@ export function createInMemoryLoanRequestRepository({ users = [], books = [], lo
   let nextLoanRequestId =
     storedLoanRequests.reduce((maximum, request) => Math.max(maximum, Number(request.id)), 0) + 1;
   let failNextStatusUpdate = false;
+  let transactionTail = Promise.resolve();
 
   function hydrateLoanRequest(loanRequest) {
     if (!loanRequest) {
@@ -107,6 +108,21 @@ export function createInMemoryLoanRequestRepository({ users = [], books = [], lo
         return null;
       }
 
+      if (
+        nextStatus === 'ACCEPTED' &&
+        storedLoanRequests.some(
+          (candidate) =>
+            candidate.id !== loanRequest.id &&
+            candidate.bookId === loanRequest.bookId &&
+            candidate.status === 'ACCEPTED',
+        )
+      ) {
+        const error = new Error('duplicate accepted loan request');
+        error.code = '23505';
+        error.constraint = 'loan_requests_accepted_unique_idx';
+        throw error;
+      }
+
       const timestamp = new Date().toISOString();
       loanRequest.status = nextStatus;
       loanRequest.respondedAt = loanRequest.respondedAt ?? timestamp;
@@ -124,6 +140,13 @@ export function createInMemoryLoanRequestRepository({ users = [], books = [], lo
     },
 
     async withTransaction(operation) {
+      const previousTransaction = transactionTail;
+      let releaseTransaction;
+      transactionTail = new Promise((resolve) => {
+        releaseTransaction = resolve;
+      });
+      await previousTransaction;
+
       const booksSnapshot = clone(storedBooks);
       const loanRequestsSnapshot = clone(storedLoanRequests);
       const nextIdSnapshot = nextLoanRequestId;
@@ -135,6 +158,8 @@ export function createInMemoryLoanRequestRepository({ users = [], books = [], lo
         storedLoanRequests.splice(0, storedLoanRequests.length, ...loanRequestsSnapshot);
         nextLoanRequestId = nextIdSnapshot;
         throw error;
+      } finally {
+        releaseTransaction();
       }
     },
 

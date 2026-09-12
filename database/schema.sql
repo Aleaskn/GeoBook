@@ -144,10 +144,52 @@ CREATE INDEX loan_requests_status_created_idx ON loan_requests (status, created_
 CREATE UNIQUE INDEX loan_requests_pending_unique_idx
   ON loan_requests (book_id, requester_id)
   WHERE status = 'PENDING';
+CREATE UNIQUE INDEX loan_requests_accepted_unique_idx
+  ON loan_requests (book_id)
+  WHERE status = 'ACCEPTED';
 
 CREATE INDEX book_views_book_viewed_idx ON book_views (book_id, viewed_at DESC);
 CREATE INDEX book_views_viewer_idx ON book_views (viewer_id)
   WHERE viewer_id IS NOT NULL;
+
+CREATE FUNCTION enforce_active_loan_book_unavailable()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  checked_book_id BIGINT;
+BEGIN
+  IF TG_TABLE_NAME = 'books' THEN
+    checked_book_id := NEW.id;
+  ELSE
+    checked_book_id := NEW.book_id;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM books b
+    JOIN loan_requests lr ON lr.book_id = b.id
+    WHERE b.id = checked_book_id
+      AND b.available = TRUE
+      AND lr.status = 'ACCEPTED'
+  ) THEN
+    RAISE EXCEPTION 'Un libro con un prestito accettato non può essere disponibile.'
+      USING ERRCODE = '23514', CONSTRAINT = 'active_loan_book_unavailable';
+  END IF;
+
+  RETURN NULL;
+END;
+$$;
+
+CREATE TRIGGER books_active_loan_availability_check
+AFTER INSERT OR UPDATE ON books
+FOR EACH ROW
+EXECUTE FUNCTION enforce_active_loan_book_unavailable();
+
+CREATE TRIGGER loan_requests_active_loan_availability_check
+AFTER INSERT OR UPDATE ON loan_requests
+FOR EACH ROW
+EXECUTE FUNCTION enforce_active_loan_book_unavailable();
 
 CREATE TRIGGER users_set_updated_at
 BEFORE UPDATE ON users

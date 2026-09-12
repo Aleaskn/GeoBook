@@ -138,6 +138,20 @@ psql postgresql://geobook:geobook@localhost:5432/geobook -f database/reset.sql
 sviluppo. Per sicurezza rifiuta di operare su database con nome diverso da `geobook`; mantiene
 l'estensione PostGIS installata.
 
+### Aggiornamento di un database esistente
+
+Per aggiungere a un database già creato la protezione contro più prestiti accettati per lo stesso
+libro, eseguire:
+
+```bash
+psql postgresql://geobook:geobook@localhost:5432/geobook \
+  -f database/migrations/001-enforce-active-loan-invariant.sql
+```
+
+La migrazione controlla prima i dati in sola lettura. Se trova più prestiti `ACCEPTED` per lo
+stesso libro oppure un libro disponibile con un prestito accettato, interrompe la transazione e
+indica il primo libro incompatibile senza modificare o eliminare record.
+
 ## Installazione
 
 ```bash
@@ -331,7 +345,9 @@ richiesta `PENDING` dello stesso utente per lo stesso libro. Il proprietario pu�
 rifiutare una richiesta in attesa e confermare la restituzione di un prestito accettato; il
 richiedente può annullare soltanto una propria richiesta in attesa. Accettazione e restituzione
 aggiornano la disponibilità del libro nella stessa transazione. Le altre transizioni restituiscono
-`409` senza modificare lo stato.
+`409` senza modificare lo stato. Finché esiste un prestito `ACCEPTED`, il libro non può essere
+reso disponibile manualmente e le altre richieste restano in attesa; dopo la restituzione possono
+essere valutate normalmente.
 
 La pagina protetta `/requests` separa le richieste in entrata e in uscita e mostra solo le azioni
 consentite al ruolo assunto dall'utente nella singola richiesta. I DTO includono nomi visualizzati

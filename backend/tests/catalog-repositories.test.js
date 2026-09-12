@@ -121,6 +121,23 @@ describe('catalog repositories', () => {
     expect(parameters).toEqual(['12', maliciousTitle, false]);
   });
 
+  it('locks a book before checking for an accepted loan', async () => {
+    const query = vi
+      .fn()
+      .mockResolvedValueOnce({ rows: [{ id: '12', ownerId: '1', available: false }] })
+      .mockResolvedValueOnce({ rows: [{ hasAcceptedLoan: true }] });
+    const repository = createBookRepository({ query });
+
+    await expect(repository.findByIdForUpdate('12')).resolves.toMatchObject({ id: '12' });
+    await expect(repository.hasAcceptedLoan('12')).resolves.toBe(true);
+
+    expect(query.mock.calls[0][0]).toContain('FROM books');
+    expect(query.mock.calls[0][0]).toContain('FOR UPDATE');
+    expect(query.mock.calls[0][1]).toEqual(['12']);
+    expect(query.mock.calls[1][0]).toContain("status = 'ACCEPTED'");
+    expect(query.mock.calls[1][1]).toEqual(['12']);
+  });
+
   it('passes category identifiers as one parameterized PostgreSQL array', async () => {
     const query = vi.fn().mockResolvedValue({ rows: [] });
     const repository = createCategoryRepository({ query });

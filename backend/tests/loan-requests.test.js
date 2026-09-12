@@ -204,6 +204,63 @@ describe('loan request API', () => {
     expect(loanRequestRepository.getLoanRequests()[0].status).toBe('RETURNED');
   });
 
+  it('serializes competing acceptances and keeps other requests pending until return', async () => {
+    const pendingRequests = [
+      {
+        id: '21',
+        bookId: '10',
+        requesterId: '2',
+        ownerId: '1',
+        status: 'PENDING',
+        message: null,
+        createdAt: timestamp,
+        respondedAt: null,
+        returnedAt: null,
+      },
+      {
+        id: '22',
+        bookId: '10',
+        requesterId: '3',
+        ownerId: '1',
+        status: 'PENDING',
+        message: null,
+        createdAt: timestamp,
+        respondedAt: null,
+        returnedAt: null,
+      },
+    ];
+    const { app, loanRequestRepository } = createTestContext({ loanRequests: pendingRequests });
+    const owner = await authenticatedAgent(app, 'owner@example.test');
+
+    const competingResponses = await Promise.all(
+      pendingRequests.map((loanRequest) =>
+        owner.patch(`/api/v1/loan-requests/${loanRequest.id}/status`).send({ status: 'ACCEPTED' }),
+      ),
+    );
+
+    expect(competingResponses.map((response) => response.status).sort()).toEqual([200, 409]);
+    const requestsAfterCompetition = loanRequestRepository.getLoanRequests();
+    const acceptedRequest = requestsAfterCompetition.find(
+      (request) => request.status === 'ACCEPTED',
+    );
+    const waitingRequest = requestsAfterCompetition.find((request) => request.status === 'PENDING');
+    expect(acceptedRequest).toBeDefined();
+    expect(waitingRequest).toBeDefined();
+    expect(loanRequestRepository.getBook('10').available).toBe(false);
+
+    await owner
+      .patch(`/api/v1/loan-requests/${acceptedRequest.id}/status`)
+      .send({ status: 'RETURNED' })
+      .expect(200);
+    expect(loanRequestRepository.getBook('10').available).toBe(true);
+
+    await owner
+      .patch(`/api/v1/loan-requests/${waitingRequest.id}/status`)
+      .send({ status: 'ACCEPTED' })
+      .expect(200);
+    expect(loanRequestRepository.getBook('10').available).toBe(false);
+  });
+
   it('allows only the owner to reject and only the requester to cancel pending requests', async () => {
     const { app } = createTestContext();
     const { requester, loanRequest } = await createPendingRequest(app);

@@ -146,6 +146,7 @@ function createTestContext() {
     categories,
     books,
     loanBookIds: ['3'],
+    activeLoanBookIds: ['3'],
     getOwnerLocation: (ownerId) => userRepository.getPrivateUserById(ownerId),
   });
   const pool = { query: vi.fn().mockResolvedValue({ rows: [{ '?column?': 1 }] }) };
@@ -395,6 +396,21 @@ describe('categories and books API', () => {
     await agent.delete(`/api/v1/books/${bookId}`).expect(204);
     const finalList = await agent.get('/api/v1/me/books').expect(200);
     expect(finalList.body.data.books.some((book) => book.id === bookId)).toBe(false);
+  });
+
+  it('keeps an accepted-loan book unavailable while allowing manual unavailability', async () => {
+    const { app, bookRepository } = createTestContext();
+    const agent = await authenticatedAgent(app);
+
+    const conflict = await agent.patch('/api/v1/books/3').send({ available: true }).expect(409);
+    expect(conflict.body.error.code).toBe('BOOK_HAS_ACTIVE_LOAN');
+    expect((await bookRepository.findById('3')).available).toBe(false);
+
+    const manuallyUnavailable = await agent
+      .patch('/api/v1/books/1')
+      .send({ available: false })
+      .expect(200);
+    expect(manuallyUnavailable.body.data.book.available).toBe(false);
   });
 
   it('validates years, category duplicates, identifiers and existing categories', async () => {
