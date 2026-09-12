@@ -389,6 +389,28 @@ npm run dev:backend
 `npm run dev:backend` avvia Express in modalità watch. In alternativa, il comando
 `npm start --workspace backend` avvia il server senza watch.
 
+### Smoke test API con PostgreSQL/PostGIS reale
+
+Il job CI Ubuntu crea il database isolato `geobook_test`, applica schema e seed e abilita due
+smoke test che attraversano l'intero flusso API, repository e PostGIS. I test verificano una
+ricerca spaziale e la revoca del consenso; ogni caso usa dati fittizi in una transazione annullata
+al termine. Restano disabilitati nella suite locale ordinaria e, anche se abilitati esplicitamente,
+rifiutano qualsiasi database con nome diverso da `geobook_test`.
+
+Per eseguirli localmente occorre creare intenzionalmente un database separato e sacrificabile:
+
+```bash
+createdb -h localhost -U geobook geobook_test
+psql postgresql://geobook:geobook@localhost:5432/geobook_test -f database/schema.sql
+RUN_DATABASE_SMOKE_TESTS=true \
+  DATABASE_URL=postgresql://geobook:geobook@localhost:5432/geobook_test \
+  npm test --workspace backend -- tests/database-api.smoke.test.js
+dropdb -h localhost -U geobook geobook_test
+```
+
+Questa procedura non deve essere eseguita sostituendo `geobook_test` con il database di sviluppo
+`geobook`.
+
 ## Struttura
 
 ```text
