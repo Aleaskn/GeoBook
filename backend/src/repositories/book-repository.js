@@ -235,6 +235,20 @@ function createBookQueries(queryable) {
       return result.rows[0] ?? null;
     },
 
+    async findByIdForUpdate(bookId) {
+      const result = await queryable.query(
+        `SELECT id,
+                owner_id AS "ownerId",
+                available
+         FROM books
+         WHERE id = $1
+         FOR UPDATE`,
+        [bookId],
+      );
+
+      return result.rows[0] ?? null;
+    },
+
     async create(
       ownerId,
       { title, author, publicationYear, description, isbn, available, coverPath, thumbnailPath },
@@ -309,6 +323,19 @@ function createBookQueries(queryable) {
       );
 
       return result.rows[0].hasLoanRequests;
+    },
+
+    async hasAcceptedLoan(bookId) {
+      const result = await queryable.query(
+        `SELECT EXISTS (
+           SELECT 1
+           FROM loan_requests
+           WHERE book_id = $1 AND status = 'ACCEPTED'
+         ) AS "hasAcceptedLoan"`,
+        [bookId],
+      );
+
+      return result.rows[0].hasAcceptedLoan;
     },
 
     async deleteOwned(bookId, ownerId) {

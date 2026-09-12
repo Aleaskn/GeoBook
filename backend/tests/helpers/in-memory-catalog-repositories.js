@@ -35,6 +35,7 @@ export function createInMemoryCatalogRepositories({
   categories = [],
   books = [],
   loanBookIds = [],
+  activeLoanBookIds = [],
   getOwnerLocation,
 }) {
   const storedCategories = categories.map(cloneCategory);
@@ -43,6 +44,7 @@ export function createInMemoryCatalogRepositories({
     categoryIds: [...(book.categoryIds ?? [])],
   }));
   const booksWithLoans = new Set(loanBookIds.map(String));
+  const booksWithActiveLoans = new Set(activeLoanBookIds.map(String));
   const recordedViews = [];
   let nextBookId = storedBooks.reduce((maximum, book) => Math.max(maximum, Number(book.id)), 0) + 1;
 
@@ -168,6 +170,10 @@ export function createInMemoryCatalogRepositories({
       return hydrateBook(storedBooks.find((book) => String(book.id) === String(bookId)));
     },
 
+    async findByIdForUpdate(bookId) {
+      return bookRepository.findById(bookId);
+    },
+
     async create(ownerId, input) {
       const timestamp = new Date().toISOString();
       const book = {
@@ -210,6 +216,10 @@ export function createInMemoryCatalogRepositories({
 
     async hasLoanRequests(bookId) {
       return booksWithLoans.has(String(bookId));
+    },
+
+    async hasAcceptedLoan(bookId) {
+      return booksWithActiveLoans.has(String(bookId));
     },
 
     async deleteOwned(bookId, ownerId) {

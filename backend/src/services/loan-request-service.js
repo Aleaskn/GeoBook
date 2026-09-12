@@ -41,6 +41,13 @@ function bookNotAvailable() {
   });
 }
 
+function isActiveLoanConstraintError(error) {
+  return (
+    (error?.code === '23505' && error?.constraint === 'loan_requests_accepted_unique_idx') ||
+    (error?.code === '23514' && error?.constraint === 'active_loan_book_unavailable')
+  );
+}
+
 function assertAuthorizedActor(loanRequest, userId, nextStatus) {
   const actorId = OWNER_TRANSITIONS.has(nextStatus) ? loanRequest.ownerId : loanRequest.requesterId;
 
@@ -104,43 +111,52 @@ export function createLoanRequestService(loanRequestRepository) {
     },
 
     async updateLoanRequestStatus(userId, loanRequestId, nextStatus) {
-      return loanRequestRepository.withTransaction(async (transactionRepository) => {
-        const loanRequest = await transactionRepository.findByIdForUpdate(loanRequestId);
+      try {
+        return await loanRequestRepository.withTransaction(async (transactionRepository) => {
+          const loanRequest = await transactionRepository.findByIdForUpdate(loanRequestId);
 
-        if (!loanRequest) {
-          throw loanRequestNotFound();
-        }
-
-        assertAuthorizedActor(loanRequest, userId, nextStatus);
-
-        const requiredCurrentStatus = REQUIRED_CURRENT_STATUS[nextStatus];
-        if (loanRequest.status !== requiredCurrentStatus) {
-          throw invalidTransition();
-        }
-
-        if (nextStatus === 'ACCEPTED') {
-          if (!loanRequest.bookAvailable) {
-            throw bookNotAvailable();
+          if (!loanRequest) {
+            throw loanRequestNotFound();
           }
-          await transactionRepository.setBookAvailability(loanRequest.bookId, false);
+
+          assertAuthorizedActor(loanRequest, userId, nextStatus);
+
+          const requiredCurrentStatus = REQUIRED_CURRENT_STATUS[nextStatus];
+          if (loanRequest.status !== requiredCurrentStatus) {
+            throw invalidTransition();
+          }
+
+          if (nextStatus === 'ACCEPTED') {
+            if (!loanRequest.bookAvailable) {
+              throw bookNotAvailable();
+            }
+            await transactionRepository.setBookAvailability(loanRequest.bookId, false);
+          }
+
+          const updated = await transactionRepository.updateStatus(
+            loanRequestId,
+            loanRequest.status,
+            nextStatus,
+          );
+
+          if (!updated) {
+            throw invalidTransition();
+          }
+
+          // Prima si conclude il prestito, poi il trigger DB consente di rendere disponibile il libro.
+          if (nextStatus === 'RETURNED') {
+            await transactionRepository.setBookAvailability(loanRequest.bookId, true);
+          }
+
+          return toLoanRequestDto(await transactionRepository.findById(loanRequestId));
+        });
+      } catch (error) {
+        if (isActiveLoanConstraintError(error)) {
+          throw bookNotAvailable();
         }
 
-        if (nextStatus === 'RETURNED') {
-          await transactionRepository.setBookAvailability(loanRequest.bookId, true);
-        }
-
-        const updated = await transactionRepository.updateStatus(
-          loanRequestId,
-          loanRequest.status,
-          nextStatus,
-        );
-
-        if (!updated) {
-          throw invalidTransition();
-        }
-
-        return toLoanRequestDto(await transactionRepository.findById(loanRequestId));
-      });
+        throw error;
+      }
     },
   };
 }

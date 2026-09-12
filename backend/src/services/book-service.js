@@ -25,6 +25,19 @@ function bookHasLoanRequests() {
   });
 }
 
+function bookHasActiveLoan() {
+  return new AppError({
+    statusCode: 409,
+    code: 'BOOK_HAS_ACTIVE_LOAN',
+    message:
+      'Il libro non può essere reso disponibile finché il prestito accettato non è concluso.',
+  });
+}
+
+function isActiveLoanConstraintError(error) {
+  return error?.code === '23514' && error?.constraint === 'active_loan_book_unavailable';
+}
+
 function requireBookOwner(book, userId) {
   if (!book) {
     throw bookNotFound();
@@ -137,6 +150,17 @@ export function createBookService({ bookRepository, categoryRepository, imageSer
 
       try {
         const updatedBook = await bookRepository.withTransaction(async (transactionRepository) => {
+          // Il lock sul libro serializza questa modifica con accettazioni e restituzioni concorrenti.
+          const lockedBook = await transactionRepository.findByIdForUpdate(bookId);
+          requireBookOwner(lockedBook, userId);
+
+          if (
+            bookChanges.available === true &&
+            (await transactionRepository.hasAcceptedLoan(bookId))
+          ) {
+            throw bookHasActiveLoan();
+          }
+
           await transactionRepository.update(bookId, {
             ...bookChanges,
             ...imagePaths,
@@ -162,6 +186,12 @@ export function createBookService({ bookRepository, categoryRepository, imageSer
         return updatedBook;
       } catch (error) {
         await cleanupImages(imagePaths);
+
+        // Il trigger DB chiude la finestra residua anche per scritture concorrenti o non applicative.
+        if (isActiveLoanConstraintError(error)) {
+          throw bookHasActiveLoan();
+        }
+
         throw error;
       }
     },

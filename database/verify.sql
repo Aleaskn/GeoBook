@@ -120,6 +120,7 @@ BEGIN
       ('loan_requests_owner_idx'),
       ('loan_requests_status_created_idx'),
       ('loan_requests_pending_unique_idx'),
+      ('loan_requests_accepted_unique_idx'),
       ('book_views_book_viewed_idx'),
       ('book_views_viewer_idx')
   ) AS expected(index_name)
@@ -226,6 +227,39 @@ BEGIN
     RAISE EXCEPTION 'Il proprietario della richiesta può divergere da quello del libro.';
   EXCEPTION
     WHEN foreign_key_violation THEN NULL;
+  END;
+
+  BEGIN
+    INSERT INTO loan_requests (
+      id,
+      book_id,
+      requester_id,
+      owner_id,
+      status,
+      created_at,
+      responded_at
+    )
+    VALUES (
+      9006,
+      4,
+      1,
+      2,
+      'ACCEPTED',
+      '2026-09-03 20:00:00+02',
+      '2026-09-03 21:00:00+02'
+    );
+    RAISE EXCEPTION 'Il vincolo contro due prestiti accettati per libro non è attivo.';
+  EXCEPTION
+    WHEN unique_violation THEN NULL;
+  END;
+
+  BEGIN
+    UPDATE books
+    SET available = TRUE
+    WHERE id = 4;
+    RAISE EXCEPTION 'Un libro con un prestito accettato può essere reso disponibile.';
+  EXCEPTION
+    WHEN check_violation THEN NULL;
   END;
 
   RAISE NOTICE 'Verifica schema, seed, indici e vincoli completata con successo.';

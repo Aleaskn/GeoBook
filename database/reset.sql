@@ -22,6 +22,7 @@ DROP TABLE IF EXISTS
 CASCADE;
 
 DROP FUNCTION IF EXISTS set_updated_at();
+DROP FUNCTION IF EXISTS enforce_active_loan_book_unavailable();
 DROP TYPE IF EXISTS loan_status;
 DROP TYPE IF EXISTS user_role;
 
