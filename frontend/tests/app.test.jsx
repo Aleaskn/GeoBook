@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../src/App.jsx';
 import { apiResponse } from './test-utils.js';
@@ -33,5 +33,13 @@ describe('App', () => {
       '#main-content',
     );
     expect(await screen.findByRole('link', { name: 'Accedi' })).toBeInTheDocument();
+  });
+
+  it('moves focus to the main content when the skip link is activated', async () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('link', { name: 'Salta al contenuto principale' }));
+
+    await waitFor(() => expect(screen.getByRole('main')).toHaveFocus());
   });
 });

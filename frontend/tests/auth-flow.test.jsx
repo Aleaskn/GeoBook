@@ -41,6 +41,7 @@ describe('authentication flows', () => {
 
     expect(screen.getByText('Email obbligatoria.')).toBeInTheDocument();
     expect(screen.getByText('Password obbligatoria.')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByLabelText('Email')).toHaveFocus());
     expect(window.fetch).toHaveBeenCalledTimes(1);
   });
 
@@ -82,7 +83,11 @@ describe('authentication flows', () => {
 
     render(<App />);
 
-    fireEvent.change(await screen.findByLabelText('Nome'), { target: { value: TEST_USER.name } });
+    const nameField = await screen.findByLabelText('Nome');
+    fireEvent.click(screen.getByRole('button', { name: 'Registrati' }));
+    await waitFor(() => expect(nameField).toHaveFocus());
+
+    fireEvent.change(nameField, { target: { value: TEST_USER.name } });
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: TEST_USER.email } });
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'PasswordDemo1!' } });
     fireEvent.change(screen.getByLabelText('Città'), { target: { value: TEST_USER.city } });

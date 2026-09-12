@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../src/App.jsx';
 import { apiResponse, setRoute, TEST_USER } from './test-utils.js';
@@ -96,6 +96,7 @@ describe('personal library', () => {
     expect(screen.getByText('Titolo obbligatorio.')).toBeInTheDocument();
     expect(screen.getByText('Autore obbligatorio.')).toBeInTheDocument();
     expect(screen.getByText("L'anno di pubblicazione deve essere intero.")).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByLabelText('Titolo')).toHaveFocus());
     expect(window.fetch).toHaveBeenCalledTimes(2);
 
     fireEvent.change(screen.getByLabelText('Titolo'), {

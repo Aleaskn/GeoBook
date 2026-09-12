@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ApiError } from '../api/api-client.js';
 import { FormField } from '../components/FormField.jsx';
 import { useAuth } from '../hooks/useAuth.js';
-import { getFieldErrors } from '../utils/form-errors.js';
+import { focusFirstInvalidField, getFieldErrors } from '../utils/form-errors.js';
 import { hasValidationErrors, validateLogin } from '../utils/validation.js';
 import styles from './AuthPage.module.css';
 
@@ -26,10 +26,12 @@ export function LoginPage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    const form = event.currentTarget;
     const validationErrors = validateLogin(values);
 
     if (hasValidationErrors(validationErrors)) {
       setErrors(validationErrors);
+      focusFirstInvalidField(form, validationErrors);
       return;
     }
 
@@ -46,7 +48,9 @@ export function LoginPage() {
       navigate(destination, { replace: true, state: { notice: 'Accesso effettuato.' } });
     } catch (error) {
       if (error instanceof ApiError) {
-        setErrors(getFieldErrors(error.details));
+        const fieldErrors = getFieldErrors(error.details);
+        setErrors(fieldErrors);
+        focusFirstInvalidField(form, fieldErrors);
       }
 
       setRequestState({
