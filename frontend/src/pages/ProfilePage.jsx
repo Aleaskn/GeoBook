@@ -10,7 +10,7 @@ import {
 import { FormField } from '../components/FormField.jsx';
 import { PageState } from '../components/PageState.jsx';
 import { useAuth } from '../hooks/useAuth.js';
-import { getFieldErrors } from '../utils/form-errors.js';
+import { focusFirstInvalidField, getFieldErrors } from '../utils/form-errors.js';
 import {
   hasValidationErrors,
   parseCoordinate,
@@ -90,10 +90,12 @@ export function ProfilePage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    const form = event.currentTarget;
     const validationErrors = validateProfile(values);
 
     if (hasValidationErrors(validationErrors)) {
       setErrors(validationErrors);
+      focusFirstInvalidField(form, validationErrors);
       return;
     }
 
@@ -117,7 +119,9 @@ export function ProfilePage() {
       }
 
       if (error instanceof ApiError) {
-        setErrors(getFieldErrors(error.details));
+        const fieldErrors = getFieldErrors(error.details);
+        setErrors(fieldErrors);
+        focusFirstInvalidField(form, fieldErrors);
       }
 
       setSaveState({
@@ -130,10 +134,12 @@ export function ProfilePage() {
 
   async function handleLocationSubmit(event) {
     event.preventDefault();
+    const form = event.currentTarget;
     const validationErrors = validateProfileLocation(locationValues);
 
     if (hasValidationErrors(validationErrors)) {
       setLocationErrors(validationErrors);
+      focusFirstInvalidField(form, validationErrors);
       return;
     }
 
@@ -163,7 +169,9 @@ export function ProfilePage() {
       }
 
       if (error instanceof ApiError) {
-        setLocationErrors(getFieldErrors(error.details));
+        const fieldErrors = getFieldErrors(error.details);
+        setLocationErrors(fieldErrors);
+        focusFirstInvalidField(form, fieldErrors);
       }
 
       setLocationState({
@@ -335,8 +343,10 @@ export function ProfilePage() {
         </p>
         <p>
           Lo stato “Posizione precisa” qui sopra conferma se il consenso è attivo. GeoBook conserva
-          il punto esatto soltanto nel database per calcolare le distanze; nei risultati pubblici
-          mostra esclusivamente una posizione approssimata.
+          il punto preciso come dato interno protetto, ma ricerca, filtro per raggio, distanze
+          pubbliche e marker usano esclusivamente una posizione approssimata. Vicino al limite del
+          raggio, l’approssimazione può quindi includere o escludere un libro rispetto alla distanza
+          dal punto preciso.
         </p>
         <form className={styles.locationForm} noValidate onSubmit={handleLocationSubmit}>
           <div className={styles.coordinateFields}>
@@ -376,7 +386,8 @@ export function ProfilePage() {
               onChange={handleLocationChange}
             />
             <label htmlFor="profile-location-consent">
-              Acconsento al salvataggio della posizione precisa per il calcolo delle distanze.
+              Acconsento al salvataggio della posizione precisa; ricerca e distanze pubbliche
+              useranno una sua versione approssimata.
             </label>
           </div>
           {locationErrors.consent ? (

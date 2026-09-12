@@ -2,7 +2,7 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { ApiError } from '../api/api-client.js';
-import { getFieldErrors } from '../utils/form-errors.js';
+import { focusFirstInvalidField, getFieldErrors } from '../utils/form-errors.js';
 import { hasValidationErrors, validateBook } from '../utils/validation.js';
 import { FormField } from './FormField.jsx';
 import { CoverUploader } from './CoverUploader.jsx';
@@ -77,10 +77,12 @@ export function BookForm({ book, categories, submitLabel, pendingLabel, onSubmit
 
   async function handleSubmit(event) {
     event.preventDefault();
+    const form = event.currentTarget;
     const validationErrors = { ...validateBook(values), cover: errors.cover ?? '' };
 
     if (hasValidationErrors(validationErrors)) {
       setErrors(validationErrors);
+      focusFirstInvalidField(form, validationErrors);
       return;
     }
 
@@ -91,7 +93,9 @@ export function BookForm({ book, categories, submitLabel, pendingLabel, onSubmit
       setSubmission({ pending: false, error: '' });
     } catch (error) {
       if (error instanceof ApiError) {
-        setErrors(getFieldErrors(error.details));
+        const fieldErrors = getFieldErrors(error.details);
+        setErrors(fieldErrors);
+        focusFirstInvalidField(form, fieldErrors);
       }
 
       setSubmission({
@@ -186,6 +190,7 @@ export function BookForm({ book, categories, submitLabel, pendingLabel, onSubmit
               {categories.map((category) => (
                 <label className={styles.categoryOption} key={category.id}>
                   <input
+                    name="categoryIds"
                     type="checkbox"
                     value={String(category.id)}
                     checked={values.categoryIds.includes(String(category.id))}

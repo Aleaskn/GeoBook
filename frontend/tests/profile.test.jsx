@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../src/App.jsx';
 import { apiResponse, setRoute, TEST_USER } from './test-utils.js';
@@ -30,7 +30,10 @@ describe('profile page', () => {
     expect(screen.getByLabelText('Latitudine')).toBeInTheDocument();
     expect(screen.getByLabelText('Longitudine')).toBeInTheDocument();
     expect(screen.getByLabelText(/acconsento al salvataggio/i)).toBeInTheDocument();
-    expect(screen.getByText(/nei risultati pubblici mostra esclusivamente/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/ricerca, filtro per raggio, distanze pubbliche e marker usano/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/vicino al limite del raggio/i)).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: updatedUser.name } });
     fireEvent.change(screen.getByLabelText('Raggio di condivisione'), {
       target: { value: '20' },
@@ -133,6 +136,7 @@ describe('profile page', () => {
     expect(screen.getByText('Latitudine non valida.')).toBeInTheDocument();
     expect(screen.getByText('Longitudine non valida.')).toBeInTheDocument();
     expect(screen.getByText(/devi fornire il consenso esplicito/i)).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByLabelText('Latitudine')).toHaveFocus());
     expect(window.fetch).toHaveBeenCalledTimes(2);
   });
 

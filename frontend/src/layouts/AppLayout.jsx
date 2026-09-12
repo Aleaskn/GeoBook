@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
 import styles from './AppLayout.module.css';
@@ -10,7 +10,12 @@ function navigationClass({ isActive }) {
 export function AppLayout() {
   const { status, user, logout } = useAuth();
   const navigate = useNavigate();
+  const mainRef = useRef(null);
   const [logoutState, setLogoutState] = useState({ pending: false, error: '' });
+
+  function handleSkipLink() {
+    window.requestAnimationFrame(() => mainRef.current?.focus());
+  }
 
   async function handleLogout() {
     setLogoutState({ pending: true, error: '' });
@@ -30,7 +35,7 @@ export function AppLayout() {
 
   return (
     <div className={styles.shell}>
-      <a className={styles.skipLink} href="#main-content">
+      <a className={styles.skipLink} href="#main-content" onClick={handleSkipLink}>
         Salta al contenuto principale
       </a>
       <header className={styles.header}>
@@ -98,7 +103,7 @@ export function AppLayout() {
           </p>
         ) : null}
       </header>
-      <main id="main-content" className={styles.main}>
+      <main id="main-content" ref={mainRef} className={styles.main} tabIndex="-1">
         <Outlet />
       </main>
     </div>
