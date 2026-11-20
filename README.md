@@ -1,68 +1,48 @@
 # GeoBook
 
-GeoBook è un prototipo web per la condivisione geolocalizzata di biblioteche private. Il progetto segue la Traccia PW 14 del Tema 4 - Sharing technologies.
+[![Verifica GeoBook](https://github.com/Aleaskn/GeoBook/actions/workflows/ci.yml/badge.svg)](https://github.com/Aleaskn/GeoBook/actions/workflows/ci.yml)
 
-## Stato del progetto
+GeoBook è un prototipo web per condividere e cercare libri disponibili nelle vicinanze. Gli
+utenti possono pubblicare la propria biblioteca, cercare volumi per testo, categoria e distanza,
+consultare una mappa con posizioni approssimate e gestire richieste di prestito simulate.
 
-È stata prevista una milestone giornaliera per organizzare il lavoro in maniera più efficiente
-e ordinata, basandomi sulla progettazione fatta nell'ultimo mese a partire dal 27 luglio.
+Il progetto è stato realizzato per la Traccia PW 14 del Tema 4 - Sharing technologies. È pensato
+per una dimostrazione locale e non per l'impiego in produzione.
 
-- 2 settembre 2026: repository inizializzato e piano salvato in `docs/IMPLEMENTATION_PLAN.md`.
-- 2 settembre 2026: completata in anticipo la milestone prevista per il 3 settembre: bootstrap
-  dei workspace, tooling, struttura iniziale, smoke test React e verifica dei prerequisiti.
-- 2 settembre 2026: avviato e verificato PostgreSQL locale; creati ruolo e database di sviluppo
-  `geobook` ed è stata attivata l'estensione PostGIS.
-- 3 settembre 2026: completata in anticipo la milestone prevista per il 4 settembre: schema
-  PostGIS riproducibile, dati demo e script di reset e verifica.
-- 3 settembre 2026: completata in anticipo la milestone prevista per il 5 settembre: API
-  Express di base, configurazione validata, connessione PostgreSQL, sicurezza HTTP e health
-  check.
-- 4 settembre 2026: completata in anticipo la milestone prevista per il 6 settembre:
-  autenticazione con cookie HttpOnly e API protette per profilo, consenso e revoca della
-  posizione.
-- 4 settembre 2026: completata in anticipo la milestone prevista per il 7 settembre: frontend
-  React con layout accessibile, autenticazione via cookie, rotte protette e gestione del profilo.
-- 5 settembre 2026: completata in anticipo la milestone prevista per l'8 settembre: API per
-  categorie e CRUD dei libri personali con validazione, proprietà e transazioni.
-- 6 settembre 2026: completata in anticipo la milestone prevista per il 9 settembre: biblioteca
-  personale React con form di creazione e modifica, disponibilità e cancellazione confermata.
-- 6 settembre 2026: completata in anticipo la milestone prevista per il 10 settembre: upload
-  sicuro delle copertine, generazione WebP di cover e miniature e integrazione nel frontend.
-- 7 settembre 2026: completata in anticipo la milestone prevista per l'11 settembre: ricerca
-  pubblica per testo e categoria, paginazione e filtri frontend sincronizzati con l'URL.
-- 8 settembre 2026: completata in anticipo la milestone prevista per il 12 settembre: ricerca
-  PostGIS per raggio, distanza arrotondata e coordinate pubbliche approssimate.
-- 8 settembre 2026: completata in anticipo la milestone prevista per il 13 settembre: mappa
-  accessibile con Leaflet e OpenStreetMap, dettaglio pubblico dei libri e registrazione anonima
-  delle visualizzazioni.
-- 9 settembre 2026: completata in anticipo la milestone prevista per il 14 settembre: workflow
-  delle richieste di prestito con autorizzazioni, transizioni atomiche e interfaccia per richieste
-  in entrata e in uscita.
-- 9 settembre 2026: completata in anticipo la milestone prevista per il 15 settembre: dashboard
-  amministrativa con statistiche aggregate, attività recente, grafici accessibili e protezione
-  lato server basata sul ruolo.
-- 10 settembre 2026: completata in anticipo la milestone prevista per il 16 settembre: completamento tecnico dell'MVP con gestione del consenso geografico dal
-  profilo, verifica UTF-8 del seed, controlli di accessibilità, responsive e privacy e istruzioni
-  tecniche consolidate.
+## Funzionalità
 
-L'MVP è tecnicamente completo. Dal 17 al 20 settembre resta prevista esclusivamente la finestra
-di stabilizzazione, senza nuove funzionalità salvo requisiti indispensabili mancanti.
+- registrazione, login e sessione tramite JWT in cookie HttpOnly;
+- profilo personale con consenso esplicito alla posizione e possibilità di revoca;
+- biblioteca personale con creazione, modifica ed eliminazione dei propri libri;
+- copertine JPEG, PNG o WebP convertite in cover e miniature WebP;
+- ricerca per titolo, autore, categoria e raggio geografico;
+- lista e mappa Leaflet con tile OpenStreetMap e posizioni pubbliche approssimate;
+- dettaglio del libro e registrazione anonima delle visualizzazioni;
+- richieste di prestito simulate con stati e autorizzazioni coerenti;
+- dashboard amministrativa con indicatori, grafici e tabelle equivalenti;
+- interfaccia responsive e percorsi principali utilizzabili da tastiera.
 
-## Stack previsto
+## Tecnologie principali
 
-- Frontend: React, Vite, React Router, Leaflet con OpenStreetMap, CSS modulare.
-- Backend: Node.js LTS, Express, JavaScript ES modules.
-- Database: PostgreSQL con PostGIS.
-- Test: Vitest, Supertest, React Testing Library.
-- Qualità codice: ESLint e Prettier.
+| Area            | Tecnologie                                                 |
+| --------------- | ---------------------------------------------------------- |
+| Frontend        | React, Vite, React Router, CSS Modules                     |
+| Mappe e grafici | Leaflet, OpenStreetMap, Chart.js                           |
+| Backend         | Node.js, Express, Zod                                      |
+| Database        | PostgreSQL, PostGIS, query SQL parametrizzate con `pg`     |
+| Autenticazione  | JWT, cookie HttpOnly, bcrypt                               |
+| Immagini        | Multer, Sharp, WebP                                        |
+| Test e qualità  | Vitest, Supertest, React Testing Library, ESLint, Prettier |
 
 ## Prerequisiti
 
-- Node.js 20 o superiore; usare una release LTS supportata per lo sviluppo ordinario.
-- npm incluso con Node.js.
-- PostgreSQL con estensione PostGIS disponibile localmente.
+- Node.js 20 o superiore;
+- npm, incluso con Node.js;
+- PostgreSQL con estensione PostGIS;
+- connessione a Internet durante l'uso della mappa, necessaria per caricare le tile
+  OpenStreetMap.
 
-Verifica rapida:
+Verifica gli strumenti principali:
 
 ```bash
 node --version
@@ -70,26 +50,17 @@ npm --version
 psql --version
 ```
 
-Verifica PostGIS, dopo aver configurato un database locale:
+## Installazione
 
-```sql
-SELECT PostGIS_Version();
+Dalla radice del repository installa le dipendenze bloccate dal lockfile:
+
+```bash
+npm ci
 ```
 
-### Stato della verifica eseguita il 2 settembre 2026
+### Preparazione del database
 
-La milestone prevista per il 3 settembre è stata verificata in anticipo. Il server risponde su
-`localhost:5432`; il ruolo e il database locale `geobook` sono configurati e PostGIS 3.3 è
-attivo nel database dedicato. La connessione con la `DATABASE_URL` di esempio e la query
-`SELECT PostGIS_Version();` sono state verificate con successo.
-
-L'installazione da lockfile e gli script di qualità sono stati eseguiti con successo. Al termine
-di `npm install`, `npm audit` non ha rilevato vulnerabilità note.
-
-## Preparazione del database locale
-
-Con il server PostgreSQL attivo, eseguire una sola volta i comandi seguenti se il ruolo e il
-database non esistono ancora. La password è destinata solamente allo sviluppo locale.
+Con PostgreSQL attivo, crea il ruolo e il database di sviluppo se non esistono già:
 
 ```bash
 psql -d postgres -c "CREATE ROLE geobook WITH LOGIN PASSWORD 'geobook';"
@@ -97,18 +68,7 @@ psql -d postgres -c "CREATE DATABASE geobook OWNER geobook;"
 psql -d geobook -c "CREATE EXTENSION postgis;"
 ```
 
-Verifica:
-
-```bash
-psql postgresql://geobook:geobook@localhost:5432/geobook \
-  -c "SELECT current_user, current_database(), PostGIS_Version();"
-```
-
-Questi comandi preparano soltanto l'ambiente locale.
-
-### Creazione dello schema e dei dati demo
-
-Dalla radice del repository, con PostgreSQL attivo, applicare gli script nell'ordine seguente:
+Applica schema, dati dimostrativi e controlli di coerenza:
 
 ```bash
 psql postgresql://geobook:geobook@localhost:5432/geobook -f database/schema.sql
@@ -116,71 +76,48 @@ psql postgresql://geobook:geobook@localhost:5432/geobook -f database/seed.sql
 psql postgresql://geobook:geobook@localhost:5432/geobook -f database/verify.sql
 ```
 
-Il seed contiene dati dichiaratamente fittizi: 6 utenti, 8 categorie, 18 libri, 5 richieste
-che coprono tutti gli stati e 36 visualizzazioni. Sono disponibili questi profili demo:
+Il seed contiene esclusivamente dati fittizi: 6 utenti, 8 categorie, 18 libri, 5 richieste di
+prestito e 36 visualizzazioni.
 
-- utente: `user1@example.test`;
-- amministratore: `admin@example.test`;
-- password condivisa: `GeoBookDemo2026!`.
+### Configurazione locale
 
-Nel database è memorizzato soltanto l'hash bcrypt della password, con costo 12.
-Gli script SQL e i dati testuali usano UTF-8; `database/verify.sql` controlla anche che i
-caratteri accentati del seed siano stati importati correttamente.
-
-Per ricreare completamente i dati applicativi locali, eseguire prima il reset e poi ripetere i
-tre comandi precedenti:
-
-```bash
-psql postgresql://geobook:geobook@localhost:5432/geobook -f database/reset.sql
-```
-
-`reset.sql` elimina tabelle e dati applicativi ed è quindi destinato esclusivamente allo
-sviluppo. Per sicurezza rifiuta di operare su database con nome diverso da `geobook`; mantiene
-l'estensione PostGIS installata.
-
-### Aggiornamento di un database esistente
-
-Per aggiungere a un database già creato la protezione contro più prestiti accettati per lo stesso
-libro, eseguire:
-
-```bash
-psql postgresql://geobook:geobook@localhost:5432/geobook \
-  -f database/migrations/001-enforce-active-loan-invariant.sql
-```
-
-La migrazione controlla prima i dati in sola lettura. Se trova più prestiti `ACCEPTED` per lo
-stesso libro oppure un libro disponibile con un prestito accettato, interrompe la transazione e
-indica il primo libro incompatibile senza modificare o eliminare record.
-
-## Installazione
-
-```bash
-npm ci
-```
-
-## Avvio del backend
-
-Creare la configurazione locale partendo dall'esempio versionato:
+Copia i file di esempio:
 
 ```bash
 cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
 ```
 
-Prima dell'avvio, sostituire in `backend/.env` il valore dimostrativo di `JWT_SECRET` con una
-stringa locale lunga almeno 32 caratteri. Il file `.env` è ignorato da Git e non deve essere
-versionato.
+Prima dell'avvio sostituisci in `backend/.env` il valore dimostrativo di `JWT_SECRET` con una
+stringa locale casuale lunga almeno 32 caratteri. I file `.env` sono ignorati da Git e non devono
+essere versionati.
 
-Con PostgreSQL attivo e il database preparato, avviare l'API:
+Configurazione predefinita:
+
+| Servizio   | Indirizzo                                             |
+| ---------- | ----------------------------------------------------- |
+| Frontend   | `http://localhost:5173`                               |
+| Backend    | `http://localhost:3000`                               |
+| API        | `http://localhost:3000/api/v1`                        |
+| PostgreSQL | `postgresql://geobook:geobook@localhost:5432/geobook` |
+
+## Avvio
+
+Avvia backend e frontend in due terminali distinti, dalla radice del repository.
+
+Terminale 1:
 
 ```bash
 npm run dev:backend
 ```
 
-Il server valida tutte le variabili obbligatorie e verifica la connessione al database prima di
-mettersi in ascolto su `http://localhost:3000`. Se la configurazione o PostgreSQL non sono
-disponibili, l'avvio termina con un messaggio esplicito.
+Terminale 2:
 
-Verifica del servizio:
+```bash
+npm run dev:frontend
+```
+
+Apri `http://localhost:5173` nel browser. Per verificare il backend:
 
 ```bash
 curl http://localhost:3000/api/v1/health
@@ -197,207 +134,62 @@ Risposta attesa:
 }
 ```
 
-## Avvio del frontend
-
-Con il backend attivo, creare la configurazione locale del frontend e avviare Vite:
+Per avviare il backend senza modalità watch:
 
 ```bash
-cp frontend/.env.example frontend/.env
-npm run dev:frontend
+npm start --workspace backend
 ```
 
-Aprire `http://localhost:5173`. Sono disponibili la homepage, la ricerca pubblica in `/search`,
-la mappa in `/map`, il dettaglio pubblico in `/books/:id`, le pagine di autenticazione,
-`/profile`, `/my-library`, `/books/new`, `/books/:id/edit`, `/requests` e `/admin`; le pagine
-personali richiedono una sessione valida e la dashboard richiede inoltre il ruolo `ADMIN`. Tutte
-le chiamate usano il client API centralizzato con credenziali abilitate, perciò il cookie
-HttpOnly viene gestito dal browser e non deve essere copiato nel codice o salvato in
-`localStorage`.
+## Account dimostrativi
 
-Per una prova rapida è possibile accedere dal browser con uno dei profili demo indicati nella
-sezione database, modificare il profilo e gestire libri, categorie, copertine e disponibilità
-dalla pagina **Biblioteca**, quindi usare il comando **Esci** nella navigazione.
+| Ruolo          | Email                | Password           |
+| -------------- | -------------------- | ------------------ |
+| Utente         | `user1@example.test` | `GeoBookDemo2026!` |
+| Amministratore | `admin@example.test` | `GeoBookDemo2026!` |
 
-## API di autenticazione e profilo
+Nel database è memorizzato soltanto l'hash bcrypt della password. Gli indirizzi con dominio
+`.test` sono riservati alla dimostrazione e non corrispondono a persone reali.
 
-Gli endpoint disponibili sotto `/api/v1` sono:
+## Percorso di prova consigliato
 
-- `POST /auth/register`, `POST /auth/login`, `POST /auth/logout` e `GET /auth/me`;
-- `GET /profile` e `PATCH /profile`;
-- `PATCH /profile/location` e `DELETE /profile/location`.
+1. Accedi come utente demo oppure registra un nuovo account.
+2. Apri il profilo e salva il consenso usando coordinate dimostrative.
+3. Visita **Biblioteca** per creare o modificare un libro e caricare una copertina.
+4. Usa **Cerca** o **Mappa** per filtrare i libri per testo, categoria e distanza.
+5. Apri un libro appartenente a un altro utente e invia una richiesta di prestito.
+6. Gestisci richieste in entrata e in uscita dalla pagina **Richieste**.
+7. Accedi come amministratore per consultare la dashboard.
 
-Login con l'utente demo e salvataggio del cookie di sessione:
+Coordinate dimostrative per Bari:
 
-```bash
-curl -c /tmp/geobook.cookies \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user1@example.test","password":"GeoBookDemo2026!"}' \
-  http://localhost:3000/api/v1/auth/login
-```
+| Zona         | Latitudine | Longitudine |
+| ------------ | ---------: | ----------: |
+| Murat        |  `41.1171` |   `16.8719` |
+| Madonnella   |  `41.1218` |   `16.8797` |
+| Poggiofranco |  `41.1077` |   `16.8548` |
 
-Richiesta autenticata e logout:
+Le coordinate vengono usate come centro della ricerca o come posizione interna dell'utente. Non
+inserire indirizzi reali durante le prove.
 
-```bash
-curl -b /tmp/geobook.cookies http://localhost:3000/api/v1/auth/me
-curl -b /tmp/geobook.cookies -X POST http://localhost:3000/api/v1/auth/logout
-```
-
-Il token JWT viene inviato esclusivamente in un cookie `HttpOnly`, `SameSite=Lax` e `Secure`
-in produzione. Per salvare la posizione, `PATCH /profile/location` richiede `lat`, `lon` e
-`consent: true`. Le risposte restituiscono solo la data del consenso: coordinate
-e hash password non fanno parte del DTO utente. La revoca elimina sia la posizione sia la data
-del consenso.
-
-La pagina `/profile` permette di salvare e revocare direttamente posizione e consenso. Le
-coordinate possono essere copiate da un servizio di mappe scegliendo un punto rappresentativo
-della propria zona, senza indicare l'indirizzo di casa. Dopo il salvataggio i valori vengono
-rimossi dal form e non sono restituiti dall'API; resta visibile soltanto lo stato del consenso.
-
-## API di categorie, ricerca e biblioteca personale
-
-Gli endpoint disponibili sono:
-
-- `GET /api/v1/categories`, pubblico;
-- `GET /api/v1/books`, ricerca pubblica;
-- `GET /api/v1/books/:id`, dettaglio pubblico;
-- `POST /api/v1/books/:id/view`, registrazione anonima di una visualizzazione;
-- `GET /api/v1/me/books`, autenticato;
-- `POST /api/v1/books`, autenticato;
-- `PATCH /api/v1/books/:id` e `DELETE /api/v1/books/:id`, riservati al proprietario.
-
-La ricerca accetta `q` per titolo o autore, `category` come slug, `page` e `limit`. I valori
-predefiniti sono pagina 1 e 12 risultati; il limite massimo è 50. L'ordinamento è stabile dal
-libro più recente e la risposta include i metadati `page`, `limit`, `total` e `totalPages`.
-Per limitare i risultati nello spazio occorre fornire insieme `lat`, `lon` e `radiusKm`; il
-raggio deve essere 1, 5, 10 o 20 km.
-
-```bash
-curl "http://localhost:3000/api/v1/books?q=romanzo&category=narrativa&page=1&limit=12"
-curl "http://localhost:3000/api/v1/books?lat=41.1171&lon=16.8719&radiusKm=5"
-```
-
-Il DTO pubblico contiene soltanto titolo, autore, anno, miniatura, disponibilità, categorie e
-zona dichiarata pubblica. Quando è attivo il filtro geografico aggiunge `distanceKm`, arrotondata
-a un decimale, e `approximateLocation` su una griglia di 0,01 gradi. Filtro per raggio, distanza
-e marker sono calcolati tutti rispetto a questo stesso punto pubblico approssimato, non rispetto
-alla posizione interna più precisa. Non vengono esposte identità del proprietario, email o
-coordinate esatte.
-
-Di conseguenza, vicino al bordo del raggio un libro può essere incluso o escluso in base al
-punto della griglia pubblica. L'arrotondamento a due decimali può spostare il punto fino a circa
-0,8 km nel caso peggiore; questa tolleranza è intenzionale e impedisce che ricerche ripetute da
-origini diverse affinino la posizione oltre la griglia mostrata.
-
-La pagina `/map` richiede latitudine, longitudine e un raggio ammesso, conserva i filtri
-nell'URL e usa esattamente lo stesso insieme di risultati sia per i marker sia per la lista
-testuale accessibile. I marker Leaflet mostrano esclusivamente le coordinate approssimate dal
-backend; le tile provengono da OpenStreetMap e durante la demo richiedono una connessione di
-rete. La lista resta disponibile anche se le tile non vengono caricate.
-
-Il dettaglio può ricevere `lat` e `lon` insieme per mostrare la distanza arrotondata dal medesimo
-punto pubblico approssimato. L'apertura della pagina registra una visualizzazione anonima; il
-frontend usa `sessionStorage` per non registrare più volte lo stesso libro durante la medesima
-sessione del browser.
-
-| Zona demo    | Latitudine | Longitudine |
-| ------------ | ---------- | ----------- |
-| Murat        | `41.1171`  | `16.8719`   |
-| Madonnella   | `41.1218`  | `16.8797`   |
-| Poggiofranco | `41.1077`  | `16.8548`   |
-| Carrassi     | `41.1041`  | `16.8623`   |
-| Japigia      | `41.0985`  | `16.8882`   |
-
-Creazione di un libro con copertina usando il cookie ottenuto con il login:
-
-```bash
-curl -b /tmp/geobook.cookies \
-  -F "title=Libro dimostrativo" \
-  -F "author=Autore Fittizio" \
-  -F "publicationYear=2024" \
-  -F 'categoryIds=[1,3]' \
-  -F "cover=@/percorso/copertina.png;type=image/png" \
-  http://localhost:3000/api/v1/books
-```
-
-Le operazioni di creazione e modifica accettano `multipart/form-data`. Il corpo richiede
-`title`, `author` e `publicationYear`; accetta inoltre `description`, `isbn`, `available`,
-`categoryIds` come array JSON e il campo file facoltativo `cover`. La modifica accetta gli
-stessi campi e richiede almeno un metadato o una copertina. Le categorie devono esistere e non
-possono essere duplicate. Le operazioni sulle categorie e sui percorsi delle immagini sono
-atomiche rispetto alla creazione o modifica. Le richieste JSON senza file restano supportate
-per compatibilità con i client esistenti.
-
-La copertina può essere JPEG, PNG o WebP e non può superare il limite configurato da
-`MAX_UPLOAD_BYTES`, pari a 5 MiB nell'esempio. Il backend verifica sia il MIME sia il contenuto
-decodificabile, corregge l'orientamento EXIF e genera due file WebP con nomi casuali: una cover
-entro 1200×1800 pixel e una miniatura 240×360. I file sono serviti sotto `/uploads`, mentre i
-libri privi di immagine usano un placeholder locale. In caso di errore DB, sostituzione o
-cancellazione, il servizio rimuove i file che non devono più essere conservati. Gli upload
-reali presenti in `backend/storage` sono esclusi da Git.
-
-La cancellazione rimuove in cascata associazioni alle categorie e visualizzazioni. Un libro con
-richieste di prestito storiche viene invece conservato e l'API risponde
-`409 BOOK_HAS_LOAN_REQUESTS`, così da non perdere la cronologia.
-
-## Richieste di prestito
-
-Gli endpoint autenticati del workflow sono:
-
-- `POST /api/v1/books/:id/loan-requests`, con `message` facoltativo fino a 500 caratteri;
-- `GET /api/v1/me/loan-requests?direction=incoming|outgoing`;
-- `PATCH /api/v1/loan-requests/:id/status`, con uno stato tra `ACCEPTED`, `REJECTED`,
-  `CANCELLED` e `RETURNED`.
-
-Una richiesta può essere creata solo per un libro altrui disponibile e non può duplicare una
-richiesta `PENDING` dello stesso utente per lo stesso libro. Il proprietario può accettare o
-rifiutare una richiesta in attesa e confermare la restituzione di un prestito accettato; il
-richiedente può annullare soltanto una propria richiesta in attesa. Accettazione e restituzione
-aggiornano la disponibilità del libro nella stessa transazione. Le altre transizioni restituiscono
-`409` senza modificare lo stato. Finché esiste un prestito `ACCEPTED`, il libro non può essere
-reso disponibile manualmente e le altre richieste restano in attesa; dopo la restituzione possono
-essere valutate normalmente.
-
-La pagina protetta `/requests` separa le richieste in entrata e in uscita e mostra solo le azioni
-consentite al ruolo assunto dall'utente nella singola richiesta. I DTO includono nomi visualizzati
-e dati essenziali del libro per le sole parti coinvolte; non espongono email, coordinate o altri
-dati di contatto.
-
-## Dashboard amministrativa
-
-Gli endpoint `GET /api/v1/admin/stats` e `GET /api/v1/admin/recent-activity` richiedono una
-sessione con ruolo `ADMIN`; un utente autenticato senza tale ruolo riceve `403`. Il primo espone
-conteggi di utenti, libri, richieste e prestiti completati, richieste per stato e mese, categorie
-con più libri e libri più visualizzati. Il secondo restituisce gli ultimi cinque utenti, libri e
-richieste.
-
-La pagina `/admin`, raggiungibile dalla voce **Dashboard** visibile agli amministratori, presenta
-gli indicatori principali e due grafici Chart.js. Ogni grafico è accompagnato da una tabella
-testuale con gli stessi valori. Le risposte amministrative omettono password, hash, email,
-coordinate, messaggi delle richieste e altri dati non necessari alla sintesi.
-
-## Verifica e avvio
+## Comandi di verifica
 
 ```bash
 npm run lint
 npm test
 npm run build
 npm run format:check
-npm run dev:frontend
-npm run dev:backend
 ```
 
-`npm run dev:backend` avvia Express in modalità watch. In alternativa, il comando
-`npm start --workspace backend` avvia il server senza watch.
+La pipeline GitHub Actions esegue:
 
-### Smoke test API con PostgreSQL/PostGIS reale
+- su Ubuntu: schema, seed e verifica PostgreSQL/PostGIS, smoke test API, lint, test, controllo
+  della formattazione e build;
+- su Windows: installazione da lockfile, codifica WebP con Sharp, lint, test e build.
 
-Il job CI Ubuntu crea il database isolato `geobook_test`, applica schema e seed e abilita due
-smoke test che attraversano l'intero flusso API, repository e PostGIS. I test verificano una
-ricerca spaziale e la revoca del consenso; ogni caso usa dati fittizi in una transazione annullata
-al termine. Restano disabilitati nella suite locale ordinaria e, anche se abilitati esplicitamente,
-rifiutano qualsiasi database con nome diverso da `geobook_test`.
+### Smoke test con PostgreSQL e PostGIS reali
 
-Per eseguirli localmente occorre creare intenzionalmente un database separato e sacrificabile:
+Gli smoke test usano soltanto il database sacrificabile `geobook_test` e rifiutano nomi diversi.
+Non sostituire questo nome con quello del database di sviluppo.
 
 ```bash
 createdb -h localhost -U geobook geobook_test
@@ -408,51 +200,149 @@ RUN_DATABASE_SMOKE_TESTS=true \
 dropdb -h localhost -U geobook geobook_test
 ```
 
-Questa procedura non deve essere eseguita sostituendo `geobook_test` con il database di sviluppo
-`geobook`.
+## Gestione del database
 
-## Struttura
+### Ripristino dei dati dimostrativi
 
-```text
-geobook/
-|-- frontend/
-|-- backend/
-|-- database/
-|-- docs/
-|-- prog/
-|-- README.md
-|-- package.json
-`-- .gitignore
+`database/reset.sql` elimina i dati applicativi ed è destinato esclusivamente allo sviluppo.
+Per sicurezza rifiuta database con nome diverso da `geobook`.
+
+```bash
+psql postgresql://geobook:geobook@localhost:5432/geobook -f database/reset.sql
+psql postgresql://geobook:geobook@localhost:5432/geobook -f database/schema.sql
+psql postgresql://geobook:geobook@localhost:5432/geobook -f database/seed.sql
+psql postgresql://geobook:geobook@localhost:5432/geobook -f database/verify.sql
 ```
 
-## Privacy
+### Aggiornamento di un database esistente
 
-Il progetto non deve versionare file `.env`, upload reali o dipendenze installate. Le coordinate
-sono salvate soltanto dopo consenso esplicito. La ricerca geografica considera esclusivamente
-utenti con posizione e consenso attivi. Prima di applicare `ST_DWithin` e `ST_Distance` sul tipo
-`geography`, il backend arrotonda la posizione lato database a due decimali, cioè una griglia di
-circa 0,01 gradi. Lo stesso punto approssimato determina appartenenza al raggio, distanza pubblica
-e marker; il punto interno esatto non viene selezionato per il DTO pubblico. La distanza è
-espressa in chilometri e arrotondata a un decimale. La revoca del consenso azzera posizione e
-data del consenso, rendendo i relativi libri assenti dalle ricerche spaziali.
+La migrazione seguente aggiunge la protezione contro più prestiti accettati contemporaneamente
+per lo stesso libro. Prima di applicare i vincoli controlla i dati e interrompe la transazione se
+trova record incompatibili, senza correggerli o eliminarli automaticamente.
 
-## Accessibilità e responsive
+```bash
+psql postgresql://geobook:geobook@localhost:5432/geobook \
+  -f database/migrations/001-enforce-active-loan-invariant.sql
+```
 
-Le pagine usano struttura semantica, un solo titolo principale, etichette esplicite per i campi,
-errori associati ai controlli, focus visibile e un collegamento per saltare alla sezione
-principale. Stati di caricamento, errore e successo sono annunciati con ruoli e regioni live
-pertinenti. La mappa è sempre affiancata da un elenco testuale equivalente e i grafici della
-dashboard dispongono di tabelle con gli stessi valori.
+## Windows PowerShell
 
-I flussi principali sono progettati per viewport da 360, 768 e 1440 px. Su schermi ridotti i
-contenuti a colonne diventano sequenziali, la lista dei risultati precede la mappa e i controlli
-rimangono utilizzabili da tastiera.
+I comandi `npm`, `psql`, `createdb` e `dropdb` restano invariati quando i relativi eseguibili sono
+disponibili nel `PATH`. Per copiare la configurazione:
+
+```powershell
+Copy-Item backend/.env.example backend/.env
+Copy-Item frontend/.env.example frontend/.env
+```
+
+I comandi Bash distribuiti su più righe con `\` possono essere eseguiti su una sola riga oppure
+continuati in PowerShell con l'accento grave `` ` ``.
+
+Verifica del backend:
+
+```powershell
+Invoke-RestMethod -Uri 'http://localhost:3000/api/v1/health'
+```
+
+Smoke test con database isolato:
+
+```powershell
+createdb -h localhost -U geobook geobook_test
+psql postgresql://geobook:geobook@localhost:5432/geobook_test -f database/schema.sql
+$env:RUN_DATABASE_SMOKE_TESTS = 'true'
+$env:DATABASE_URL = 'postgresql://geobook:geobook@localhost:5432/geobook_test'
+npm test --workspace backend -- tests/database-api.smoke.test.js
+Remove-Item Env:RUN_DATABASE_SMOKE_TESTS
+Remove-Item Env:DATABASE_URL
+dropdb -h localhost -U geobook geobook_test
+```
+
+Il job Windows della CI verifica Node.js, Sharp, lint, test e build, ma non installa
+PostgreSQL/PostGIS e non costituisce una prova completa dei comandi PowerShell su una macchina
+Windows.
+
+<details>
+<summary>Esempi API con PowerShell</summary>
+
+Login e riutilizzo della sessione:
+
+```powershell
+$loginBody = @{
+  email = 'user1@example.test'
+  password = 'GeoBookDemo2026!'
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+  -Uri 'http://localhost:3000/api/v1/auth/login' `
+  -Method Post `
+  -ContentType 'application/json' `
+  -Body $loginBody `
+  -SessionVariable geobookSession
+
+Invoke-RestMethod `
+  -Uri 'http://localhost:3000/api/v1/auth/me' `
+  -WebSession $geobookSession
+```
+
+Creazione di un libro con copertina in PowerShell 7:
+
+```powershell
+$bookForm = @{
+  title = 'Libro dimostrativo'
+  author = 'Autore Fittizio'
+  publicationYear = '2024'
+  categoryIds = '[1,3]'
+  cover = Get-Item 'C:\percorso\copertina.png'
+}
+
+Invoke-RestMethod `
+  -Uri 'http://localhost:3000/api/v1/books' `
+  -Method Post `
+  -WebSession $geobookSession `
+  -Form $bookForm
+```
+
+</details>
+
+## Privacy geografica
+
+La posizione viene salvata soltanto dopo consenso esplicito e viene eliminata insieme alla data
+del consenso in caso di revoca. Le API pubbliche non restituiscono coordinate precise, email o
+identità del proprietario.
+
+Il filtro per raggio, la distanza e i marker usano tutti lo stesso punto pubblico arrotondato a due
+decimali. Questa scelta limita l'inferenza della posizione tramite ricerche ripetute, ma non
+equivale ad anonimato assoluto. Vicino al confine del raggio un libro può essere incluso o escluso
+in base al punto approssimato anziché alla coordinata interna.
+
+## Accessibilità
+
+La mappa è accompagnata da una lista testuale equivalente e i grafici amministrativi da tabelle
+con gli stessi valori. I form usano etichette esplicite, errori associati ai controlli e focus
+visibile. Su viewport ridotte la lista dei risultati precede la mappa.
 
 ## Limiti del prototipo
 
-- Le coordinate vengono inserite manualmente: il prototipo non integra geocodifica o selezione
-  della posizione da una mappa.
-- Le tile OpenStreetMap richiedono una connessione di rete; l'elenco equivalente resta comunque
-  disponibile.
-- Richieste e prestiti sono simulati: non sono presenti chat, notifiche, pagamenti o contatti
-  personali.
+- la posizione è inserita manualmente e non viene verificata tramite geocodifica;
+- le immagini sono conservate nel filesystem locale;
+- le tile OpenStreetMap richiedono connettività;
+- prestiti e contatti sono simulati: non sono presenti chat, notifiche o pagamenti;
+- non sono implementati recupero password, cancellazione dell'account o moderazione;
+- il progetto non è configurato per una distribuzione di produzione.
+
+## Struttura del repository
+
+```text
+GeoBook/
+|-- frontend/          applicazione React
+|-- backend/           API Express e storage locale
+|-- database/          schema, seed, verifica, reset e migrazioni
+|-- docs/              diagrammi e screenshot
+|-- package.json       script npm e workspace
+|-- package-lock.json  versioni bloccate delle dipendenze
+`-- README.md
+```
+
+Le motivazioni progettuali, l'analisi dei requisiti, la pianificazione, l'architettura dettagliata
+e la valutazione critica sono raccolte nel rapporto tecnico associato al progetto. Il README resta
+deliberatamente una guida per installare, avviare e provare il prototipo.
